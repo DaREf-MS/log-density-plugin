@@ -29,6 +29,7 @@ sourceSets {
     main {
         java {
             srcDir(".") 
+            exclude("open_source_java_projects")
         }
     }
 }

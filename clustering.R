@@ -1,5 +1,5 @@
 #Libraries to call (install.packages before)
-options(repos = c(CRAN = "https://cran.r-project.org/mirrors.html"))
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
 install.packages("Ckmeans.1d.dp")
 install.packages("stats")
 install.packages("dplyr")
@@ -16,7 +16,7 @@ ckmeans_function <- function(data,column_index,clustersNumber){
     breaks <- Ckmeans.1d.dp(sorted_data,k=clustersNumber)
     result <- data.frame(sorted_data, regression=breaks$cluster-1)
   } else {
-    result <- data.frame(sorted_data, regression=0)
+    result <- data.frame(sorted_data, regression=0) # TODO - this seems to crash
   }
   return(result)
 }
@@ -24,6 +24,8 @@ ckmeans_function <- function(data,column_index,clustersNumber){
 
 args <- commandArgs(trailingOnly = TRUE)
 inputPath <- paste(getwd(), "/", args, "_MLdata_FileLevel.csv", sep = "")
+print("here is the input path")
+print(inputPath)
 log_density_metrics <- na.omit(read.csv(inputPath, header=TRUE, sep=","))
 data <- data.frame(logDensity = log_density_metrics$logDensity)
 data <- data.frame(logDensity = data[data$logDensity>0,])

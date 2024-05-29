@@ -16,7 +16,7 @@ from sklearn.metrics import roc_auc_score, accuracy_score
 from sklearn.utils import resample
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.layers import Dense, Dropout, Embedding, LSTM
+from tensorflow.keras.layers import Dense, Dropout, Embedding, LSTM
 
 seed_value = 128
 os.environ['PYTHONHASHSEED'] = str(seed_value)
