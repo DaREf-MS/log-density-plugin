@@ -1,5 +1,6 @@
 #Libraries to call (install.packages before)
-options(repos = c(CRAN = "https://cran.r-project.org/mirrors.html"))
+#options(repos = c(CRAN = "https://cran.r-project.org/mirrors.html"))
+options(repos = c(CRAN = "https://cran.r-project.org/"))
 install.packages("Ckmeans.1d.dp")
 install.packages("stats")
 install.packages("dplyr")
