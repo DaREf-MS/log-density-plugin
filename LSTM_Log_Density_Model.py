@@ -193,6 +193,7 @@ def train_test_density_lstm(project, n_symbols, embedding_weights, x_train, y_tr
 def divide_ML_Data_to_pos_and_neg(project):
         inputFile = project + '_MLdata_FileLevel_WithClusters.csv'
         df = pd.read_csv(inputFile, delimiter=',', engine='python', on_bad_lines='skip')
+        df['Nodes'] = df['syn_feat'] + ' ' + df['sem_feat']
         pos_df = df[df['class'] > 0][['filename', 'Nodes', 'class']]
         pos_df.to_csv('pos_' + project + '_FileLevel_WithClusters.csv')
         neg_df = df[df['class'] == 0][['filename', 'Nodes', 'class']]
