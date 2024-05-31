@@ -90,7 +90,7 @@ public class JavaASTExtract {
         Path path = Paths.get(project);
         System.out.println(path.toAbsolutePath().toString());
         CSVWriter writer = new CSVWriter(new FileWriter(
-            Paths.get(path.getParent().toAbsolutePath(), path.getFileName().toString() + "_MLdata_FileLevel.csv").toString()
+            Paths.get(path.getParent().toAbsolutePath().toString(), path.getFileName().toString() + "_MLdata_FileLevel.csv").toString()
             ));
         String[] header = {"filename", "block", "syn_feat", "sem_feat", "logDensity"};
         writer.writeNext(header);

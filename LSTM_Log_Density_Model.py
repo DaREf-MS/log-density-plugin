@@ -31,7 +31,7 @@ n_iterations = 1
 n_exposures = 10
 window_size = 7
 batch_size = 24
-n_epoch = 1
+n_epoch = 1 # plus grand pour meilleure qualite 50 recommande
 n_fold = 10  # how many folds, basically should be set to 10
 input_length = 100
 cpu_count = multiprocessing.cpu_count()
@@ -61,8 +61,8 @@ def tokenizer(text):
     return newText
 
 
-def input_transform(project, words):
-    model = Word2Vec.load('Word2vec_model_' + project + '.pkl')
+def input_transform(project_name, path, words):
+    model = Word2Vec.load(path + 'Word2vec_model_' + project_name + '.pkl')
     _, _, dictionaries = create_dictionaries(model, words)
     return dictionaries
 
@@ -101,13 +101,13 @@ def create_dictionaries(model=None, combined=None):
         return w2indx, w2vec, combined
 
 
-def word2vec_train(combined, project):
+def word2vec_train(combined, project_name, path):
     model = Word2Vec(vector_size=vocab_dim,  # dimension of word embedding vectors
                      min_count=n_exposures,
                      window=window_size,
                      workers=cpu_count, sg=1)
     model.build_vocab(combined)
-    model.save('Word2vec_model_' + project + '.pkl')
+    model.save(path + 'Word2vec_model_' + project_name + '.pkl')
     index_dict, word_vectors, combined = create_dictionaries(model=model, combined=combined)
     return index_dict, word_vectors, combined
 
@@ -121,7 +121,7 @@ def get_data(index_dict, word_vectors, combined):
     return n_symbols, embedding_weights
 
 
-def train_test_density_lstm(project, n_symbols, embedding_weights, x_train, y_train, x_test, y_test):
+def train_test_density_lstm(project_name, path, n_symbols, embedding_weights, x_train, y_train, x_test, y_test):
     model = Sequential()
     model.add(Embedding(output_dim=vocab_dim,
                         input_dim=n_symbols,
@@ -140,13 +140,13 @@ def train_test_density_lstm(project, n_symbols, embedding_weights, x_train, y_tr
 
     print('Evaluating the Density Model...')
     score = model.evaluate(x_test, y_test, batch_size=batch_size)
-
+    
     json_string = model.to_json()
-    with open('log_density_model_' + project + '.json', 'w') as outfile:
+    with open(path + 'log_density_model_' + project_name + '.json', 'w') as outfile:
         json.dump(json_string, outfile)
-    model.save_weights('log_density_weights_' + project + '.h5')
+    model.save_weights(path + 'log_density_weights_' + project_name + '.weights.h5')
     np.set_printoptions(threshold=sys.maxsize)
-
+    
     print('Test score:', score, model.metrics_names)
 
     label_predicted_probs = model.predict(x_test, batch_size=batch_size, verbose=1)
@@ -170,7 +170,7 @@ def train_test_density_lstm(project, n_symbols, embedding_weights, x_train, y_tr
 
     vector_to_value = {tuple(np.array(v)): k for k, v in value_to_vector.items()}
 
-    with open('log_density_predicted_labels_' + project + '.txt', 'wt') as f:
+    with open(path + 'log_density_predicted_labels_' + project_name + '.txt', 'wt') as f:
         for data in label_predicted:
             result = vector_to_value.get(tuple(data), None)
             if result:
@@ -178,11 +178,11 @@ def train_test_density_lstm(project, n_symbols, embedding_weights, x_train, y_tr
             else:
                 f.write('0\n')
 
-    with open('log_density_target_labels_' + project + '.txt', 'wt') as f:
+    with open(path + 'log_density_target_labels_' + project_name + '.txt', 'wt') as f:
         for data in y_test:
             f.write(str(data) + '\n')
 
-    with open('log_density_results_' + project + '.txt', 'wt') as f:
+    with open(path + 'log_density_results_' + project_name + '.txt', 'wt') as f:
         f.write('Test score:' + str(score) + '  ' + str(model.metrics_names) + '\n')
         f.write('Accuracy: ' + str(val_accuracy) + '\n')
         f.write('AUC: ' + str(val_auc) + '\n')
@@ -190,16 +190,17 @@ def train_test_density_lstm(project, n_symbols, embedding_weights, x_train, y_tr
     return model
 
 
-def divide_ML_Data_to_pos_and_neg(project):
-        inputFile = project + '_MLdata_FileLevel_WithClusters.csv'
+def divide_ML_Data_to_pos_and_neg(project_name, path):
+        inputFile = path + project_name + '_MLdata_FileLevel_WithClusters.csv'
         df = pd.read_csv(inputFile, delimiter=',', engine='python', on_bad_lines='skip')
+        df['Nodes'] = df['syn_feat'] + ' ' + df['sem_feat']
         pos_df = df[df['class'] > 0][['filename', 'Nodes', 'class']]
-        pos_df.to_csv('pos_' + project + '_FileLevel_WithClusters.csv')
+        pos_df.to_csv(path + 'pos_' + project_name + '_FileLevel_WithClusters.csv')
         neg_df = df[df['class'] == 0][['filename', 'Nodes', 'class']]
-        neg_df.to_csv('neg_' + project + '_FileLevel_WithClusters.csv')
+        neg_df.to_csv(path + 'neg_' + project_name + '_FileLevel_WithClusters.csv')
 
 
-def read_syn_nodes(project):
+def read_syn_nodes(project_name, path):
     def combine_lists(s):
         try:
             list_values = ast.literal_eval(s)
@@ -207,7 +208,7 @@ def read_syn_nodes(project):
         except (SyntaxError, ValueError):
             return []
 
-    df = pd.read_csv(project + '_MLdata_FileLevel_WithClusters.csv', delimiter=',', engine='python', on_bad_lines='skip')
+    df = pd.read_csv(path + project_name + '_MLdata_FileLevel_WithClusters.csv', delimiter=',', engine='python', on_bad_lines='skip')
     df['combined_syn_feat'] = df['syn_feat'].apply(combine_lists)
     syntactic_nodes = list(set([item for sublist in df['combined_syn_feat'] for item in sublist]))
 
@@ -217,6 +218,9 @@ def read_syn_nodes(project):
 if __name__ == '__main__':
     project = sys.argv[1]
     print(project)
+    
+    project_name = os.path.basename(project)
+    path = os.path.dirname(project) + "/"
 
     # Path to the R script
     r_script_path = "clustering.R"
@@ -224,11 +228,11 @@ if __name__ == '__main__':
     result = subprocess.run(["Rscript", r_script_path, project], capture_output=True, text=True)
 
     print('Loading Data...')
-    divide_ML_Data_to_pos_and_neg(project)
-    syntactic_nodes = read_syn_nodes(project)
+    divide_ML_Data_to_pos_and_neg(project_name, path)
+    syntactic_nodes = read_syn_nodes(project_name, path)
 
-    neg_full = pd.read_csv('neg_' + project + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
-    pos_full = pd.read_csv('pos_' + project + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
+    neg_full = pd.read_csv(path + 'neg_' + project_name + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
+    pos_full = pd.read_csv(path + 'pos_' + project_name + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
     y = pd.concat([pos_full, neg_full], axis=0)['class'].to_numpy()
 
     neg = neg_full['Nodes'].values.tolist()
@@ -270,15 +274,15 @@ if __name__ == '__main__':
     x_test_tokenized = tokenizer(x_test)
 
     print('Training a Word2vec model...')
-    index_dict, word_vectors, x_transformed = word2vec_train(x_train_tokenized, project)
-    x_train_transformed = input_transform(project, x_train_tokenized)
-    x_test_transformed = input_transform(project, x_test_tokenized)
+    index_dict, word_vectors, x_transformed = word2vec_train(x_train_tokenized, project_name, path)
+    x_train_transformed = input_transform(project_name, path, x_train_tokenized)
+    x_test_transformed = input_transform(project_name, path, x_test_tokenized)
 
     print('Setting up Arrays for Keras Embedding Layer...')
     n_symbols, embedding_weights = get_data(index_dict, word_vectors, x_train_tokenized)
 
     # Running the density model
-    density_model = train_test_density_lstm(project, n_symbols, embedding_weights, x_train_transformed, y_train, x_test_transformed, y_test)
+    density_model = train_test_density_lstm(project_name, path, n_symbols, embedding_weights, x_train_transformed, y_train, x_test_transformed, y_test)
 
 
 #INPUT: project + '_MLdata_FileLevel_WithClusters.csv'
