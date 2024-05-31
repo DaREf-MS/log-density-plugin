@@ -1,4 +1,5 @@
-package org.example;
+// package org.example;
+
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.Range;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class JavaASTExtract {
     private static List<String> getAllFilesInFolderAndSubfolders(File folder) {
@@ -48,8 +51,7 @@ public class JavaASTExtract {
 
     private static String readFile(String filePath){
         String fileContent = "";
-        try {
-            Scanner reader = new Scanner(new FileReader(filePath));
+        try (Scanner reader = new Scanner(new FileReader(filePath));) {
             while (reader.hasNextLine()){
                 fileContent += reader.nextLine().replaceAll("\n", " ") + "\n";
             }
@@ -84,8 +86,12 @@ public class JavaASTExtract {
 
     public static void main(String[] args) throws Exception {
         String project = args[0];
-        System.out.println(project);
-        CSVWriter writer = new CSVWriter(new FileWriter(project + "_MLdata_FileLevel.csv"));
+        
+        Path path = Paths.get(project);
+        System.out.println(path.toAbsolutePath().toString());
+        CSVWriter writer = new CSVWriter(new FileWriter(
+            Paths.get(path.getParent().toAbsolutePath().toString(), path.getFileName().toString() + "_MLdata_FileLevel.csv").toString()
+            ));
         String[] header = {"filename", "block", "syn_feat", "sem_feat", "logDensity"};
         writer.writeNext(header);
 
@@ -487,5 +493,7 @@ public class JavaASTExtract {
                 else System.out.println(e.getMessage());
             }
         }
+        writer.flush();
+        writer.close();
     }
 }
