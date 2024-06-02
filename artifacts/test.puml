@@ -1,5 +1,5 @@
 @startuml
-title Vue architecturale de type allocation - Performance
+title Diagramme de composants - Dev
 
 node "Machine de l'utilisateur" as machine {
     node "VS Code" as IDE {
