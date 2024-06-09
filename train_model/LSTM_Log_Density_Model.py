@@ -140,7 +140,7 @@ def train_test_density_lstm(project_name, path, n_symbols, embedding_weights, x_
 
     print('Evaluating the Density Model...')
     score = model.evaluate(x_test, y_test, batch_size=batch_size)
-    
+    # y_prediction = model.predict(x)
     json_string = model.to_json()
     with open(path + 'log_density_model_' + project_name + '.json', 'w') as outfile:
         json.dump(json_string, outfile)

@@ -29,11 +29,11 @@ dans le container. On peut s'en servir pour acceder à des dossiers de projets j
 
 pour rouler le code java dans le container sur un dossier de projet java on peut faire
 ```sh
-/java_code/build/install/java_code/bin/java_code /dossier_host/open_source_java_projects/some_java_project_folder
+/preprocess_project/bin/preprocess_project ../dossier_host/open_source_java_projects/some_java_project_folder
 ```
 où l'argument est le path vers le dossier du code java à analyser.
 
 pour rouler le script python qui utilise les données produites par le java:
 ```sh
-python3 LSTM_Log_Density_Model.py /dossier_host/open_source_java_projects/some_java_project_folder
+python3 LSTM_Log_Density_Model.py ../dossier_host/open_source_java_projects/some_java_project_folder
 ```
