@@ -15,13 +15,18 @@ P.S: the R script will be executed automatically once you run the LSTM_Log_Densi
 
 Il y un Dockerfile qui installe toutes les dépendances et qui permet de rouler les différents scripts:
 pour le build:
+
+```sh
+cd backend
+```
+
 ```sh
 docker build -t pfe-app-image .
 ```
 
 pour rouler une invite de command bash:
 ```sh
-docker run -it -v .:/dossier_host pfe-app-image /usr/bin/bash
+docker run -it -v ./..:/dossier_host pfe-app-image /usr/bin/bash
 ```
 
 Cette dernière command donne accès au dossier courant (lorsque la commande est lancé) à travers du folder /dossier_host
@@ -29,13 +34,13 @@ dans le container. On peut s'en servir pour acceder à des dossiers de projets j
 
 pour rouler le code java dans le container sur un dossier de projet java on peut faire
 ```sh
-/preprocess_project/bin/preprocess_project ../dossier_host/open_source_java_projects/some_java_project_folder
+preprocess_project ../../dossier_host/open_source_java_projects/some_java_project_folder
 ```
 où l'argument est le path vers le dossier du code java à analyser.
 
 pour rouler le script python qui utilise les données produites par le java:
 ```sh
-python3 LSTM_Log_Density_Model.py ../dossier_host/open_source_java_projects/some_java_project_folder
+python3 LSTM_Log_Density_Model.py /dossier_host/open_source_java_projects/some_java_project_folder
 ```
 
 Je recommande d'utiliser l'extension Dev Containers de VScode pour debug le code qui roule dans le container.

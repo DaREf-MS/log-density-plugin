@@ -8,6 +8,7 @@
 
 plugins {
     application 
+    
 }
 
 repositories {
@@ -25,11 +26,22 @@ application {
     mainClass.set("JavaASTExtract") 
 }
 
+// tasks.register<JavaExec>("secondExecutable") {
+//     classpath = sourceSets.main.get().runtimeClasspath
+//     main = "com.example.SecondMainClass" // Specify the main class for the second executable
+// }
+
 sourceSets {
     main {
         java {
             srcDir(".") 
             exclude("open_source_java_projects")
         }
+    }
+}
+
+java {
+    toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
