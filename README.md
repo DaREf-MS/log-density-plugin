@@ -37,3 +37,5 @@ pour rouler le script python qui utilise les données produites par le java:
 ```sh
 python3 LSTM_Log_Density_Model.py ../dossier_host/open_source_java_projects/some_java_project_folder
 ```
+
+Je recommande d'utiliser l'extension Dev Containers de VScode pour debug le code qui roule dans le container.

@@ -17,6 +17,9 @@ from sklearn.utils import resample
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Embedding, LSTM
+import pickle
+
+from preprocessing import word_splitter, tokenizer, input_transform, create_dictionaries
 
 seed_value = 128
 os.environ['PYTHONHASHSEED'] = str(seed_value)
@@ -26,7 +29,7 @@ csv.field_size_limit(100000000)
 sys.setrecursionlimit(1000000)
 # set parameters:
 vocab_dim = 100
-maxlen = 100
+
 n_iterations = 1
 n_exposures = 10
 window_size = 7
@@ -35,71 +38,7 @@ n_epoch = 1 # plus grand pour meilleure qualite 50 recommande
 n_fold = 10  # how many folds, basically should be set to 10
 input_length = 100
 cpu_count = multiprocessing.cpu_count()
-syntactic_nodes = []
-
-
-def word_splitter(word, docText):
-    splitted = re.sub('([A-Z][a-z]+)', r' \1', re.sub('([A-Z]+)', r' \1', word)).split()
-    for word in splitted:
-        docText.append(word.lower())
-
-
-def tokenizer(text):
-    ''' Simple Parser converting each document to lower-case, then
-        removing the breaks for new lines and finally splitting on the
-        whitespace
-    '''
-    newText = []
-    for doc in text:
-        docText = []
-        for word in str(doc).replace("'", "").replace("[", "").replace("]", "").replace(",", "").replace('"', "").split(' '):
-            if word not in syntactic_nodes:
-                word_splitter(word, docText)
-            else:
-                docText.append(word)
-        newText.append(docText)
-    return newText
-
-
-def input_transform(project_name, path, words):
-    model = Word2Vec.load(path + 'Word2vec_model_' + project_name + '.pkl')
-    _, _, dictionaries = create_dictionaries(model, words)
-    return dictionaries
-
-
-def create_dictionaries(model=None, combined=None):
-    ''' Function does are number of Jobs:
-        1- Creates a word to index mapping
-        2- Creates a word to vector mapping
-        3- Transforms the Training and Testing Dictionaries
-
-    '''
-    from keras.preprocessing import sequence
-
-    if (combined is not None) and (model is not None):
-        gensim_dict = Dictionary()
-        gensim_dict.doc2bow(model.wv.index_to_key, allow_update=True)
-        w2indx = {v: k + 1 for k, v in gensim_dict.items()}
-        w2vec = {word: model.wv[word] for word in w2indx.keys()}
-
-        def parse_dataset(combined):
-            ''' Words become integers
-            '''
-            data = []
-            for sentence in combined:
-                new_txt = []
-                for word in sentence:
-                    try:
-                        new_txt.append(w2indx[word])
-                    except:
-                        new_txt.append(0)
-                data.append(new_txt)
-            return data
-
-        combined = parse_dataset(combined)
-        combined = sequence.pad_sequences(combined, maxlen=maxlen)
-        return w2indx, w2vec, combined
-
+syntactic_nodes = set()
 
 def word2vec_train(combined, project_name, path):
     model = Word2Vec(vector_size=vocab_dim,  # dimension of word embedding vectors
@@ -203,20 +142,20 @@ def divide_ML_Data_to_pos_and_neg(project_name, path):
 def read_syn_nodes(project_name, path):
     def combine_lists(s):
         try:
-            list_values = ast.literal_eval(s)
+            list_values = s.replace("[", "").replace("]", "").replace(" ", "").split(",")
             return list_values
-        except (SyntaxError, ValueError):
+        except (SyntaxError, ValueError) as e:
             return []
 
     df = pd.read_csv(path + project_name + '_MLdata_FileLevel_WithClusters.csv', delimiter=',', engine='python', on_bad_lines='skip')
     df['combined_syn_feat'] = df['syn_feat'].apply(combine_lists)
-    syntactic_nodes = list(set([item for sublist in df['combined_syn_feat'] for item in sublist]))
+    syntactic_nodes = set([item for sublist in df['combined_syn_feat'] for item in sublist])
 
     return syntactic_nodes
 
 
 if __name__ == '__main__':
-    project = sys.argv[1]
+    project = "../dossier_host/open_source_java_projects/proj_tomcat/tomcat"#sys.argv[1]
     print(project)
     
     project_name = os.path.basename(project)
@@ -225,11 +164,15 @@ if __name__ == '__main__':
     # Path to the R script
     r_script_path = "clustering.R"
     # Run the R script
-    result = subprocess.run(["Rscript", r_script_path, project], capture_output=True, text=True)
+    #result = subprocess.run(["Rscript", r_script_path, project], capture_output=True, text=True)
 
     print('Loading Data...')
     divide_ML_Data_to_pos_and_neg(project_name, path)
     syntactic_nodes = read_syn_nodes(project_name, path)
+    
+    # save for use later while preprocessing input for the model
+    with open(os.path.join(path, 'syntactic_nodes.pkl'), 'wb') as file:
+        pickle.dump(syntactic_nodes, file)
 
     neg_full = pd.read_csv(path + 'neg_' + project_name + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
     pos_full = pd.read_csv(path + 'pos_' + project_name + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
@@ -269,9 +212,9 @@ if __name__ == '__main__':
     y_test = np.array([value_to_vector[value] for value in y_test])
 
     print('Tokenizing for Density Model...')
-    x_tokenized = tokenizer(x)
-    x_train_tokenized = tokenizer(x_train)
-    x_test_tokenized = tokenizer(x_test)
+    x_tokenized = tokenizer(x, syntactic_nodes)
+    x_train_tokenized = tokenizer(x_train, syntactic_nodes)
+    x_test_tokenized = tokenizer(x_test, syntactic_nodes)
 
     print('Training a Word2vec model...')
     index_dict, word_vectors, x_transformed = word2vec_train(x_train_tokenized, project_name, path)
