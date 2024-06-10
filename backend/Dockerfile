@@ -13,6 +13,7 @@ RUN $JAVA_HOME/bin/jlink \
          --compress=2 \
          --output /javaruntime
 
+# TODO - Is this really necessary? can't we just build locally and copy the executable into the docker? java is supposed to be compile once run anywhere
 # build java thing
 WORKDIR /java_code
 COPY ./preprocess_project /java_code 

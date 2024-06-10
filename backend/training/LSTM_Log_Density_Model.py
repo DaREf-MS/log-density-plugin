@@ -168,8 +168,12 @@ if __name__ == '__main__':
     # Path to the R script
     r_script_path = "clustering.R"
     # Run the R script
-    #result = subprocess.run(["Rscript", r_script_path, project], capture_output=True, text=True)
-
+    result = subprocess.run(["Rscript", r_script_path, path], capture_output=True, text=True)
+    thresholds = [float(numstr) for numstr in re.findall(r'threshold\d:\s+([\d\.]+)', result, re.MULTILINE)]
+    # save percentage thresholds to know the target percentage of classes
+    with open(os.path.join(path, 'log_density_classes_thresholds.pkl'), 'wb') as file:
+        pickle.dump(thresholds)
+    
     print('Loading Data...')
     divide_ML_Data_to_pos_and_neg(project_name, path)
     syntactic_nodes = read_syn_nodes(project_name, path)
