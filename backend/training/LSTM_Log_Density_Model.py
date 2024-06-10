@@ -19,6 +19,10 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Embedding, LSTM
 import pickle
 
+# Add the parent directory to the Python path
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
+print("appended:", parent_dir)
 from preprocessing import word_splitter, tokenizer, input_transform, create_dictionaries
 
 seed_value = 128
@@ -155,7 +159,7 @@ def read_syn_nodes(project_name, path):
 
 
 if __name__ == '__main__':
-    project = "../dossier_host/open_source_java_projects/proj_tomcat/tomcat"#sys.argv[1]
+    project = "/dossier_host/open_source_java_projects/proj_tomcat/tomcat"#sys.argv[1]
     print(project)
     
     project_name = os.path.basename(project)
