@@ -1,5 +1,5 @@
 # =================================================================================================================
-
+# build from ./backend folder
 # STAGE: build JRE, build java, version >11 
 FROM eclipse-temurin:21 as jre_build
 
@@ -26,7 +26,8 @@ FROM python:3.12-slim AS python_requirements
 # install poetry
 RUN pip install poetry
 WORKDIR /poetry_project
-ADD ./train_model /poetry_project 
+COPY ./poetry.lock /poetry_project/
+COPY ./pyproject.toml /poetry_project/
 RUN poetry export -f requirements.txt --output /poetry_project/requirements.txt
 
 # =================================================================================================================
@@ -62,7 +63,7 @@ COPY --from=python_requirements /poetry_project/requirements.txt /train_model/
 RUN pip install --no-cache-dir -r /train_model/requirements.txt
 
 # copy python script and R script
-COPY ./train_model .
+COPY ./training .
 
 
 
