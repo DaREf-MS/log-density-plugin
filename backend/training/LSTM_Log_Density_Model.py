@@ -159,7 +159,7 @@ def read_syn_nodes(project_name, path):
 
 
 if __name__ == '__main__':
-    project = "/dossier_host/open_source_java_projects/proj_tomcat/tomcat"#sys.argv[1]
+    project = "/dossier_host/kafka_project/kafka"#sys.argv[1]
     print(project)
     
     project_name = os.path.basename(project)
@@ -169,10 +169,10 @@ if __name__ == '__main__':
     r_script_path = "clustering.R"
     # Run the R script
     result = subprocess.run(["Rscript", r_script_path, path], capture_output=True, text=True)
-    thresholds = [float(numstr) for numstr in re.findall(r'threshold\d:\s+([\d\.]+)', result, re.MULTILINE)]
+    thresholds = [float(numstr) for numstr in re.findall(r'threshold\d:\s+([\d\.]+)', result.stdout, re.MULTILINE)]
     # save percentage thresholds to know the target percentage of classes
     with open(os.path.join(path, 'log_density_classes_thresholds.pkl'), 'wb') as file:
-        pickle.dump(thresholds)
+        pickle.dump(thresholds, file)
     
     print('Loading Data...')
     divide_ML_Data_to_pos_and_neg(project_name, path)
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     
     # save for use later while preprocessing input for the model
     with open(os.path.join(path, 'syntactic_nodes.pkl'), 'wb') as file:
-        pickle.dump(syntactic_nodes, file)
+        pickle.dump(syntactic_nodes, file)   
 
     neg_full = pd.read_csv(path + 'neg_' + project_name + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
     pos_full = pd.read_csv(path + 'pos_' + project_name + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')

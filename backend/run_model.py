@@ -68,10 +68,10 @@ def preprocess_file(filepath, syntactic_nodes, project_dir):
     return {**preprocessed_file_json, "blocks": blocks}
 
 # TODO - remove hardcoded project dirs
-project_dir = "/dossier_host/open_source_java_projects/proj_tomcat/tomcat" #sys.argv[2]
+project_dir = "/dossier_host/kafka_project/kafka" #sys.argv[2]
 syn = load_syntactic_nodes(project_dir)
 
-test_file = "/dossier_host/open_source_java_projects/proj_tomcat/tomcat/java/org/apache/catalina/ha/deploy/WarWatcher.java"
+test_file = "/dossier_host/kafka_project/kafka/clients/src/main/java/org/apache/kafka/clients/admin/internals/AbortTransactionHandler.java"
 preprocessed_file = preprocess_file(test_file, syn, project_dir)
 
 import numpy as np
@@ -84,8 +84,8 @@ log_level_per_block = np.argmax(y, axis=1)
 print(log_level_per_block)
 print([block["blockLineStart"] for block in preprocessed_file['blocks']])
 
-average_class = 
-prediced_class = int()
+average_class = np.average(log_level_per_block)
+prediced_class = round(average_class)
 print(prediced_class)
 
 log_density_classes = [
