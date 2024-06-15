@@ -220,7 +220,7 @@ if __name__ == '__main__':
     y_test = np.array([value_to_vector[value] for value in y_test])
 
     print('Tokenizing for Density Model...')
-    x_tokenized = tokenizer(x, syntactic_nodes)
+    # x_tokenized = tokenizer(x, syntactic_nodes)
     x_train_tokenized = tokenizer(x_train, syntactic_nodes)
     x_test_tokenized = tokenizer(x_test, syntactic_nodes)
 

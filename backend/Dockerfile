@@ -37,8 +37,10 @@ RUN poetry export -f requirements.txt --output /poetry_project/requirements.txt
 # make this 3.11-slim in the future
 FROM python:3.11
 
-# install python-pip
-RUN apt-get update && apt-get install -y python3-pip
+# install python requirements (using the requirements.txt made in earlier stage)
+WORKDIR /app
+COPY --from=python_requirements /poetry_project/requirements.txt /app/
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Install R
 WORKDIR /r_install
@@ -58,11 +60,6 @@ ENV PATH $PATH:$JAVA_HOME/bin
 WORKDIR /preprocess_project
 COPY --from=jre_build /java_code/build/install/preprocess_project /preprocess_project/
 ENV PATH $PATH:/preprocess_project/bin
-
-# install python requirements (using the requirements.txt made in earlier stage)
-WORKDIR /app
-COPY --from=python_requirements /poetry_project/requirements.txt /app/
-RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # copy python script and R script
 COPY . /app 

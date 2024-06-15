@@ -95,10 +95,11 @@ public class JavaASTExtract {
         // }
 
         // String project = "/home/fire/Documents/PFE/PFE_Server/open_source_java_projects/proj_tomcat/tomcat"; //args[args.length - 1];
-        String project = "/home/fire/Documents/PFE/PFE_Server/open_source_java_projects/proj_tomcat/tomcat/java/org/apache/catalina/ha/deploy/WarWatcher.java"; 
-        
+        // String project = "/home/fire/Documents/PFE/PFE_Server/open_source_java_projects/proj_tomcat/tomcat/java/org/apache/catalina/ha/deploy/WarWatcher.java"; 
+        String project = args[args.length - 1];
+
         Path path = Paths.get(project);
-        System.out.println("the path:\n" + path.toAbsolutePath().toString());
+        // System.out.println("the path:\n" + path.toAbsolutePath().toString());
         File file = path.toFile();
         
         if (file.exists()) {
@@ -168,9 +169,10 @@ public class JavaASTExtract {
                         "nodes": "%s",
                         "methodStart": %d,
                         "blockLineStart": %d,
-                        "blockLineEnd": %d
+                        "blockLineEnd": %d,
+                        "type": "%s"
                     } 
-                """, nodes, block.methodStart, block.blockStart, block.blockEnd);
+                """, nodes, block.methodStart, block.blockStart, block.blockEnd, block.type);
             return str;
         }).collect(Collectors.joining(",\n"));
         

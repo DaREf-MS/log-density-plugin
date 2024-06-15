@@ -28,13 +28,6 @@ def load_model(project_dir):
         
     return loaded_model
 
-## Treat file/part-of-it after java did its thing
-x_example = '[MethodDeclaration, MethodCallExpr, ReturnStmt, FieldAccessExpr] [String, getAddress, getBind, host]'
-import numpy
-x_transformed=numpy.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                           0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                           0,0,26,25,30,16,3330,1466,108,1466,354,1585],dtype=numpy.int32)
-
 def load_syntactic_nodes(project_dir):
     print("LOADING SYNTATIC NODES")
     syntactic_nodes = None
@@ -52,20 +45,56 @@ def preprocess_nodes(x, syntactic_nodes, project_dir):
     
     return x_transformed
 
-# TODO - remove this
+import subprocess
+import pprint
+import json
+import pandas
+def preprocess_file(filepath, syntactic_nodes, project_dir):
+    
+    # obtain nodes from Java thing
+    result = subprocess.run(["preprocess_project", filepath], capture_output=True, text=True)
+    
+    preprocessed_file_json = json.loads(result.stdout)
+    blocks_table = pandas.DataFrame(preprocessed_file_json["blocks"])
+    
+    nodes = blocks_table['nodes'].to_list()
+    
+    x = preprocess_nodes(nodes, syntactic_nodes, project_dir)
+    
+    blocks_table = blocks_table.drop('nodes', axis=1)
+    blocks_table['x'] = [*x]
+    
+    blocks = blocks_table.to_dict(orient='records')
+    return {**preprocessed_file_json, "blocks": blocks}
+
+# TODO - remove hardcoded project dirs
 project_dir = "/dossier_host/open_source_java_projects/proj_tomcat/tomcat" #sys.argv[2]
 syn = load_syntactic_nodes(project_dir)
-print(syn)
 
-x = preprocess_nodes([x_example], syn, project_dir)
+test_file = "/dossier_host/open_source_java_projects/proj_tomcat/tomcat/java/org/apache/catalina/ha/deploy/WarWatcher.java"
+preprocessed_file = preprocess_file(test_file, syn, project_dir)
 
-print(x[0])
-print(x_transformed)
-
-assert numpy.all(x[0] == x_transformed)
-
+import numpy as np
 model = load_model(project_dir)
-print(model)
-
+x = np.array([block["x"] for block in preprocessed_file['blocks']])
+print(x)
 y = model.predict(x)
 print(y)
+log_level_per_block = np.argmax(y, axis=1)
+print(log_level_per_block)
+print([block["blockLineStart"] for block in preprocessed_file['blocks']])
+
+average_class = 
+prediced_class = int()
+print(prediced_class)
+
+log_density_classes = [
+    "No logs",
+    "Very low log density",
+    "Low log density",
+    "Medium log density",
+    "High log density",
+    "Very High log density"
+]
+
+print(log_density_classes[prediced_class])
