@@ -180,7 +180,7 @@ if __name__ == '__main__':
     
     # save for use later while preprocessing input for the model
     with open(os.path.join(path, 'syntactic_nodes.pkl'), 'wb') as file:
-        pickle.dump(syntactic_nodes, file)
+        pickle.dump(syntactic_nodes, file)   
 
     neg_full = pd.read_csv(path + 'neg_' + project_name + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
     pos_full = pd.read_csv(path + 'pos_' + project_name + '_FileLevel_WithClusters.csv', usecols=[1, 2, 3], engine='python')
