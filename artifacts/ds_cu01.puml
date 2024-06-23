@@ -1,0 +1,27 @@
+@startuml
+title DS - CU01 Créer un modèle AI
+skinparam style strictuml
+
+participant ":PlugInClass?" as plugin
+participant ":MainApp" as main
+participant ":ModelController" as modelController
+participant ":model_generator" as model_generator
+
+-> plugin : POST create_model(repo_url)
+
+plugin -> main : create_model(repo_url)
+main -> modelController : create_model(repo_url)
+modelController -> model_generator
+
+loop Création de modèle incomplète
+    model_generator --> modelController : Progression de la\ncréation de modèle
+    modelController --> main : Progression de la\ncréation de modèle
+    main --> plugin : Progression de la\ncréation de modèle
+    <-- plugin : Progression de la\ncréation de modèle
+end
+
+model_generator --> modelController : Message de confirmation\nde création de modèle
+modelController --> main : Message de confirmation\nde création de modèle
+main --> plugin : Message de confirmation\nde création de modèle
+<-- plugin : Message de confirmation\nde création de modèle
+@enduml

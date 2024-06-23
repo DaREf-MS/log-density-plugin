@@ -1,0 +1,50 @@
+@startuml
+
+title Diagramme de classes
+
+package PlugIn {
+    class "PlugInClass" as tbd {
+        +repo_url: str
+        +repo_name: str
+        +create_model()
+        +analyze_file()
+        +analyze_method()
+    }
+}
+
+package "FastAPI App" {
+    class MainApp {
+        +app: FastAPI
+        +run()
+    }
+
+    package Controllers {
+        class ModelController {
+            +create(repo_url: str)
+        }
+
+        class AnalysisController {
+            +analyze_file(repo_name: str, filename: str)
+            +analyze_method(repo_name: str, filename: str, method: str)
+        }
+    }
+
+    package services {
+        class model_generator
+        class run_model
+        class model_loader {
+            +find_model(repo_name: str)
+        }
+    }
+}
+
+tbd --> MainApp
+
+MainApp --> ModelController
+MainApp --> AnalysisController
+
+ModelController --> model_generator
+AnalysisController --> run_model
+AnalysisController --> model_loader
+
+@enduml
