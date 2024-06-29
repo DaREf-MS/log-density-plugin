@@ -4,19 +4,13 @@ from git import Repo
 import os
 import subprocess
 
-class ProjectUrl(BaseModel):
-    url: str
-
-app = FastAPI()
 
 # Base directory for cloned projects
 BASE_DIR = "/dossier_host"
 
-@app.post("/create")
-async def create_model(project_url: ProjectUrl):
-    github_url = project_url.url
+async def create_model_service(project_url: str):
+    github_url = project_url
     try:
-
         # Define the project name and directory
         project_name = github_url.split('/')[-1].replace('.git', '')
 
@@ -31,7 +25,6 @@ async def create_model(project_url: ProjectUrl):
             Repo.clone_from(github_url, project_path)
         else:
             return {"message": "Repository already exists", "path": project_path}
-        
         # Run preprocessing script
         preprocess_command = f"preprocess_project {project_path}"
         subprocess.run(preprocess_command, shell=True, check=True)
@@ -39,7 +32,6 @@ async def create_model(project_url: ProjectUrl):
         # Run model script
         model_command = f"python3 /app/training/LSTM_Log_Density_Model.py {project_path}"
         subprocess.run(model_command, shell=True, check=True)
-        
         return {"message": "Analysis completed successfully", "path": project_path}
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=f"Script execution failed: {e}")

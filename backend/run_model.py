@@ -68,10 +68,10 @@ def preprocess_file(filepath, syntactic_nodes, project_dir):
     return {**preprocessed_file_json, "blocks": blocks}
 
 # TODO - remove hardcoded project dirs
-project_dir = "/dossier_host/kafka_project/kafka" #sys.argv[2]
+project_dir = sys.argv[1]
 syn = load_syntactic_nodes(project_dir)
 
-test_file = "/dossier_host/kafka_project/kafka/clients/src/main/java/org/apache/kafka/clients/admin/internals/AbortTransactionHandler.java"
+test_file = "/dossier_host/zookeeper_project/zookeeper/zookeeper-contrib/zookeeper-contrib-loggraph/src/main/java/org/apache/zookeeper/graph/LogSkipList.java"
 preprocessed_file = preprocess_file(test_file, syn, project_dir)
 
 import numpy as np
