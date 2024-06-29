@@ -7,4 +7,8 @@
  * in the user manual at https://docs.gradle.org/8.1/userguide/multi_project_builds.html
  */
 
-// rootProject.name = "PFE_Server"
+rootProject.name = "preprocess_project"
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
+}

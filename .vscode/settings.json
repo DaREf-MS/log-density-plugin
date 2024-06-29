@@ -1,4 +1,7 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
-    "cSpell.language": "en,fr"
+    "cSpell.language": "en,fr",
+    "java.project.importExcludedFolders": [
+        "./open_source_java_projects/**"
+    ]
 }
