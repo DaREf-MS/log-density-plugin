@@ -26,7 +26,7 @@ docker build -t pfe-app-image .
 
 pour rouler une invite de command bash:
 ```sh
-docker run -it -v ./..:/dossier_host pfe-app-image /usr/bin/bash
+docker run -it -v < Path absolu vers le dossier avec les java projects >:/dossier_host -p 8080:8080 pfe-app-image /usr/bin/bash
 ```
 
 Cette dernière command donne accès au dossier courant (lorsque la commande est lancé) à travers du folder /dossier_host

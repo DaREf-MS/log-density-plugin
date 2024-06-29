@@ -159,16 +159,17 @@ def read_syn_nodes(project_name, path):
 
 
 if __name__ == '__main__':
-    project = "/dossier_host/kafka_project/kafka"#sys.argv[1]
+    project = sys.argv[1]
     print(project)
     
     project_name = os.path.basename(project)
     path = os.path.dirname(project) + "/"
 
     # Path to the R script
-    r_script_path = "clustering.R"
+    r_script_path = "/app/training/clustering.R"
     # Run the R script
-    result = subprocess.run(["Rscript", r_script_path, path], capture_output=True, text=True)
+    result = subprocess.run(["Rscript", r_script_path, project], capture_output=True, text=True)
+    print(result)
     thresholds = [float(numstr) for numstr in re.findall(r'threshold\d:\s+([\d\.]+)', result.stdout, re.MULTILINE)]
     # save percentage thresholds to know the target percentage of classes
     with open(os.path.join(path, 'log_density_classes_thresholds.pkl'), 'wb') as file:
