@@ -32,7 +32,7 @@ async def create_model_service(project_url: str):
         # Run model script
         model_command = f"python3 /app/training/LSTM_Log_Density_Model.py {project_path}"
         subprocess.run(model_command, shell=True, check=True)
-        return {"message": "Analysis completed successfully", "path": project_path}
+        return {"message": "AI model created successfully", "path": project_path}
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=f"Script execution failed: {e}")
     except Exception as e:
