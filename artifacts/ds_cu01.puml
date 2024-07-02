@@ -3,25 +3,35 @@ title DS - CU01 Créer un modèle AI
 skinparam style strictuml
 
 participant ":PlugInClass?" as plugin
-participant ":MainApp" as main
-participant ":ModelController" as modelController
-participant ":model_generator" as model_generator
+participant "app:FastAPI" as app
+participant ":training_model_controller" as modelController
+participant ":training_model_service" as modelService
+participant ":git.Repo" as github
 
--> plugin : POST create_model(repo_url)
+-> plugin : URL du dépôt de code GitHub
 
-plugin -> main : create_model(repo_url)
-main -> modelController : create_model(repo_url)
-modelController -> model_generator
+plugin -> app : POST create(ProjectUrl.url)
+app -> modelController : create_model(ProjectUrl.url)
+modelController -> modelService : ProjectUrl.url
+
+alt Project n'existe pas localement
+    modelService -> github : Repo.clone_from(url, project_path)
+else
+    modelService -> modelController : Message indiquant que le\ndépôt de code existe déjà (Repo.pull???)
+    modelController --> app : Message indiquant que le\ndépôt de code existe déjà
+    app --> plugin : Message indiquant que le\ndépôt de code existe déjà
+    <-- plugin : Message indiquant que le\ndépôt de code existe déjà
+end
 
 loop Création de modèle incomplète
-    model_generator --> modelController : Progression de la\ncréation de modèle
-    modelController --> main : Progression de la\ncréation de modèle
-    main --> plugin : Progression de la\ncréation de modèle
+    modelService --> modelController : Progression de la\ncréation de modèle
+    modelController --> app : Progression de la\ncréation de modèle
+    app --> plugin : Progression de la\ncréation de modèle
     <-- plugin : Progression de la\ncréation de modèle
 end
 
-model_generator --> modelController : Message de confirmation\nde création de modèle
-modelController --> main : Message de confirmation\nde création de modèle
-main --> plugin : Message de confirmation\nde création de modèle
+modelService --> modelController : Message de confirmation\nde création de modèle
+modelController --> app : Message de confirmation\nde création de modèle
+app --> plugin : Message de confirmation\nde création de modèle
 <-- plugin : Message de confirmation\nde création de modèle
 @enduml

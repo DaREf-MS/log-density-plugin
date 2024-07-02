@@ -3,7 +3,7 @@
 title Diagramme de classes
 
 package PlugIn {
-    class "PlugInClass" as tbd {
+    class "PlugInClass?" as tbd {
         +repo_url: str
         +repo_name: str
         +create_model()
@@ -19,18 +19,26 @@ package "FastAPI App" {
     }
 
     package Controllers {
-        class ModelController {
-            +create(repo_url: str)
+        class training_model_controller {
+            +create_model(repo_url: str)
         }
 
         class AnalysisController {
             +analyze_file(repo_name: str, filename: str)
             +analyze_method(repo_name: str, filename: str, method: str)
         }
+
+        class ProjectURL {
+            +url: str
+            +name: str
+        }
     }
 
     package services {
-        class model_generator
+        class training_model_service {
+            +create_model_service()
+        }
+
         class run_model
         class model_loader {
             +find_model(repo_name: str)
@@ -40,10 +48,11 @@ package "FastAPI App" {
 
 tbd --> MainApp
 
-MainApp --> ModelController
+MainApp --> training_model_controller
 MainApp --> AnalysisController
 
-ModelController --> model_generator
+training_model_controller --> training_model_service
+training_model_controller -> ProjectURL
 AnalysisController --> run_model
 AnalysisController --> model_loader
 
