@@ -1,14 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
-import sys
-sys.path.append("/app/services")
-from training_model_service import create_model_service
+from services.training_model_service import create_model_service
 
-class ProjectUrl(BaseModel):
+router = APIRouter()
+
+class JavaProject(BaseModel):
     url: str
 
-app = FastAPI()
-
-@app.post("/create")
-async def create_model(project_url: ProjectUrl):
-    return await create_model_service(project_url.url)
+@router.post("/create")
+async def create_model(project: JavaProject):
+    return await create_model_service(project.url)
