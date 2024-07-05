@@ -1,5 +1,5 @@
 import pytest
-from training_model_service import create_model_service
+from ..services.training_model_service import create_model_service
 from unittest.mock import patch, MagicMock
 import os
 import subprocess

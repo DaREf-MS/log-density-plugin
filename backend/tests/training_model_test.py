@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from training_model_controller import app
+from ..main import app
 from unittest.mock import patch
 import subprocess
 import asyncio
