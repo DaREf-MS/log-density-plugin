@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, field_validator, ValidationError
-from services.training_model_service import create_model_service
+from pydantic import BaseModel, field_validator
+from services.model_service import create_model
 
 router = APIRouter()
 
@@ -17,5 +17,5 @@ class JavaProject(BaseModel):
         return value
 
 @router.post("/model/create")
-async def create_model(project: JavaProject):
-    return await create_model_service(project.url)
+async def create_model_req(project: JavaProject):
+    return await create_model(project.url)
