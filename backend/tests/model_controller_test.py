@@ -57,7 +57,7 @@ async def test_repo_already_exists(mock_os_makedirs, mock_os_path):
     assert response.json().get("message") == "Repository already exists"
 
 @pytest.mark.asyncio
-async def test_empty_url(mocker):
+async def test_empty_url():
     response = client.post("/model/create", json = {"url": empty_url})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
@@ -66,7 +66,7 @@ async def test_empty_url(mocker):
     assert response.json()["detail"][0]["msg"] == "Value error, The URL to the GitHub repository must not be empty."
 
 @pytest.mark.asyncio
-async def test_missing_url_field(mocker):
+async def test_missing_url_field():
     response = client.post("/model/create", json = {})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")

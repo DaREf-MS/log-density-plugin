@@ -2,6 +2,7 @@ import pytest
 from services.model_service import create_model
 import subprocess
 from fastapi import HTTPException
+import logging
 
 # Variables for the tests
 valid_url = "https://github.com/example/repo.git"
