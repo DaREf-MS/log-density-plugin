@@ -11,15 +11,32 @@ valid_url = f"https://github.com/example/{project_name}.git"
 empty_url = ""
 project_path = f"/dossier_host/{project_name}_project/{project_name}"
 
-@pytest.mark.asyncio
-async def test_model_creation_success(mocker):
-    # Mock that the repo does not already exists, then prevent cloning it and creating an AI model
-    mocker.patch("os.path.exists", return_value=False)
-    mocker.patch("git.Repo.clone_from")
-    mocker.patch("subprocess.run")
+# Mock functions
+@pytest.fixture
+def mock_os_makedirs(mocker):
+    return mocker.patch("os.makedirs")
 
-    response = client.post("/model/create", json={"url": valid_url})
-    
+@pytest.fixture
+def mock_os_path(mocker):
+    return mocker.patch("os.path.exists")
+
+@pytest.fixture
+def mock_git_clone(mocker):
+    return mocker.patch("git.Repo.clone_from")
+
+@pytest.fixture
+def mock_subprocess(mocker):
+    return mocker.patch("subprocess.run")
+
+@pytest.mark.asyncio
+async def test_create_model_success(mock_os_makedirs, mock_os_path, mock_git_clone, mock_subprocess):
+    # Mock that the repo does not already exists, then prevent cloning it and creating an AI model
+    mock_os_makedirs.return_value = None
+    mock_os_path.return_value = False
+    mock_git_clone.return_value = None
+    mock_subprocess.return_value = None
+
+    response = client.post("/model/create", json = {"url": valid_url})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
 
@@ -27,12 +44,12 @@ async def test_model_creation_success(mocker):
     assert response.json().get("message") == "AI model created successfully"
 
 @pytest.mark.asyncio
-async def test_repository_already_exists(mocker):
+async def test_repo_already_exists(mock_os_makedirs, mock_os_path):
     # Mock that the repo was already cloned and exists locally
-    mocker.patch("os.path.exists", return_value=True)
+    mock_os_makedirs.return_value = None
+    mock_os_path.return_value = True
 
-    response = client.post("/model/create", json={"url": valid_url})
-    
+    response = client.post("/model/create", json = {"url": valid_url})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
 
@@ -41,8 +58,7 @@ async def test_repository_already_exists(mocker):
 
 @pytest.mark.asyncio
 async def test_empty_url(mocker):
-    response = client.post("/model/create", json={"url": empty_url})
-    
+    response = client.post("/model/create", json = {"url": empty_url})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
 
@@ -51,8 +67,7 @@ async def test_empty_url(mocker):
 
 @pytest.mark.asyncio
 async def test_missing_url_field(mocker):
-    response = client.post("/model/create", json={})
-    
+    response = client.post("/model/create", json = {})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
 
