@@ -44,3 +44,8 @@ python3 LSTM_Log_Density_Model.py /dossier_host/open_source_java_projects/some_j
 ```
 
 Je recommande d'utiliser l'extension Dev Containers de VScode pour debug le code qui roule dans le container.
+
+<!-- TODO: doc for dependencies and tests for running locally -->
+<!-- pytest -p no:cacheprovider --log-cli-level=DEBUG
+pytest -p no:cacheprovider ./tests/unit --log-cli-level=DEBUG
+pytest -p no:cacheprovider ./tests/integration --log-cli-level=DEBUG -->
