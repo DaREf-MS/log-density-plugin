@@ -10,6 +10,10 @@ BASE_DIR = "/dossier_host"
 
 async def create_model_service(project_url: str):
     github_url = project_url
+
+    # Juste pour vérifier que l'url a été reçu du frontend
+    logging.info(f"URL received: {github_url}")
+
     try:
         # Define the project name and directory
         project_name = github_url.split('/')[-1].replace('.git', '')
