@@ -6,3 +6,4 @@ build
 
 # Ignore anything in open_source_java_projects
 open_source_java_projects/**
+/logdensitytool/node_modules/
