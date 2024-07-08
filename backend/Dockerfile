@@ -69,8 +69,8 @@ COPY . /app
 # RUN python3 -m uvicorn services/model_generator:app --reload
 
 # Command to run the FastAPI application
-WORKDIR /app/controllers 
-CMD ["uvicorn", "training_model_controller:app", "--host", "0.0.0.0", "--port", "8080"]
+WORKDIR /app 
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
 
 EXPOSE 8080
 
