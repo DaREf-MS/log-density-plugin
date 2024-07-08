@@ -1,25 +1,25 @@
 @startuml
-title DS - CU02 Analyser un fichier Java
+title DS - CU02 Analyser un fichier Java - TBD
 skinparam style strictuml
 
-participant ":PlugInClass?" as plugin
-participant ":MainApp" as main
-participant ":AnalysisController" as analysisController
-participant ":ModelLoader" as modelLoader
-participant ":run_model" as run_model
+participant ":extension" as extension
+participant ":main" as main
+participant ":analysis_controller" as analysis_controller
+participant ":ModelLoader?" as modelLoader
+participant ":run_model?" as run_model
 
--> plugin : POST analyze_file(repo_name, filename)
+-> extension : POST analyze_file(repo_name, filename)
 
-plugin -> main : analyze_file(repo_name, filename)
-main -> analysisController : analyze_file(repo_name, filename)
+extension -> main : analyze_file(repo_name, filename)
+main -> analysis_controller : analyze_file(repo_name, filename)
 
-analysisController -> modelLoader : load_model(repo_name)
-modelLoader --> analysisController : Path du modèle
+analysis_controller -> modelLoader : load_model(repo_name)
+modelLoader --> analysis_controller : Path du modèle
 
-analysisController -> run_model
+analysis_controller -> run_model
 
-run_model --> analysisController : Pourcentage et catégorie\nde densité de log
-analysisController --> main : Pourcentage et catégorie\nde densité de log
-main --> plugin : Pourcentage et catégorie\nde densité de log
-<-- plugin : Pourcentage et catégorie\nde densité de log
+run_model --> analysis_controller : Pourcentage et catégorie\nde densité de log
+analysis_controller --> main : Pourcentage et catégorie\nde densité de log
+main --> extension : Pourcentage et catégorie\nde densité de log
+<-- extension : Pourcentage et catégorie\nde densité de log
 @enduml

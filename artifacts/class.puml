@@ -2,6 +2,12 @@
 
 title Diagramme de classes
 
+legend right
+    |Couleur| État |
+    |<#DDDDDD>| Implémenté|
+    |<#FFFF00>| Pas encore implémenté|
+endlegend
+
 package logdensitytool {
     class extension {
         +activate()
@@ -18,7 +24,7 @@ package backend {
             +create_model_req(project: JavaProject)
         }
 
-        class analysis_controller {
+        class analysis_controller #FFFF00 {
             +tbd(project: JavaProject)
         }
     }

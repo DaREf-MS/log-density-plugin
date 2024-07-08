@@ -2,36 +2,31 @@
 title DS - CU01 Créer un modèle AI
 skinparam style strictuml
 
-participant ":PlugInClass?" as plugin
-participant "app:FastAPI" as app
-participant ":training_model_controller" as modelController
-participant ":training_model_service" as modelService
+participant ":extension" as extension
+participant ":main" as main
+participant ":model_controller" as model_controller
+participant JavaProject
+participant ":model_service" as model_service
 participant ":git.Repo" as github
 
--> plugin : URL du dépôt de code GitHub
+-> extension : URL du dépôt de code GitHub
 
-plugin -> app : POST create(ProjectUrl.url)
-app -> modelController : create_model(ProjectUrl.url)
-modelController -> modelService : ProjectUrl.url
-
-alt Project n'existe pas localement
-    modelService -> github : Repo.clone_from(url, project_path)
+extension -> main : POST /model/create(JSON body {url})
+main -> model_controller : create_model_req(JavaProject.url)
+model_controller -> JavaProject : check_url(JavaProject, value = JavaProject.url)
+alt JavaProject.url est vide
+    JavaProject --> model_controller : Status code 422: The URL to the\nGitHub repository must not be empty.
 else
-    modelService -> modelController : Message indiquant que le\ndépôt de code existe déjà (Repo.pull???)
-    modelController --> app : Message indiquant que le\ndépôt de code existe déjà
-    app --> plugin : Message indiquant que le\ndépôt de code existe déjà
-    <-- plugin : Message indiquant que le\ndépôt de code existe déjà
+    JavaProject --> model_controller : JavaProject.url
+    model_controller -> model_service : create_model(ProjectUrl.url)
+
+    alt Projet n'existe pas localement
+        model_service -> github : Repo.clone_from(url, project_path)
+        model_service --> model_controller : Message de confirmation de création de modèle
+    else
+        model_service --> model_controller : Message indiquant que le dépôt de code existe déjà
+    end
 end
 
-loop Création de modèle incomplète
-    modelService --> modelController : Progression de la\ncréation de modèle
-    modelController --> app : Progression de la\ncréation de modèle
-    app --> plugin : Progression de la\ncréation de modèle
-    <-- plugin : Progression de la\ncréation de modèle
-end
-
-modelService --> modelController : Message de confirmation\nde création de modèle
-modelController --> app : Message de confirmation\nde création de modèle
-app --> plugin : Message de confirmation\nde création de modèle
-<-- plugin : Message de confirmation\nde création de modèle
+<-- model_controller : Résultat
 @enduml
