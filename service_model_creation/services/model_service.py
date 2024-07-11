@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from git import Repo
 import os
 import subprocess
+import logging
 
 # Base directory for cloned projects
 BASE_DIR = "/dossier_host"
