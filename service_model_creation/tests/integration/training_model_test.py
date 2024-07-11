@@ -34,7 +34,7 @@ async def test_create_model_success(mock_os_makedirs, mock_os_path, mock_git_clo
     mock_git_clone.return_value = None
     mock_subprocess.return_value = None
 
-    response = client.post("/model/create", json = {"url": valid_url})
+    response = client.post("/create", json = {"url": valid_url})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
 
@@ -49,7 +49,7 @@ async def test_repo_already_exists(mock_os_makedirs, mock_os_path, mock_git_clon
     mock_os_makedirs.return_value = None
     mock_os_path.return_value = True
 
-    response = client.post("/model/create", json = {"url": valid_url})
+    response = client.post("/create", json = {"url": valid_url})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
 
@@ -61,7 +61,7 @@ async def test_repo_already_exists(mock_os_makedirs, mock_os_path, mock_git_clon
 
 @pytest.mark.asyncio
 async def test_empty_url(mock_git_clone, mock_subprocess):
-    response = client.post("/model/create", json = {"url": empty_url})
+    response = client.post("/create", json = {"url": empty_url})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
 
@@ -72,7 +72,7 @@ async def test_empty_url(mock_git_clone, mock_subprocess):
 
 @pytest.mark.asyncio
 async def test_missing_url_field(mock_git_clone, mock_subprocess):
-    response = client.post("/model/create", json = {})
+    response = client.post("/create", json = {})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
 
@@ -88,7 +88,7 @@ async def test_create_model_script_execution_failure(mock_os_makedirs, mock_os_p
     mock_git_clone.return_value = None
     mock_subprocess.side_effect = subprocess.CalledProcessError(returncode = 1, cmd = "")
 
-    response = client.post("/model/create", json = {"url": valid_url})
+    response = client.post("/create", json = {"url": valid_url})
     # logging.debug(f"Script execution error: {e}")
 
     assert response.status_code == 500
@@ -104,7 +104,7 @@ async def test_create_model_script_exception(mock_os_makedirs, mock_os_path, moc
     mock_git_clone.return_value = None
     mock_subprocess.side_effect = Exception("Generic error")
 
-    response = client.post("/model/create", json = {"url": valid_url})
+    response = client.post("/create", json = {"url": valid_url})
     # logging.debug(f"Generic error: {e}")
 
     assert response.status_code == 500

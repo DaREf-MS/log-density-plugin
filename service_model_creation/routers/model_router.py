@@ -4,6 +4,6 @@ from services.model_service import create_model
 
 router = APIRouter()
 
-@router.post("/model/create")
+@router.post("/create")
 async def create_model_req(project: JavaProject):
     return await create_model(project.url)
