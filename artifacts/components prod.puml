@@ -10,21 +10,23 @@ node "Machine d'un développeur" as machine {
             file "Fichiers .java" as files
         }
 
-        component "Composant 1\nPlugin" as plugin
+        component "Plugin" as plugin
     }
 }
 
-cloud "Composant 2\nServeur\nLocalhost" as server {
-    file "Modèle AI" as model
+cloud "Serveur\nLocalhost" as server {
+    node "Service d'analyse" as serviceA {
+        file "Modèle AI" as model
+    }
+
+    node "Service générateur de modèles" as serviceB
 }
 
-node "Composant 3\nGénérateur de modèles" as generator
-
-team -u-> plugin: "Demande une analyse du\nd'un fichier Java"
+team -u-> plugin: "Demande la création d'un modèle AI en\nenvoyant l'URL GitHub du projet Java\n\nDemande une analyse du d'un fichier Java"
 team -u-> project: "Effectue des modifications"
-team .l.> generator: "Fait analyser son projet Java pour créer un\nmodèle AI en envoyant l'URL du repo GitHub"
-generator -u-> model: "Crée un modèle AI"
-model -r-> plugin: "Pourcentage de densité de log d'un fichier Java"
-plugin -l-> model: "Envoie le contenu du fichier Java à analyser"
+plugin -d-> serviceB: "Envoie le projet Java analysé"
+serviceB -u-> serviceA: "Crée un modèle AI"
+serviceA -r-> plugin: "Pourcentage de densité de log d'un fichier Java"
+plugin -l-> serviceA: "Envoie le contenu du fichier Java à analyser"
 
 @enduml
