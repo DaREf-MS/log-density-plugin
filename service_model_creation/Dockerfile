@@ -22,13 +22,14 @@ RUN /java_code/gradlew installDist --no-daemon
 # =================================================================================================================
 
 # STAGE: get python requirements.txt 
-FROM python:3.12-slim AS python_requirements
+FROM python:3.11-slim AS python_requirements
 
 # install poetry
 RUN pip install poetry
 WORKDIR /poetry_project
-COPY ./poetry.lock /poetry_project/
+#COPY ./poetry.lock /poetry_project/
 COPY ./pyproject.toml /poetry_project/
+RUN poetry lock
 RUN poetry export -f requirements.txt --output /poetry_project/requirements.txt
 
 # =================================================================================================================
@@ -65,5 +66,11 @@ ENV PATH $PATH:/preprocess_project/bin
 COPY . /app 
 # TODO - limit copying to needed files only
 
+# RUN python3 -m uvicorn services/model_generator:app --reload
 
+# Command to run the FastAPI application
+WORKDIR /app 
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+
+EXPOSE 8080
 

@@ -1,16 +1,15 @@
 name: CI/CD Pipeline
 
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths-ignore:
       - '**.md'
 
 jobs:
-  build-and-push:
+ build-and-push:
     runs-on: ubuntu-latest
-    if: github.head_ref == 'dev'
 
     steps:
     - name: Checkout Code
