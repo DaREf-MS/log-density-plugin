@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  training:
+    build:
+      context: .
+      dockerfile: service_model_creation/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - "training_data:/dossier_host"
+
+#  model_runner:
+#    build:
+#      context: ./service_model_creation
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8081:8081"
+#    volumes:
+#      - "training_data:/app/data"
+
+volumes:
+  training_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: "./training_data"  # location of the trainign data
+      o: bind
