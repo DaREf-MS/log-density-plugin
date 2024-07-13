@@ -2,7 +2,8 @@ from keras.models import model_from_json
 import os
 import pickle
 import sys
-import preprocessing
+from service.service_model_creation import preprocessing
+
 
 # TODO - all paths start from project_path
 
