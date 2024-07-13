@@ -2,6 +2,7 @@ import re
 from gensim.models.word2vec import Word2Vec
 from gensim.corpora.dictionary import Dictionary
 import os
+from keras.preprocessing import sequence
 
 MAXLEN = 100
 
@@ -40,7 +41,6 @@ def create_dictionaries(model=None, combined=None):
         3- Transforms the Training and Testing Dictionaries
 
     '''
-    from keras.preprocessing import sequence
 
     if (combined is not None) and (model is not None):
         gensim_dict = Dictionary()
