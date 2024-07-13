@@ -23,6 +23,7 @@ import pickle
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(parent_dir)
 print("appended:", parent_dir)
+
 from preprocessing import word_splitter, tokenizer, input_transform, create_dictionaries
 
 seed_value = 128
@@ -166,7 +167,7 @@ if __name__ == '__main__':
     path = os.path.dirname(project) + "/"
 
     # Path to the R script
-    r_script_path = os.path.join(parent_dir, "training", "clustering.R")
+    r_script_path = os.path.join(parent_dir, "service_model_creation", "training", "clustering.R")
     # Run the R script
     result = subprocess.run(["Rscript", r_script_path, project], capture_output=True, text=True)
     print(result)

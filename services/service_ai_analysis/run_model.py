@@ -55,7 +55,7 @@ def preprocess_nodes(x, syntactic_nodes, project_dir):
 def preprocess_file(filepath, syntactic_nodes, project_dir):
     
     # obtain nodes from Java thing
-    result = subprocess.run([r"C:\Users\aiman\Desktop\PFE\PFE\services\preprocess_project\build\install\preprocess_project\bin\preprocess_project.bat", filepath], capture_output=True, text=True)
+    result = subprocess.run(["preprocess_project", filepath], capture_output=True, text=True)
     print(result)
     preprocessed_file_json = json.loads(result.stdout)
     blocks_table = pandas.DataFrame(preprocessed_file_json["blocks"])
@@ -70,7 +70,6 @@ def preprocess_file(filepath, syntactic_nodes, project_dir):
     blocks = blocks_table.to_dict(orient='records')
     return {**preprocessed_file_json, "blocks": blocks}
 
-# TODO - remove hardcoded project dirs
 
 def predict(project_dir, filepath):
     syn = load_syntactic_nodes(project_dir) 
@@ -111,7 +110,3 @@ def predict(project_dir, filepath):
     print(result)
 
     return result
-    #test_file = "/dossier_host/zookeeper_project/zookeeper/zookeeper-contrib/zookeeper-contrib-loggraph/src/main/java/org/apache/zookeeper/graph/LogSkipList.java"
-
-
-#predict(r"C:\Users\aiman\Desktop\PFE\PFE\open_source_java_projects\zookeeper_project\zookeeper",r"C:\Users\aiman\Desktop\PFE\PFE\open_source_java_projects\zookeeper_project\zookeeper\zookeeper-contrib\zookeeper-contrib-loggraph\src\main\java\org\apache\zookeeper\graph\LogSkipList.java")

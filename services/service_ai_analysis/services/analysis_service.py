@@ -4,20 +4,19 @@ import os
 import subprocess
 import logging
 import run_model
-BASE_DIR = r"C:\Users\aiman\Desktop\PFE\PFE\open_source_java_projects"
-"""
-preprocess_project path 
-BASE_DIR /dossier_host
-"""
+
+BASE_DIR = "/dossier_host"
+
 async def predict(github_url: str, filepath: str):
     
     project_name = github_url.split('/')[-1].replace('.git', '')
 
-    
     output_dir = os.path.join(BASE_DIR, project_name + "_project")
      
     project_path = os.path.join(output_dir, project_name)   
-    filepath = os.path.join(output_dir,filepath) 
+    filepath = os.path.join(output_dir,filepath)
+
     print("project path: ",project_path)
     print("file path: ",filepath)
+
     return run_model.predict(project_path,filepath)

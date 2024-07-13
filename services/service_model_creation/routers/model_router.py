@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from models.java_project import JavaProject
-from services.model_service import create_model
+from service_model_creation.models.java_project import JavaProject
+from service_model_creation.services.model_service import create_model
 
 router = APIRouter()
 

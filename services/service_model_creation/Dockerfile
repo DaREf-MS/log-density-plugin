@@ -64,7 +64,7 @@ COPY . /app
 # TODO - limit copying to needed files only
 
 # Command to run the FastAPI application
-WORKDIR /app/service_model_creation
+WORKDIR /app
 
 ENV PYTHONPATH "${PYTHONPATH}:/app"
 RUN echo $PYTHONPATH

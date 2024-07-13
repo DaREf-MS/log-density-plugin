@@ -34,7 +34,7 @@ async def create_model(project_url: str):
         subprocess.run(preprocess_command, shell=True, check=True)
         
         # Run model script
-        model_command = f"python3 training/LSTM_Log_Density_Model.py {project_path}"
+        model_command = f"python3 service_model_creation/training/LSTM_Log_Density_Model.py {project_path}"
         subprocess.run(model_command, shell=True, check=True)
 
         return {"message": "AI model created successfully", "path": project_path}
