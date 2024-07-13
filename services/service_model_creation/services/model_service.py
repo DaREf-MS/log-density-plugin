@@ -27,14 +27,16 @@ async def create_model(project_url: str):
         if not os.path.exists(project_path):
             Repo.clone_from(github_url, project_path)
         else:
-            return {"message": "Repository already exists", "path": project_path}
+            logging.info(f"Repository already exists at {project_path}")
+
         # Run preprocessing script
         preprocess_command = f"preprocess_project {project_path}"
         subprocess.run(preprocess_command, shell=True, check=True)
         
         # Run model script
-        model_command = f"python3 /app/training/LSTM_Log_Density_Model.py {project_path}"
+        model_command = f"python3 service_model_creation/training/LSTM_Log_Density_Model.py {project_path}"
         subprocess.run(model_command, shell=True, check=True)
+
         return {"message": "AI model created successfully", "path": project_path}
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=f"Script execution failed: {e}")

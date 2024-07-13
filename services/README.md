@@ -16,7 +16,7 @@ P.S: the R script will be executed automatically once you run the LSTM_Log_Densi
 ## Rouler les tests localement
 Tous les tests:
 ```sh
-cd backend
+cd services
 pytest -p no:cacheprovider
 ```
 
@@ -39,7 +39,11 @@ Il y un fichier Dockerfile qui installe toutes les dépendances et qui permet de
 
 Pour construire une image Docker:
 ```sh
-cd backend
+<<<<<<<< HEAD:services/README.md
+cd services
+========
+cd service_model_creation
+>>>>>>>> run_model:services/service_model_creation/README.md
 docker build -t pfe-app-image .
 ```
 

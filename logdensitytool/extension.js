@@ -14,7 +14,7 @@ function activate(context) {
             return;
         }
 
-		console.log("Sending POST request to backend with URL:", url);
+		console.log("Sending POST request to services with URL:", url);
 
          axios.post('http://localhost:8080/create', { url })
             .then(response => {

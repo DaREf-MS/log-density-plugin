@@ -1,6 +1,8 @@
 import re
 from gensim.models.word2vec import Word2Vec
 from gensim.corpora.dictionary import Dictionary
+import os
+from keras.preprocessing import sequence
 
 MAXLEN = 100
 
@@ -25,7 +27,7 @@ def tokenizer(text, syntactic_nodes):
         newText.append(docText)
     return newText
 
-import os
+
 def input_transform(project_name, path, words):
     model = Word2Vec.load(os.path.join(path, 'Word2vec_model_' + project_name + '.pkl'))
     _, _, dictionaries = create_dictionaries(model, words)
@@ -39,7 +41,6 @@ def create_dictionaries(model=None, combined=None):
         3- Transforms the Training and Testing Dictionaries
 
     '''
-    from keras.preprocessing import sequence
 
     if (combined is not None) and (model is not None):
         gensim_dict = Dictionary()
@@ -63,6 +64,7 @@ def create_dictionaries(model=None, combined=None):
 
         combined = parse_dataset(combined)
         combined = sequence.pad_sequences(combined, maxlen=MAXLEN)
+
         return w2indx, w2vec, combined
 
 

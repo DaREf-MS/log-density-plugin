@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.util.Locale;
 
 public class JavaASTExtract {
     private static List<String> getAllFilesInFolderAndSubfolders(File folder) {
@@ -176,7 +177,7 @@ public class JavaASTExtract {
             return str;
         }).collect(Collectors.joining(",\n"));
         
-        return String.format("""
+        return String.format(Locale.US,"""
             {
                 "density": %.2f,
                 "blocks": [
