@@ -1,2 +1,0 @@
-install_R.sh text eol=lf
-preprocess_project/gradlew text eol=lf
