@@ -1,33 +1,49 @@
+
 const vscode = require('vscode');
-const axios = require('axios');
+const LogDensityCodeLensProvider = require('./logDensityCodeLensProvider');
+const trainModelService = require('./trainModelService');
+const runModelService = require('./runModelService');
 
 function activate(context) {
-    let disposable = vscode.commands.registerCommand('extension.sendGitHubUrl', async () => {
-        console.log("Command activated");  // Debug log
-        const url = await vscode.window.showInputBox({
-            placeHolder: 'Enter the GitHub repository URL'
-        });
+    const codeLensProvider = new LogDensityCodeLensProvider();
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider({ language: 'java' }, codeLensProvider));
 
-        console.log("URL entered:", url);  // Debug log
-        if (!url) {
-            vscode.window.showErrorMessage('No URL entered');
-            return;
+    context.subscriptions.push(vscode.commands.registerCommand('extension.showLogDensityInfo', block => {
+        vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);
+    }));
+
+    // Register command to trigger model training
+    let disposableTrain = vscode.commands.registerCommand('extension.trainModel', async () => {
+        const url = await vscode.window.showInputBox({ prompt: 'Enter GitHub URL to train model' });
+        if (url) {
+            trainModelService.trainModel(url);
+        } else {
+            vscode.window.showErrorMessage('GitHub URL is required');
         }
-
-		console.log("Sending POST request to services with URL:", url);
-
-         axios.post('http://localhost:8080/create', { url })
-            .then(response => {
-                console.log("Response received:", response.data);  
-                vscode.window.showInformationMessage('Success: ' + response.data.message);
-            })
-            .catch(error => {
-                console.error("Failed to send request or process response:", error);  
-                vscode.window.showErrorMessage('Failed to create model: ' + (error.response ? error.response.data.detail : error.message));
-            });
     });
 
-    context.subscriptions.push(disposable);
+    // Register command to analyze log density and update CodeLens
+    let disposableAnalyze = vscode.commands.registerCommand('extension.analyzeLogDensity', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const fileContent = editor.document.getText();
+            const url = await vscode.window.showInputBox({ prompt: 'Enter corresponding GitHub repository URL for analysis' });
+            if (url && fileContent) {
+                const blocks = await runModelService.runModel(url, fileContent);
+                if (blocks) {
+                    codeLensProvider.setData(blocks);  // Update CodeLens with new data
+                } else {
+                    vscode.window.showErrorMessage('No data received for analysis');
+                }
+            } else {
+                vscode.window.showErrorMessage('Both URL and file content are required');
+            }
+        } else {
+            vscode.window.showErrorMessage('No active editor found');
+        }
+    });
+
+    context.subscriptions.push(disposableTrain, disposableAnalyze);
 }
 
 function deactivate() {}

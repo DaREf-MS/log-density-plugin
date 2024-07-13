@@ -167,7 +167,7 @@ if __name__ == '__main__':
     path = os.path.dirname(project) + "/"
 
     # Path to the R script
-    r_script_path = os.path.join(parent_dir, "service_model_creation", "training", "clustering.R")
+    r_script_path = os.path.join(parent_dir, "training", "clustering.R")
     # Run the R script
     result = subprocess.run(["Rscript", r_script_path, project], capture_output=True, text=True)
     print(result)

@@ -16,8 +16,21 @@
       {
         "command": "extension.sendGitHubUrl",
         "title": "Send GitHub URL"
+      },
+      {
+        "command": "extension.analyzeLogDensity",
+        "title": "Analyze Log Density"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context":[
+        {
+          "when": "resourceLangId == java",
+          "command": "extension.analyzeLogDensity",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",
