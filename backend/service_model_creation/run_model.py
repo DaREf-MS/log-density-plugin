@@ -1,5 +1,4 @@
 from keras.models import model_from_json
-import json
 import os
 import pickle
 import sys
@@ -46,7 +45,6 @@ def preprocess_nodes(x, syntactic_nodes, project_dir):
     return x_transformed
 
 import subprocess
-import pprint
 import json
 import pandas
 def preprocess_file(filepath, syntactic_nodes, project_dir):
