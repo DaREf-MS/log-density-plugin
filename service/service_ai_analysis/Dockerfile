@@ -1,5 +1,4 @@
 # =================================================================================================================
-# build from ./backend folder
 # STAGE: build JRE, build java, version >11
 FROM eclipse-temurin:21 as jre_build
 
@@ -19,6 +18,7 @@ WORKDIR /java_code
 COPY ./preprocess_project /java_code
 RUN /java_code/gradlew installDist --no-daemon
 
+
 # =================================================================================================================
 
 # STAGE: get python requirements.txt
@@ -27,14 +27,11 @@ FROM python:3.11-slim AS python_requirements
 # install poetry
 RUN pip install poetry
 WORKDIR /poetry_project
-#COPY ./poetry.lock /poetry_project/
-COPY ../pyproject.toml /poetry_project/
+COPY ./pyproject.toml /poetry_project/
 RUN poetry lock
 RUN poetry export -f requirements.txt --output /poetry_project/requirements.txt
 
 # =================================================================================================================
-
-# STAGE: install R on a Java on base python image
 # make this 3.11-slim in the future
 FROM python:3.11
 
@@ -58,9 +55,14 @@ ENV PATH $PATH:/preprocess_project/bin
 
 # copy python script and R script
 COPY . /app
+# TODO - limit copying to needed files only
 
 # Command to run the FastAPI application
-WORKDIR /app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+WORKDIR /app/service_ai_analysis
 
-EXPOSE 8080
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+RUN echo $PYTHONPATH
+
+EXPOSE 8081
+
+CMD ["uvicorn", "service_ai_analysis.main:app", "--host", "0.0.0.0", "--port", "8081"]
