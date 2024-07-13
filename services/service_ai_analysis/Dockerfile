@@ -16,6 +16,7 @@ RUN $JAVA_HOME/bin/jlink \
 # build java thing
 WORKDIR /java_code
 COPY ./preprocess_project /java_code
+RUN chmod u+x /java_code/gradlew
 RUN /java_code/gradlew installDist --no-daemon
 
 

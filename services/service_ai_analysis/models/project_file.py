@@ -2,7 +2,7 @@ from pydantic import BaseModel, field_validator
 
 class ProjectFile(BaseModel):
     url: str
-    filepath: str
+    fileContent: str
     
     # Validate if field url is empty or not
     @field_validator('url')
