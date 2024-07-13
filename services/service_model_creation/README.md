@@ -39,7 +39,7 @@ Il y un fichier Dockerfile qui installe toutes les dépendances et qui permet de
 
 Pour construire une image Docker:
 ```sh
-cd backend
+cd service_model_creation
 docker build -t pfe-app-image .
 ```
 
