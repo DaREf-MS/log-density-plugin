@@ -39,7 +39,11 @@ Il y un fichier Dockerfile qui installe toutes les dépendances et qui permet de
 
 Pour construire une image Docker:
 ```sh
+<<<<<<<< HEAD:services/README.md
 cd services
+========
+cd service_model_creation
+>>>>>>>> run_model:services/service_model_creation/README.md
 docker build -t pfe-app-image .
 ```
 

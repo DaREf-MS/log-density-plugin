@@ -2,6 +2,9 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 
-@router.get("/test")
-async def create_model_req():
-    return { "message": "test" }
+
+@router.post("/predict")
+async def predict_req(project: ProjectFile):
+    var = await predict(project.url, project.filepath)
+    print("voici le var:       ",var)
+    return var
