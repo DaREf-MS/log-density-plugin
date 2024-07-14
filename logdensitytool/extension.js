@@ -1,12 +1,17 @@
 
 const vscode = require('vscode');
 const LogDensityCodeLensProvider = require('./logDensityCodeLensProvider');
+const AnalysisPreviewProvider = require('./analysisPreviewProvider');
 const trainModelService = require('./trainModelService');
 const runModelService = require('./runModelService');
 
 function activate(context) {
     const codeLensProvider = new LogDensityCodeLensProvider();
     context.subscriptions.push(vscode.languages.registerCodeLensProvider({ language: 'java' }, codeLensProvider));
+
+    const workspaceRoot = vscode.workspace.rootPath;
+    const analysisPreviewProvider = new AnalysisPreviewProvider(workspaceRoot);
+    vscode.window.registerTreeDataProvider('javaFilesView', analysisPreviewProvider);
 
     context.subscriptions.push(vscode.commands.registerCommand('extension.showLogDensityInfo', block => {
         vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);
