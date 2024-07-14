@@ -44,7 +44,11 @@
       "pfeExtension": [
         {
           "id": "javaFilesView",
-          "name": "[DEV] Density Analysis Preview"
+          "name": "Density Analysis Preview"
+        },
+        {
+          "id": "openTabsPreview",
+          "name": "Open Tabs Density Preview"
         }
       ]
     }
