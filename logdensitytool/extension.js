@@ -13,7 +13,7 @@ function activate(context) {
     }));
 
     // Register command to trigger model training
-    let disposableTrain = vscode.commands.registerCommand('extension.trainModel', async () => {
+    let disposableTrain = vscode.commands.registerCommand('extension.sendGitHubUrl', async () => {
         const url = await vscode.window.showInputBox({ prompt: 'Enter GitHub URL to train model' });
         if (url) {
             trainModelService.trainModel(url);
