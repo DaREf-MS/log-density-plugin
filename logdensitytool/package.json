@@ -30,6 +30,23 @@
           "group": "navigation"
         }
       ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pfeExtension",
+          "title": "[DEV] PFE Extension",
+          "icon": "media/send-logging.svg"
+        }
+      ]
+    },
+    "views": {
+      "pfeExtension": [
+        {
+          "id": "javaFilesView",
+          "name": "[DEV] Density Analysis Preview"
+        }
+      ]
     }
   },
   "scripts": {
