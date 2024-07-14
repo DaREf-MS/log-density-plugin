@@ -72,7 +72,7 @@ class JavaItem extends vscode.TreeItem {
         super(resourceUri, collapsibleState);
         this.resourceUri = resourceUri;
         this.contextValue = 'javaFile';
-        this.iconPath = vscode.ThemeIcon.File;
+        this.iconPath = collapsibleState ? null : vscode.ThemeIcon.File;
         this.additionalInfo = additionalInfo;
     }
 
