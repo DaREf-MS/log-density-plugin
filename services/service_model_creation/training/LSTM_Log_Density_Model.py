@@ -169,9 +169,10 @@ if __name__ == '__main__':
     # Path to the R script
     r_script_path = os.path.join(parent_dir, "training", "clustering.R")
     # Run the R script
+    print(f"runnning Rscript at {r_script_path} for {project}")
     result = subprocess.run(["Rscript", r_script_path, project], capture_output=True, text=True)
     print(result)
-    thresholds = [float(numstr) for numstr in re.findall(r'threshold\d:\s+([\d\.]+)', result.stdout, re.MULTILINE)]
+    thresholds = [0, *[float(numstr) for numstr in re.findall(r'threshold\d:\s+([\d\.]+)', result.stdout, re.MULTILINE)]]
     # save percentage thresholds to know the target percentage of classes
     with open(os.path.join(path, 'log_density_classes_thresholds.pkl'), 'wb') as file:
         pickle.dump(thresholds, file)
