@@ -2,6 +2,7 @@
 const vscode = require('vscode');
 const LogDensityCodeLensProvider = require('./logDensityCodeLensProvider');
 const AnalysisPreviewProvider = require('./analysisPreviewProvider');
+const OpenTabsSidebarProvider = require('./openTabsSidebarProvider');
 const trainModelService = require('./trainModelService');
 const runModelService = require('./runModelService');
 
@@ -12,6 +13,11 @@ function activate(context) {
     const workspaceRoot = vscode.workspace.rootPath;
     const analysisPreviewProvider = new AnalysisPreviewProvider(workspaceRoot);
     vscode.window.registerTreeDataProvider('javaFilesView', analysisPreviewProvider);
+
+    const openTabsSidebarProvider = new OpenTabsSidebarProvider();
+    vscode.window.registerTreeDataProvider('openTabsPreview', openTabsSidebarProvider);
+    vscode.commands.registerCommand('extension.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
+    vscode.window.createTreeView('openTabsPreview', { treeDataProvider: openTabsSidebarProvider });
 
     context.subscriptions.push(vscode.commands.registerCommand('extension.showLogDensityInfo', block => {
         vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);

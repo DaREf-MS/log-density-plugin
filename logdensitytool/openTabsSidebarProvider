@@ -1,0 +1,35 @@
+const vscode = require('vscode');
+const runModelService = require('./runModelService');
+
+class OpenTabsSidebarProvider {
+    constructor() {
+        this._onDidChangeTreeData = new vscode.EventEmitter();
+        this.onDidChangeTreeData = this._onDidChangeTreeData.event;
+    }
+
+    getTreeItem(element) {
+        return {
+            label: element,
+            collapsibleState: vscode.TreeItemCollapsibleState.None
+        };
+    }
+
+    async getChildren(element) {
+        const openTabs = await this.getOpenTabs();
+        return Promise.resolve(openTabs);
+    }
+
+    async getOpenTabs() {
+        const editors = vscode.window.visibleTextEditors;
+        const openTabNames = editors.map(editor => editor.document.fileName);
+        console.log('Open tab names:', openTabNames);
+
+        return openTabNames;
+    }
+
+    refresh() {
+        this._onDidChangeTreeData.fire(undefined);
+    }
+}
+
+module.exports = OpenTabsSidebarProvider;
