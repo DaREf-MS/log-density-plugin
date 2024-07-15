@@ -4,12 +4,12 @@
   "description": "This extension enhances your coding workflow by automatically measuring and reporting the log density of files within a repository.",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.91.1"
+    "vscode": "^1.91.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": ["*"],
   "main": "./extension.js",
   "contributes": {
     "commands": [
@@ -65,7 +65,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
-    "@types/vscode": "^1.91.1",
+    "@types/vscode": "^1.91.0",
     "@vscode/test-cli": "^0.0.9",
     "@vscode/test-electron": "^2.4.0",
     "eslint": "^8.57.0",

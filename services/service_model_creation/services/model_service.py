@@ -28,6 +28,7 @@ async def create_model(project_url: str):
             Repo.clone_from(github_url, project_path)
         else:
             logging.info(f"Repository already exists at {project_path}")
+            return {"message": "Repository already exists"}
 
         # Run preprocessing script
         preprocess_command = f"preprocess_project {project_path}"
