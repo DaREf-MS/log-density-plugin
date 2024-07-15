@@ -24,6 +24,7 @@ class OpenTabsSidebarProvider {
     }
 
     async getOpenTabs() {
+        // https://code.visualstudio.com/api/references/vscode-api
         const editors = vscode.window.visibleTextEditors;
         const openTabItems = await Promise.all(editors.map(async (editor) => {
             const filepath = editor.document.fileName;
