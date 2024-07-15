@@ -30,7 +30,7 @@ class LogDensityCodeLensProvider {
             // what will be written above code blocks
             lenses.push(new vscode.CodeLens(range, {
                 command: 'extension.showLogDensityInfo',
-                title: `Block Lines: ${block.blockLineStart}-${block.blockLineEnd} \u00A0 | \u00A0 Block Type: ${block.type} \u00A0 | \u00A0 Log Density: ${logDescription} `,
+                title: `Predicted Log Density: ${logDescription} \u00A0 | \u00A0 Current Log Density: ${this.log_density_classes[block.currentLogLevel]}`,
                 tooltip: `Click for more details about the ${block.type} block starting at line ${block.blockLineStart} and ending at line ${block.blockLineEnd}`
             }));
         });
