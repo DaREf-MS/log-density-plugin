@@ -41,6 +41,13 @@ def load_syntactic_nodes(project_dir):
         syntactic_nodes = pickle.load(file)
     return syntactic_nodes
 
+def load_categories_thresholds(project_dir):
+    print("LOADING THRESHOLDS")
+    thresholds = None
+    with open(os.path.join(os.path.dirname(project_dir), 'log_density_classes_thresholds.pkl'), "rb") as file:
+        thresholds = pickle.load(file)
+    return thresholds
+
 def preprocess_nodes(x, syntactic_nodes, project_dir):
     
     project_name = os.path.basename(project_dir)
@@ -72,6 +79,7 @@ def preprocess_file(filepath, syntactic_nodes, project_dir):
 
 
 def predict(project_dir, filepath):
+
     syn = load_syntactic_nodes(project_dir) 
     preprocessed_file = preprocess_file(filepath, syn, project_dir)
     model = load_model(project_dir)
@@ -86,6 +94,9 @@ def predict(project_dir, filepath):
     average_class = np.average(log_level_per_block)
     prediced_class = round(average_class)
     print(prediced_class)
+
+    thresholds = sorted(load_categories_thresholds(project_dir))
+
     log_density_classes = [
         "No logs",
         "Very low log density",
@@ -100,11 +111,18 @@ def predict(project_dir, filepath):
     for log_level,block in zip(log_level_per_block,preprocessed_file['blocks']):
         del block["x"]
         block["log_level"]=log_level.item()
+
+        category_count = 0
+        for percent_threshold in thresholds:
+            if block["logDensity"] > percent_threshold:
+                category_count += 1
+        block["currentLogLevel"] = category_count
         blocks.append(block)
         
         
     result = {
         **preprocessed_file,
+        "predictedDensity": prediced_class,
         "blocks": blocks
     }
     print(result)
