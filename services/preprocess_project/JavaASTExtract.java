@@ -171,9 +171,10 @@ public class JavaASTExtract {
                         "methodStart": %d,
                         "blockLineStart": %d,
                         "blockLineEnd": %d,
-                        "type": "%s"
+                        "type": "%s",
+                        "logDensity": %f
                     } 
-                """, nodes, block.methodStart, block.blockStart, block.blockEnd, block.type);
+                """, nodes, block.methodStart, block.blockStart, block.blockEnd, block.type, block.logDensity);
             return str;
         }).collect(Collectors.joining(",\n"));
         
