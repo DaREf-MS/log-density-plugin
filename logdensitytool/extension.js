@@ -1,10 +1,10 @@
-
 const vscode = require('vscode');
 const LogDensityCodeLensProvider = require('./logDensityCodeLensProvider');
 const trainModelService = require('./trainModelService');
 const runModelService = require('./runModelService');
 
 function activate(context) {
+    
     const codeLensProvider = new LogDensityCodeLensProvider();
     context.subscriptions.push(vscode.languages.registerCodeLensProvider({ language: 'java' }, codeLensProvider));
 
@@ -16,7 +16,7 @@ function activate(context) {
     let disposableTrain = vscode.commands.registerCommand('extension.sendGitHubUrl', async () => {
         const url = await vscode.window.showInputBox({ prompt: 'Enter GitHub URL to train model' });
         if (url) {
-            trainModelService.trainModel(url);
+           trainModelService.trainModel(url);
         } else {
             vscode.window.showErrorMessage('GitHub URL is required');
         }
