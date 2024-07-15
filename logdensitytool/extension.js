@@ -48,7 +48,7 @@ async function analyzeDocument(document) {
         return;
     }
     
-    const blocks = await runModelService.runModel(remoteGitUrl, document.getText())
+    const { blocks } = await runModelService.runModel(remoteGitUrl, document.getText())
     codeLensProvider.setData(blocks);  // Update CodeLens with new data
 }
 

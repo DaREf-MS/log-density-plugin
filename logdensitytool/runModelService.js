@@ -9,7 +9,7 @@ async function runModel(url, fileContent) {
             fileContent: fileContent
         });
         console.log("Response received:", response.data);
-        return response.data.blocks;
+        return response.data;
 
     } catch (error) {
         console.error("Failed to send request or process response:", error);

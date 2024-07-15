@@ -1,5 +1,6 @@
 const vscode = require('vscode');
-const path = require('path')
+const path = require('path');
+const fs = require('fs').promises;
 const runModelService = require('./runModelService');
 
 class OpenTabsSidebarProvider {
@@ -10,27 +11,71 @@ class OpenTabsSidebarProvider {
     }
 
     getTreeItem(element) {
-        return {
-            label: element,
-            collapsibleState: vscode.TreeItemCollapsibleState.None
-        };
+        return element;
     }
 
     async getChildren(element) {
-        const openTabs = await this.getOpenTabs();
-        return Promise.resolve(openTabs);
+        if (element) {
+            return Promise.resolve([]);
+        } else {
+            const openTabs = await this.getOpenTabs();
+            return Promise.resolve(openTabs);
+        }
     }
 
     async getOpenTabs() {
         const editors = vscode.window.visibleTextEditors;
-        const openTabNames = editors.map(editor => path.basename(editor.document.fileName));
-        console.log('Open tab names:', openTabNames);
+        const openTabItems = await Promise.all(editors.map(async (editor) => {
+            const filepath = editor.document.fileName;
+            const filename = path.basename(filepath);
+            const content = await this.readFileContent(filepath);
+            const response = await runModelService.runModel(this.url, content);
+            const { density, predictedDensity } = response;
+            console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
 
-        return openTabNames;
+
+            return new JavaItem(filename, filepath, vscode.TreeItemCollapsibleState.None, density, predictedDensity);
+        }));
+        console.log('[Open tabs]:', openTabItems);
+
+        return openTabItems;
+    }
+
+    async readFileContent(filePath) {
+        try {
+            const content = await fs.readFile(filePath, 'utf-8');
+            return content;
+        } catch (error) {
+            console.error(`Error reading file ${filePath}:`, error);
+            return '';
+        }
     }
 
     refresh() {
         this._onDidChangeTreeData.fire(undefined);
+    }
+}
+
+class JavaItem extends vscode.TreeItem {
+    constructor(filename, filepath, collapsibleState, density = null, predictedDensity = null) {
+        super(filename, collapsibleState);
+        this.filename = filename;
+        this.filepath = filepath;
+        this.contextValue = 'javaFile';
+        this.density = density;
+        this.predictedDensity = predictedDensity;
+    }
+
+    get tooltip() {
+        return this.filepath;
+    }
+
+    get description() {
+        if (this.density !== null && this.predictedDensity !== null) {
+            return `${this.density} (Desired density: ${this.predictedDensity})`;
+        } else {
+            return '';
+        }
     }
 }
 
