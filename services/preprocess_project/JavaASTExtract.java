@@ -60,18 +60,21 @@ public class JavaASTExtract {
         }
         return fileContent;
     }
-    private static double logDensity(String filepath){
-        String lines = readFile(filepath);
+    private static double logDensity(String code){
         double logLines = 0.0;
         double loc = 0.0;
         String logPattern = ".*\\b(log|console|logger)\\s*\\.\\s*(trace|fatal|critical|error|warn|info|debug|exception)\\s*\\(.*";
         Pattern pattern = Pattern.compile(logPattern, Pattern.CASE_INSENSITIVE);
-        for (String line : lines.split("\n")){
+        for (String line : code.split("\n")){
             loc++;
             Matcher matcher = pattern.matcher(line);
             if (matcher.find()) logLines++;
         }
         return 100.0* logLines/loc;
+    }
+    private static double fileLogDensity(String filepath){
+        String lines = readFile(filepath);
+        return logDensity(lines);
     }
     private static boolean isLogged(String block){
         String logPattern = ".*\\b(log|console|logger)\\s*\\.\\s*(trace|fatal|critical|error|warn|info|debug|exception)\\s*\\(.*";
@@ -185,7 +188,7 @@ public class JavaASTExtract {
                     %s
                 ]        
             }
-        """, logDensity(filepath), blockStr);
+        """, fileLogDensity(filepath), blockStr);
         
     }
 
@@ -210,7 +213,7 @@ public class JavaASTExtract {
                     block.semanticFeatures = semFeat;
                     block.syntacticFeatures = synFeat;
                     block.isLogged = isLogged(n.toString());
-                    block.logDensity = logDensity(filepath);
+                    block.logDensity = logDensity(n.toString());
                     blocks.add(block);
 
                 }
@@ -246,6 +249,7 @@ public class JavaASTExtract {
 
                     block.semanticFeatures = semFeat;
                     block.syntacticFeatures = synFeat;
+                    block.logDensity = logDensity(n.toString());
                     blocks.add(block);
                 }
                 super.visit(n, arg);
@@ -262,6 +266,7 @@ public class JavaASTExtract {
                     MyBlock block = new MyBlock("If", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
                     block.semanticFeatures = semFeat;
                     block.syntacticFeatures = synFeat;
+                    block.logDensity = logDensity(n.toString());
                     blocks.add(block);
                 }
                 super.visit(n, arg);
@@ -284,6 +289,7 @@ public class JavaASTExtract {
                     }
 
                     MyBlock block = new MyBlock("Switch", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
+                    block.logDensity = logDensity(n.toString());
                     block.semanticFeatures = semFeat;
                     block.syntacticFeatures = synFeat;
                     blocks.add(block);
@@ -311,6 +317,7 @@ public class JavaASTExtract {
 
                     MyBlock block = new MyBlock("For", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
                     block.semanticFeatures = semFeat;
+                    block.logDensity = logDensity(n.toString());
                     block.syntacticFeatures = synFeat;
                     blocks.add(block);
 
@@ -338,6 +345,7 @@ public class JavaASTExtract {
 
                     MyBlock block = new MyBlock("ForEach", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
                     block.semanticFeatures = semFeat;
+                    block.logDensity = logDensity(n.toString());
                     block.syntacticFeatures = synFeat;
                     blocks.add(block);
 
@@ -362,6 +370,7 @@ public class JavaASTExtract {
 
                     MyBlock block = new MyBlock("While", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
                     block.semanticFeatures = semFeat;
+                    block.logDensity = logDensity(n.toString());
                     block.syntacticFeatures = synFeat;
                     blocks.add(block);
                 }
