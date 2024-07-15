@@ -2,6 +2,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
@@ -84,6 +85,16 @@ public class JavaASTExtract {
             if (matcher.find()) return true;
         }
         return false;
+    }
+
+    // Method to remove comments from a node
+    static void removeComments(Node node) {
+        for (Comment comment : node.getAllContainedComments()) {
+            comment.remove();
+        }
+        for (Node child : node.getChildNodes()) {
+            removeComments(child);
+        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -213,7 +224,11 @@ public class JavaASTExtract {
                     block.semanticFeatures = semFeat;
                     block.syntacticFeatures = synFeat;
                     block.isLogged = isLogged(n.toString());
-                    block.logDensity = logDensity(n.toString());
+                    
+                    var nClone = n.clone();
+                    removeComments(nClone);
+                    block.logDensity = logDensity(nClone.toString());
+
                     blocks.add(block);
 
                 }
@@ -249,7 +264,11 @@ public class JavaASTExtract {
 
                     block.semanticFeatures = semFeat;
                     block.syntacticFeatures = synFeat;
-                    block.logDensity = logDensity(n.toString());
+                    
+                    var nClone = n.clone();
+                    removeComments(nClone);
+                    block.logDensity = logDensity(nClone.toString());
+
                     blocks.add(block);
                 }
                 super.visit(n, arg);
@@ -266,7 +285,11 @@ public class JavaASTExtract {
                     MyBlock block = new MyBlock("If", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
                     block.semanticFeatures = semFeat;
                     block.syntacticFeatures = synFeat;
-                    block.logDensity = logDensity(n.toString());
+
+                    var nClone = n.clone();
+                    removeComments(nClone);
+                    block.logDensity = logDensity(nClone.toString());
+
                     blocks.add(block);
                 }
                 super.visit(n, arg);
@@ -289,9 +312,13 @@ public class JavaASTExtract {
                     }
 
                     MyBlock block = new MyBlock("Switch", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
-                    block.logDensity = logDensity(n.toString());
                     block.semanticFeatures = semFeat;
                     block.syntacticFeatures = synFeat;
+
+                    var nClone = n.clone();
+                    removeComments(nClone);
+                    block.logDensity = logDensity(nClone.toString());
+
                     blocks.add(block);
                 }
                 super.visit(n, arg);
@@ -317,8 +344,12 @@ public class JavaASTExtract {
 
                     MyBlock block = new MyBlock("For", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
                     block.semanticFeatures = semFeat;
-                    block.logDensity = logDensity(n.toString());
                     block.syntacticFeatures = synFeat;
+
+                    var nClone = n.clone();
+                    removeComments(nClone);
+                    block.logDensity = logDensity(nClone.toString());
+
                     blocks.add(block);
 
                 }
@@ -345,8 +376,12 @@ public class JavaASTExtract {
 
                     MyBlock block = new MyBlock("ForEach", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
                     block.semanticFeatures = semFeat;
-                    block.logDensity = logDensity(n.toString());
                     block.syntacticFeatures = synFeat;
+
+                    var nClone = n.clone();
+                    removeComments(nClone);
+                    block.logDensity = logDensity(nClone.toString());
+
                     blocks.add(block);
 
                 }
@@ -370,8 +405,12 @@ public class JavaASTExtract {
 
                     MyBlock block = new MyBlock("While", currentMethodStartLine, blockRange.begin.line, blockRange.end.line);
                     block.semanticFeatures = semFeat;
-                    block.logDensity = logDensity(n.toString());
                     block.syntacticFeatures = synFeat;
+
+                    var nClone = n.clone();
+                    removeComments(nClone);
+                    block.logDensity = logDensity(nClone.toString());
+
                     blocks.add(block);
                 }
                 super.visit(n, arg);
