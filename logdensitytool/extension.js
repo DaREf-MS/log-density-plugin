@@ -83,14 +83,21 @@ function activate(context) {
         }
     }
 
-    const openTabsSidebarProvider = new OpenTabsSidebarProvider(remoteGitUrl ? remoteGitUrl : "https://github.com/apache/zookeeper.git");
-    vscode.window.registerTreeDataProvider('openTabsPreview', openTabsSidebarProvider);
-    vscode.commands.registerCommand('extension.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
+    const openTabsSidebarProvider = new OpenTabsSidebarProvider(remoteGitUrl);
     vscode.window.createTreeView('openTabsPreview', { treeDataProvider: openTabsSidebarProvider });
+    vscode.commands.registerCommand('extension.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
 
     const analyzeEditedFileDisposable = vscode.workspace.onDidChangeTextDocument(handleFileEvent);
     const analyzeOpenedFileDisposable = vscode.workspace.onDidOpenTextDocument(handleFileEvent);
     const analyzeTextDisposable = vscode.window.onDidChangeActiveTextEditor(analyzeActiveEditor);
+    vscode.workspace.onDidOpenTextDocument(() => {
+        vscode.commands.executeCommand('extension.refreshOpenTabs');
+    });
+
+    // Automatically refresh when the visible editors change
+    vscode.window.onDidChangeVisibleTextEditors(() => {
+        vscode.commands.executeCommand('extension.refreshOpenTabs');
+    });
 
 
     // TODO - gerer ceci plutard
