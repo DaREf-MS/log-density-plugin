@@ -67,10 +67,12 @@ class JavaItem extends vscode.TreeItem {
         this.predictedDensity = predictedDensity;
     }
 
+    // Text to display when hovering over file in Sidebar View
     get tooltip() {
         return this.filepath;
     }
 
+    // Secondary text to display alongside the filename in Sidebar View
     get description() {
         if (this.density !== null && this.predictedDensity !== null) {
             return `${this.density} (Desired density: ${this.predictedDensity})`;
