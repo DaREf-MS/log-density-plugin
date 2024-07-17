@@ -15,31 +15,34 @@ class OpenTabsSidebarProvider {
     }
 
     async getChildren(element) {
-        if (element) {
-            return Promise.resolve([]);
+        if (element instanceof TabGroupItem) {
+            return element.files;
         } else {
-            const openTabs = await this.getOpenTabs();
-            return Promise.resolve(openTabs);
+            const tabGroups = await this.getTabGroups();
+            return Promise.resolve(tabGroups);
         }
     }
 
-    async getOpenTabs() {
-        // https://code.visualstudio.com/api/references/vscode-api
-        const editors = vscode.window.visibleTextEditors;
-        const openTabItems = await Promise.all(editors.map(async (editor) => {
-            const filepath = editor.document.fileName;
-            const filename = path.basename(filepath);
-            const content = await this.readFileContent(filepath);
-            const response = await runModelService.runModel(this.url, content);
-            const { density, predictedDensity } = response;
-            console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
+    async getTabGroups() {
+        const tabGroups = vscode.window.tabGroups.all.map((tabGroup, index) => {
+            const files = tabGroup.tabs
+                .filter((tab) => tab.input && tab.input.uri && tab.input.uri.fsPath.endsWith('.java'))
+                .map((tab) => {
+                    const filepath = tab.input.uri.fsPath;
+                    const filename = path.basename(filepath);
+                    
+                    // const content = await this.readFileContent(filepath);
+                    // const response = await runModelService.runModel(this.url, content);
+                    // const { density, predictedDensity } = response;
+                    // console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
 
+                    return new JavaItem(filename, filepath, vscode.TreeItemCollapsibleState.None);
+                });
 
-            return new JavaItem(filename, filepath, vscode.TreeItemCollapsibleState.None, density, predictedDensity);
-        }));
-        console.log('[Open tabs]:', openTabItems);
+            return new TabGroupItem(`Tab Group ${index + 1}`, files)
+        })
 
-        return openTabItems;
+        return tabGroups;
     }
 
     async readFileContent(filePath) {
@@ -54,6 +57,17 @@ class OpenTabsSidebarProvider {
 
     refresh() {
         this._onDidChangeTreeData.fire(undefined);
+    }
+}
+
+class TabGroupItem extends vscode.TreeItem {
+    constructor(label, files) {
+        super(label, vscode.TreeItemCollapsibleState.Expanded);
+        this.files = files;
+    }
+
+    get tooltip() {
+        return this.label;
     }
 }
 
