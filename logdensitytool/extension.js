@@ -94,6 +94,10 @@ function activate(context) {
         vscode.commands.executeCommand('extension.refreshOpenTabs');
     });
 
+    vscode.workspace.onDidCloseTextDocument(() => {
+        vscode.commands.executeCommand('extension.refreshOpenTabs');
+    });
+
     // Automatically refresh when the visible editors change
     vscode.window.onDidChangeVisibleTextEditors(() => {
         vscode.commands.executeCommand('extension.refreshOpenTabs');
