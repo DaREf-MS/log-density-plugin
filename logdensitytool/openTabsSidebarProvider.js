@@ -14,43 +14,58 @@ class OpenTabsSidebarProvider {
         return element;
     }
 
+    // if TabGroupItem, display its children: the JavaItem instances associated to it
+    // else if JavaItem, it is a leaf in the tree, so it has no children and returns an empty array
+    // else: initial setup of the Sidebar View
     async getChildren(element) {
         if (element instanceof TabGroupItem) {
             return element.files;
+        } else if (element instanceof JavaItem) {
+            return [];
         } else {
-            const tabGroups = await this.getTabGroups();
-            return Promise.resolve(tabGroups);
+            return await this.getTabGroups();
         }
     }
 
+    // if there is 1 tab group, return only the files
+    // else if there is >1 tab groups, return files under collapsible tabGroups
     async getTabGroups() {
-        const tabGroups = vscode.window.tabGroups.all.map((tabGroup, index) => {
-            const files = tabGroup.tabs
-                .filter((tab) => tab.input && tab.input.uri && tab.input.uri.fsPath.endsWith('.java'))
-                .map((tab) => {
-                    const filepath = tab.input.uri.fsPath;
-                    const filename = path.basename(filepath);
-                    
-                    // const content = await this.readFileContent(filepath);
-                    // const response = await runModelService.runModel(this.url, content);
-                    // const { density, predictedDensity } = response;
-                    // console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
+        const tabGroups = vscode.window.tabGroups.all;
 
-                    return new JavaItem(filename, filepath, vscode.TreeItemCollapsibleState.None);
-                });
+        if (tabGroups.length === 1) {
+            return this.processTabs(tabGroups[0].tabs);
+        } else {
+            const tabGroupItems = tabGroups.map((tabGroup, index) => {
+                const tabs = this.processTabs(tabGroup.tabs);
+                return new TabGroupItem(`Tab Group ${index + 1}`, tabs);
+            });
 
-            return new TabGroupItem(`Tab Group ${index + 1}`, files)
-        })
-
-        return tabGroups;
+            return tabGroupItems;
+        }
     }
 
-    async readFileContent(filePath) {
+    // For each tab, verify that it is a Java file, then extract its filepath and analyze its densities based on its content
+    async processTabs(tabs) {
+        return tabs
+            .filter((tab) => tab.input && tab.input.uri && tab.input.uri.fsPath.endsWith('.java'))
+            .map((tab) => {
+                const filepath = tab.input.uri.fsPath;
+                    
+                // const content = await this.readFileContent(filepath);
+                // const response = await runModelService.runModel(this.url, content);
+                // const { density, predictedDensity } = response;
+                // console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
+
+                return new JavaItem(filepath, vscode.TreeItemCollapsibleState.None);
+            });
+    }
+
+    async readFileContent(filepath) {
         try {
-            const content = await fs.readFile(filePath, 'utf-8');
+            const content = await fs.readFile(filepath, 'utf-8');
             return content;
         } catch (error) {
-            console.error(`Error reading file ${filePath}:`, error);
+            console.error(`Error reading file ${filepath}:`, error);
             return '';
         }
     }
@@ -72,11 +87,12 @@ class TabGroupItem extends vscode.TreeItem {
 }
 
 class JavaItem extends vscode.TreeItem {
-    constructor(filename, filepath, collapsibleState, density = null, predictedDensity = null) {
-        super(filename, collapsibleState);
-        this.filename = filename;
+    constructor(filepath, collapsibleState, density = null, predictedDensity = null) {
+        super(path.basename(filepath), collapsibleState);
         this.filepath = filepath;
+        this.filename = path.basename(filepath);
         this.contextValue = 'javaFile';
+        this.iconPath = vscode.ThemeIcon.File;
         this.density = density;
         this.predictedDensity = predictedDensity;
     }
