@@ -31,6 +31,7 @@ class OpenTabsSidebarProvider {
     // if there is 1 tab group, return only the files
     // else if there is >1 tab groups, return files under collapsible tabGroups
     async getTabGroups() {
+        // https://code.visualstudio.com/api/references/vscode-api#TabGroups
         const tabGroups = vscode.window.tabGroups.all;
 
         if (tabGroups.length === 1) {
