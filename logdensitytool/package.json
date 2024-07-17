@@ -52,7 +52,7 @@
         },
         {
           "id": "openTabsPreview",
-          "name": "Open Tabs Density Preview"
+          "name": "Density of Opened Tabs"
         }
       ]
     }

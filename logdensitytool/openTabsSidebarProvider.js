@@ -23,7 +23,8 @@ class OpenTabsSidebarProvider {
         } else if (element instanceof JavaItem) {
             return [];
         } else {
-            return await this.getTabGroups();
+            const tabGroupItems = await this.getTabGroups();
+            return tabGroupItems.length > 0 ? tabGroupItems : [new vscode.TreeItem('No open tabs...')]
         }
     }
 
