@@ -84,24 +84,22 @@ function activate(context) {
     }
 
     const openTabsSidebarProvider = new OpenTabsSidebarProvider(remoteGitUrl);
-    vscode.window.createTreeView('openTabsPreview', { treeDataProvider: openTabsSidebarProvider });
+    vscode.window.createTreeView('openTabsSidebarView', { treeDataProvider: openTabsSidebarProvider });
     vscode.commands.registerCommand('extension.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
 
-    const analyzeEditedFileDisposable = vscode.workspace.onDidChangeTextDocument(handleFileEvent);
-    const analyzeOpenedFileDisposable = vscode.workspace.onDidOpenTextDocument(handleFileEvent);
-    const analyzeTextDisposable = vscode.window.onDidChangeActiveTextEditor(analyzeActiveEditor);
+    // Refresh openTabsSidebarView when a file is opened
     vscode.workspace.onDidOpenTextDocument(() => {
         vscode.commands.executeCommand('extension.refreshOpenTabs');
     });
 
+    // Refresh openTabsSidebarView when a file is closed
     vscode.workspace.onDidCloseTextDocument(() => {
         vscode.commands.executeCommand('extension.refreshOpenTabs');
     });
 
-    // Automatically refresh when the visible editors change
-    vscode.window.onDidChangeVisibleTextEditors(() => {
-        vscode.commands.executeCommand('extension.refreshOpenTabs');
-    });
+    const analyzeEditedFileDisposable = vscode.workspace.onDidChangeTextDocument(handleFileEvent);
+    const analyzeOpenedFileDisposable = vscode.workspace.onDidOpenTextDocument(handleFileEvent);
+    const analyzeTextDisposable = vscode.window.onDidChangeActiveTextEditor(analyzeActiveEditor);
 
 
     // TODO - gerer ceci plutard

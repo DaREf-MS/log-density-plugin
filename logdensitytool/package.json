@@ -51,7 +51,7 @@
           "name": "Density Analysis Preview"
         },
         {
-          "id": "openTabsPreview",
+          "id": "openTabsSidebarView",
           "name": "Density of Opened Tabs"
         }
       ]

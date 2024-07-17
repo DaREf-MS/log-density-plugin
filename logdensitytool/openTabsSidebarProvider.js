@@ -24,7 +24,7 @@ class OpenTabsSidebarProvider {
             return [];
         } else {
             const tabGroupItems = await this.getTabGroups();
-            return tabGroupItems.length > 0 ? tabGroupItems : [new vscode.TreeItem('No open tabs...')]
+            return tabGroupItems.length > 0 ? tabGroupItems : [new vscode.TreeItem('No opened tabs...')]
         }
     }
 
