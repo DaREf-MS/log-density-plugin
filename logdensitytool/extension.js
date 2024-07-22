@@ -9,38 +9,63 @@ let repositoryIndex = 0;
 let remoteIndex = 0;
 
 let trained = false;
-let remoteGitUrl;
+let detectedRemoteGitUrl; // url detectée pour le projet ouvert
+let chosenRemoteGitUrl; // URL du répertoire choisi
 const codeLensProvider = new LogDensityCodeLensProvider();
+
+function getGitRepo() {
+    let gitExtension = vscode.extensions.getExtension('vscode.git');
+    let git, repo;
+    
+    if (
+        gitExtension && 
+        gitExtension.isActive && 
+        (git = gitExtension.exports.getAPI(1)) && git.repositories.length > repositoryIndex &&
+        (repo = git.repositories[repositoryIndex])
+    ) {
+        return repo;
+    }
+}
 
 async function getGitRemoteUrl() {
 
     function tryGetGitRemoteUrl() {
     
-        let gitExtension = vscode.extensions.getExtension('vscode.git');
-        let git, repo;
+        let repo;
         if (
-            gitExtension && 
-            gitExtension.isActive && 
-            (git = gitExtension.exports.getAPI(1)) && git.repositories.length > repositoryIndex &&
-            (repo = git.repositories[repositoryIndex]) && repo.repository.remotes.length > remoteIndex
+            (repo = getGitRepo()) &&
+            repo.repository.remotes.length > remoteIndex
         ) {
-            let remoteGitUrl = repo.repository.remotes[remoteIndex].fetchUrl;
-            return remoteGitUrl;
+            let detectedRemoteGitUrl = repo.repository.remotes[remoteIndex].fetchUrl;
+            return detectedRemoteGitUrl;
         }
     }
 
     return new Promise((resolve, reject) => {
+        // poll the activation
         pollGetUrl = setInterval(() => {
             let result = tryGetGitRemoteUrl()
             if (result) {
                 clearInterval(pollGetUrl);
-                resolve(result)
+                resolve(result);
             }
         }, 50);
     })
 
 }
 
+/**
+ * Predicate for analyzable file
+ * @param {string} filepath - the absolute path of the file
+ * @returns {boolean} whether the file is analyzable or not
+ */
+function shouldAnalyze(filepath) {
+    if (chosenRemoteGitUrl !== detectedRemoteGitUrl) {
+        return true;
+    } else {
+        let repo = getGitRepo();
+    }
+}
 
 async function analyzeDocument(document) {
 
@@ -48,16 +73,18 @@ async function analyzeDocument(document) {
         return;
     }
     
-    const { blocks } = await runModelService.runModel(remoteGitUrl, document.getText())
+    const { blocks } = await runModelService.runModel(chosenRemoteGitUrl, document.getText())
     codeLensProvider.setData(blocks);  // Update CodeLens with new data
 }
 
 async function analyzeActiveEditor() {
     const activeEditor = vscode.window.activeTextEditor
-    if (trained && remoteGitUrl && activeEditor?.document) {
+    if (trained && chosenRemoteGitUrl && activeEditor?.document) {
         await analyzeDocument(activeEditor.document);
     }
 }
+
+
 
 function activate(context) {
     context.subscriptions.push(vscode.languages.registerCodeLensProvider({ language: 'java' }, codeLensProvider));
@@ -69,13 +96,58 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand('extension.showLogDensityInfo', block => {
         vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);
     }));
+
+    let gitExtension = vscode.extensions.getExtension('vscode.git');
+    gitExtension.activate().then((api) => {
+        console.log("omg look at my glorious api", api)
+        api.model.onDidAddRemoteSourcePublisher((...omg) => {
+            console.log("remote source pub: ", omg)
+        })
+        const openRepoDisposable = api.model.onDidOpenRepository((repository)=> {
+            console.log("omg a repository was added, here it is", repository);
+            
+            let hello = repository.onDidRunOperation((operation) => {
+                console.log("status was ran", operation)
+                console.log("voici les remotes a nouveau: ", repository.remotes[0].fetchUrl);
+                hello.dispose();
+            });
+            
+            wdir_changed_files = repository.workingTreeGroup.resourceStates.map(rs => rs.ressources.modified);
+            console.log('here is the current changes:', wdir_changed_files);
+            repository.workingTreeGroup.onDidUpdateResourceStates((...args) => {
+
+                console.log("omg ressources where changed", repository.workingTreeGroup.resourceStates.map(rs => rs.resources.modified));
+
+                const extActivationDisposable = gitExtension.activate().then(api => {
+                    const openRepoDisposable2 = api.model.onDidOpenRepository(repo2 => {
+                        console.log("repo2 was opened:", repo2)
+                        openRepoDisposable2.dispose()
+                    })
+                    // extActivationDisposable.dispose()
+                });
+                
+            });
+            // repository.untrackedGroup.on
+
+            openRepoDisposable.dispose();
+        })
+        let repo = api.model.repositories[0];
+        console.log('here is the repo: ', repo)
+        repo?.onDidChangeState((...args) => console.log("omg there is a change, here are the args", args))
+    })
+
+    // // setTimeout(() => getGitRemoteUrl(), 10000);
+    // getGitRepo()?.repository?.workingTreeGroup?.onDidUpdateResourceStates((...args) => {
+    //     console.log("here are the changes args", args);
+    // });
+
     getGitRemoteUrl().then((url) => {
-        remoteGitUrl = url;
+        detectedRemoteGitUrl = url;
     })
 
     async function handleFileEvent(event) {
         if (
-            trained && remoteGitUrl && 
+            trained && chosenRemoteGitUrl && 
             event.contentChanges && 
             event.contentChanges.length > 0 
         ) {
@@ -83,7 +155,8 @@ function activate(context) {
         }
     }
 
-    const openTabsSidebarProvider = new OpenTabsSidebarProvider(remoteGitUrl ? remoteGitUrl : "https://github.com/apache/zookeeper.git");
+    // Load this without the URL, maybe give some instructions on how to set an URL or a button
+    const openTabsSidebarProvider = new OpenTabsSidebarProvider(detectedRemoteGitUrl ? detectedRemoteGitUrl : "https://github.com/apache/zookeeper.git");
     vscode.window.registerTreeDataProvider('openTabsPreview', openTabsSidebarProvider);
     vscode.commands.registerCommand('extension.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
     vscode.window.createTreeView('openTabsPreview', { treeDataProvider: openTabsSidebarProvider });
@@ -95,23 +168,20 @@ function activate(context) {
 
     // TODO - gerer ceci plutard
     const resetUrlDisposable = vscode.workspace.onDidChangeWorkspaceFolders(event => {
-        remoteGitUrl = undefined;
+        detectedRemoteGitUrl = undefined;
+        chosenRemoteGitUrl = undefined;
         trained = false;
         getGitRemoteUrl().then((url) => {
-            remoteGitUrl = url;          
+            detectedRemoteGitUrl = url;          
         })
     });
 
-
-    // context.subscriptions.push(vscode.commands.registerCommand('extension.showLogDensityInfo', block => {
-    //     vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);
-    // }));
-
     // Register command to trigger model training
     let disposableTrain = vscode.commands.registerCommand('extension.sendGitHubUrl', async () => {
-        const url = await vscode.window.showInputBox({ prompt: 'Enter GitHub URL to train model', value: remoteGitUrl});
+        const url = await vscode.window.showInputBox({ prompt: 'Enter GitHub URL to train model', value: detectedRemoteGitUrl});
         if (url) {
             await trainModelService.trainModel(url);
+            chosenRemoteGitUrl = url;
             trained = true;
             await analyzeActiveEditor();
         } else {
