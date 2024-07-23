@@ -11,6 +11,7 @@ let remoteIndex = 0;
 let trained = false;
 let remoteGitUrl;
 const codeLensProvider = new LogDensityCodeLensProvider();
+let openTabsSidebarProvider;
 
 async function getGitRemoteUrl() {
 
@@ -83,19 +84,36 @@ function activate(context) {
         }
     }
 
-    const openTabsSidebarProvider = new OpenTabsSidebarProvider();
+
+    // Singleton to make sure there are not multiple initializations
+    if (!openTabsSidebarProvider) {
+        openTabsSidebarProvider = new OpenTabsSidebarProvider();
+    }
     vscode.window.createTreeView('openTabsSidebarView', { treeDataProvider: openTabsSidebarProvider });
     vscode.commands.registerCommand('extension.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
 
     // Refresh openTabsSidebarView when a file is opened
-    vscode.workspace.onDidOpenTextDocument(() => {
+    function handleDidOpenTextDocument() {
+        console.log('handleDidOpenTextDocument called');
+        if (!openTabsSidebarProvider.isInitialized) {
+            console.log('Sidebar initialized');
+            openTabsSidebarProvider.isInitialized = true;
+            return;
+        }
+        console.log('Executing refreshOpenTabs');
         vscode.commands.executeCommand('extension.refreshOpenTabs');
-    });
+    }
+    context.subscriptions.push(
+        vscode.workspace.onDidOpenTextDocument(handleDidOpenTextDocument)
+    );
 
-    // Refresh openTabsSidebarView when a file is closed
-    vscode.workspace.onDidCloseTextDocument(() => {
-        vscode.commands.executeCommand('extension.refreshOpenTabs');
-    });
+    // Refresh openTabsSidebarView when a file is closed, but prevent refreshing when initializing
+    context.subscriptions.push(
+        vscode.workspace.onDidCloseTextDocument(() => {
+            console.log('File closed, refreshing sidebar');
+            vscode.commands.executeCommand('extension.refreshOpenTabs');
+        })
+    );
 
     const analyzeEditedFileDisposable = vscode.workspace.onDidChangeTextDocument(handleFileEvent);
     const analyzeOpenedFileDisposable = vscode.workspace.onDidOpenTextDocument(handleFileEvent);
