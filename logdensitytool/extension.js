@@ -83,7 +83,7 @@ function activate(context) {
         }
     }
 
-    const openTabsSidebarProvider = new OpenTabsSidebarProvider(remoteGitUrl);
+    const openTabsSidebarProvider = new OpenTabsSidebarProvider();
     vscode.window.createTreeView('openTabsSidebarView', { treeDataProvider: openTabsSidebarProvider });
     vscode.commands.registerCommand('extension.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
 

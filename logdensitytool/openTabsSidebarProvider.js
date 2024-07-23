@@ -4,10 +4,11 @@ const fs = require('fs').promises;
 const runModelService = require('./runModelService');
 
 class OpenTabsSidebarProvider {
-    constructor(remoteGitUrl) {
+    constructor() {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
-        this.url = remoteGitUrl
+        this.url = null;
+        this.javaItems = [];
     }
 
     getTreeItem(element) {
@@ -48,18 +49,23 @@ class OpenTabsSidebarProvider {
 
     // For each tab, verify that it is a Java file, then extract its filepath and analyze its densities based on its content
     async processTabs(tabs) {
-        return tabs
+        const processedTabs = tabs
             .filter((tab) => tab.input && tab.input.uri && tab.input.uri.fsPath.endsWith('.java'))
-            .map((tab) => {
+            .map(async (tab) => {
                 const filepath = tab.input.uri.fsPath;
-                    
-                // const content = await this.readFileContent(filepath);
-                // const response = await runModelService.runModel(this.url, content);
-                // const { density, predictedDensity } = response;
-                // console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
+                const content = await this.readFileContent(filepath);
+                const javaItem = new JavaItem(filepath, vscode.TreeItemCollapsibleState.None);
+                this.javaItems.push(javaItem);
 
-                return new JavaItem(filepath, vscode.TreeItemCollapsibleState.None);
+                if (this.url) {
+                    await this.analyzeContent(javaItem, content);
+                }
+
+                return javaItem;
             });
+        console.log(`[PROCESSED TABS]: ${processedTabs.length}\n[ALL TABS]: ${this.javaItems.length}`)
+            
+        return Promise.all(processedTabs);
     }
 
     async readFileContent(filepath) {
@@ -70,6 +76,32 @@ class OpenTabsSidebarProvider {
             console.error(`Error reading file ${filepath}:`, error);
             return '';
         }
+    }
+
+    async analyzeContent(javaItem, content) {
+        try {
+            // console.log(`[URL]: ${this.url}, [CONTENT]: ${content.length > 0}`);
+            // const response = await runModelService.runModel(this.url, content);
+            // const { density, predictedDensity } = response;
+            // console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
+            // javaItem.density = density;
+            // javaItem.predictedDensity = predictedDensity;
+            this.refresh();
+        } catch (error) {
+            console.error(`Error analyzing file content: ${error}`);
+        }
+    }
+
+    setUrl(url) {
+        // TODO set value of URL when it is chosen (extension line 124), but initially, it will always be undefined/null.
+        // Suggested approach: display tabs without densities at first, then analyse once URL is available.
+        // Analyze is only available when setURL is called, so figure out another method to run the analysis.
+        this.url = url;
+
+        this.javaItems.forEach(async (javaItem) => {
+            const content = await this.readFileContent(javaItem.filepath);
+            await this.analyzeContent(javaItem, content);
+        })
     }
 
     refresh() {
