@@ -8,7 +8,7 @@ class OpenTabsSidebarProvider {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
         this.url = null;
-        this.javaItems = [];
+        this.javaMap = new Map();
     }
 
     getTreeItem(element) {
@@ -55,7 +55,11 @@ class OpenTabsSidebarProvider {
                 const filepath = tab.input.uri.fsPath;
                 const content = await this.readFileContent(filepath);
                 const javaItem = new JavaItem(filepath, vscode.TreeItemCollapsibleState.None);
-                this.javaItems.push(javaItem);
+                
+                if (!this.javaMap.has(filepath)) {
+                    this.javaMap.set(filepath, javaItem);
+                    console.log(`Added ${filepath}`);
+                }
 
                 if (this.url) {
                     await this.analyzeContent(javaItem, content);
@@ -63,7 +67,7 @@ class OpenTabsSidebarProvider {
 
                 return javaItem;
             });
-        console.log(`[PROCESSED TABS]: ${processedTabs.length}\n[ALL TABS]: ${this.javaItems.length}`)
+        console.log(`[Java Map]: ${this.javaMap.size}`)
             
         return Promise.all(processedTabs);
     }
@@ -92,16 +96,16 @@ class OpenTabsSidebarProvider {
         }
     }
 
-    setUrl(url) {
+    async setUrl(url) {
         // TODO set value of URL when it is chosen (extension line 124), but initially, it will always be undefined/null.
         // Suggested approach: display tabs without densities at first, then analyse once URL is available.
         // Analyze is only available when setURL is called, so figure out another method to run the analysis.
         this.url = url;
-
-        this.javaItems.forEach(async (javaItem) => {
-            const content = await this.readFileContent(javaItem.filepath);
+        
+        for (const [key, value] of myMap) {
+            const content = await this.readFileContent(key);
             await this.analyzeContent(javaItem, content);
-        })
+        }
     }
 
     refresh() {
@@ -129,6 +133,15 @@ class JavaItem extends vscode.TreeItem {
         this.iconPath = vscode.ThemeIcon.File;
         this.density = density;
         this.predictedDensity = predictedDensity;
+        this.pendingRequest = null;
+    }
+
+    hasPendingRequest() {
+        return this.pendingRequest;
+    }
+
+    setPendingRequest(pendingRequest) {
+        this.pendingRequest = pendingRequest;
     }
 
     // Text to display when hovering over file in Sidebar View
