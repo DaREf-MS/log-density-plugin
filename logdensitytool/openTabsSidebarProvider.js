@@ -7,7 +7,7 @@ class OpenTabsSidebarProvider {
     constructor() {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
-        this.url = null;
+        this.url = 'https://github.com/apache/zookeeper.git';
         this.javaMap = new Map();
     }
 
@@ -62,7 +62,6 @@ class OpenTabsSidebarProvider {
 
                 if (this.url) {
                     await javaItem.analyzeJavaItem(this.url);
-                    this.refresh();
                 }
 
                 return javaItem;
@@ -80,7 +79,6 @@ class OpenTabsSidebarProvider {
 
         for (const [key, value] of this.javaMap) {
             await value.analyzeJavaItem(this.url);
-            this.refresh();
         }
     }
 
