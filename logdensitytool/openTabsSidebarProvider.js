@@ -1,6 +1,6 @@
 const vscode = require('vscode');
 const path = require('path');
-const fs = require('fs').promises;
+const fileReader = require('./utils/fileReader');
 const runModelService = require('./runModelService');
 
 class OpenTabsSidebarProvider {
@@ -25,7 +25,7 @@ class OpenTabsSidebarProvider {
             return [];
         } else {
             const tabGroupItems = await this.getTabGroups();
-            return tabGroupItems.length > 0 ? tabGroupItems : [new vscode.TreeItem('No opened tabs...')]
+            return tabGroupItems.length > 0 ? tabGroupItems : [new vscode.TreeItem('No opened tabs...')];
         }
     }
 
@@ -53,47 +53,23 @@ class OpenTabsSidebarProvider {
             .filter((tab) => tab.input && tab.input.uri && tab.input.uri.fsPath.endsWith('.java'))
             .map(async (tab) => {
                 const filepath = tab.input.uri.fsPath;
-                const content = await this.readFileContent(filepath);
                 const javaItem = new JavaItem(filepath, vscode.TreeItemCollapsibleState.None);
-                
+
                 if (!this.javaMap.has(filepath)) {
                     this.javaMap.set(filepath, javaItem);
                     console.log(`Added ${filepath}`);
                 }
 
                 if (this.url) {
-                    await this.analyzeContent(javaItem, content);
+                    await javaItem.analyzeJavaItem(this.url);
+                    this.refresh();
                 }
 
                 return javaItem;
             });
-        console.log(`[Java Map]: ${this.javaMap.size}`)
-            
+        console.log(`[Java Map]: ${this.javaMap.size}`);
+
         return Promise.all(processedTabs);
-    }
-
-    async readFileContent(filepath) {
-        try {
-            const content = await fs.readFile(filepath, 'utf-8');
-            return content;
-        } catch (error) {
-            console.error(`Error reading file ${filepath}:`, error);
-            return '';
-        }
-    }
-
-    async analyzeContent(javaItem, content) {
-        try {
-            // console.log(`[URL]: ${this.url}, [CONTENT]: ${content.length > 0}`);
-            // const response = await runModelService.runModel(this.url, content);
-            // const { density, predictedDensity } = response;
-            // console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
-            // javaItem.density = density;
-            // javaItem.predictedDensity = predictedDensity;
-            this.refresh();
-        } catch (error) {
-            console.error(`Error analyzing file content: ${error}`);
-        }
     }
 
     async setUrl(url) {
@@ -101,10 +77,10 @@ class OpenTabsSidebarProvider {
         // Suggested approach: display tabs without densities at first, then analyse once URL is available.
         // Analyze is only available when setURL is called, so figure out another method to run the analysis.
         this.url = url;
-        
-        for (const [key, value] of myMap) {
-            const content = await this.readFileContent(key);
-            await this.analyzeContent(javaItem, content);
+
+        for (const [key, value] of this.javaMap) {
+            await value.analyzeJavaItem(this.url);
+            this.refresh();
         }
     }
 
@@ -136,12 +112,28 @@ class JavaItem extends vscode.TreeItem {
         this.pendingRequest = null;
     }
 
-    hasPendingRequest() {
-        return this.pendingRequest;
-    }
+    async analyzeJavaItem(url) {
+        if (this.pendingRequest) {
+            return this.pendingRequest;
+        } else {
+            try {
+                const content = await fileReader.readFile(this.filepath);
+                console.log(`[URL]: ${url}, [CONTENT]: ${content.length > 0}`);
 
-    setPendingRequest(pendingRequest) {
-        this.pendingRequest = pendingRequest;
+                this.pendingRequest = runModelService.runModel(url, content).finally(() => {
+                    this.pendingRequest = null;
+                });
+                
+                const { density, predictedDensity } = await this.pendingRequest;
+                console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
+                this.density = density;
+                this.predictedDensity = predictedDensity;
+
+                return this.pendingRequest;
+            } catch (error) {
+                console.error(`Error analyzing file content: ${error}`);
+            }
+        }
     }
 
     // Text to display when hovering over file in Sidebar View
