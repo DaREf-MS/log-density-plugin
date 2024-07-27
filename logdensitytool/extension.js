@@ -115,6 +115,12 @@ function activate(context) {
         })
     );
 
+    // Register the new command for predicting open tabs
+    let disposablePredict = vscode.commands.registerCommand('extension.predictOpenTabs', async () => {
+        vscode.window.showInformationMessage('Predict Open Tabs command executed');
+        console.log('SHOULD BE REFRESHING OPEN TABS!!!')
+    });
+
     const analyzeEditedFileDisposable = vscode.workspace.onDidChangeTextDocument(handleFileEvent);
     const analyzeOpenedFileDisposable = vscode.workspace.onDidOpenTextDocument(handleFileEvent);
     const analyzeTextDisposable = vscode.window.onDidChangeActiveTextEditor(analyzeActiveEditor);
@@ -152,7 +158,8 @@ function activate(context) {
         analyzeEditedFileDisposable, 
         analyzeOpenedFileDisposable,
         resetUrlDisposable, 
-        disposableTrain
+        disposableTrain,
+        disposablePredict
     );
 
     

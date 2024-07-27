@@ -60,9 +60,9 @@ class OpenTabsSidebarProvider {
                     console.log(`Added ${filepath}`);
                 }
 
-                if (this.url) {
-                    await javaItem.analyzeJavaItem(this.url);
-                }
+                // if (this.url) {
+                //     await javaItem.analyzeJavaItem(this.url);
+                // }
 
                 return javaItem;
             });
@@ -76,10 +76,11 @@ class OpenTabsSidebarProvider {
         // Suggested approach: display tabs without densities at first, then analyse once URL is available.
         // Analyze is only available when setURL is called, so figure out another method to run the analysis.
         this.url = url;
+        console.log(this.url);
 
-        for (const [key, value] of this.javaMap) {
-            await value.analyzeJavaItem(this.url);
-        }
+        // for (const [key, value] of this.javaMap) {
+        //     await value.analyzeJavaItem(this.url);
+        // }
     }
 
     refresh() {
