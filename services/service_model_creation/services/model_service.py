@@ -25,6 +25,7 @@ async def create_model(project_url: str):
         
         # Clone the repo if it does not exist
         if not os.path.exists(project_path):
+            print(f"CLONING {github_url}...")
             Repo.clone_from(github_url, project_path)
         else:
             logging.info(f"Repository already exists at {project_path}")
