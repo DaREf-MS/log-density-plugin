@@ -215,6 +215,7 @@ function activate(context) {
             await trainModelService.trainModel(url);
             chosenRemoteGitUrl = url;
             trained = true;
+            openTabsSidebarProvider.setUrl(chosenRemoteGitUrl);
             await analyzeActiveEditor();
         } else {
             vscode.window.showErrorMessage('GitHub URL is required');

@@ -7,7 +7,7 @@ class OpenTabsSidebarProvider {
     constructor() {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
-        this.url = 'https://github.com/apache/zookeeper.git';
+        this.url = null;
         this.javaMap = new Map();
     }
 
@@ -53,7 +53,7 @@ class OpenTabsSidebarProvider {
             .filter((tab) => tab.input && tab.input.uri && tab.input.uri.fsPath.endsWith('.java'))
             .map(async (tab) => {
                 const filepath = tab.input.uri.fsPath;
-                const javaItem = new JavaItem(filepath, vscode.TreeItemCollapsibleState.None);
+                const javaItem = new JavaItem(filepath);
 
                 if (!this.javaMap.has(filepath)) {
                     this.javaMap.set(filepath, javaItem);
@@ -76,7 +76,7 @@ class OpenTabsSidebarProvider {
         // Suggested approach: display tabs without densities at first, then analyse once URL is available.
         // Analyze is only available when setURL is called, so figure out another method to run the analysis.
         this.url = url;
-        console.log(this.url);
+        console.log(`${this.javaMap.size} files to analyze with url ${url}`);
 
         // for (const [key, value] of this.javaMap) {
         //     await value.analyzeJavaItem(this.url);

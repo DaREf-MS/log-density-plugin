@@ -4,14 +4,13 @@ const fileReader = require('../utils/fileReader');
 const runModelService = require('../runModelService');
 
 class JavaItem extends vscode.TreeItem {
-    constructor(filepath, collapsibleState, density = null, predictedDensity = null) {
-        super(path.basename(filepath), collapsibleState);
+    constructor(filepath) {
+        super(path.basename(filepath), vscode.TreeItemCollapsibleState.None);
         this.filepath = filepath;
-        this.filename = path.basename(filepath);
         this.contextValue = 'javaFile';
         this.iconPath = vscode.ThemeIcon.File;
-        this.density = density;
-        this.predictedDensity = predictedDensity;
+        this.density = null;
+        this.predictedDensity = null;
         this.pendingRequest = null;
     }
 
