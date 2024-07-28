@@ -25,11 +25,15 @@ class JavaItem extends vscode.TreeItem {
                 this.pendingRequest = runModelService.runModel(url, content).finally(() => {
                     this.pendingRequest = null;
                 });
-                
+
                 const { density, predictedDensity } = await this.pendingRequest;
                 console.log(`[Density]: ${density}, [Predicted Density]: ${predictedDensity}`);
                 this.density = density;
                 this.predictedDensity = predictedDensity;
+
+                if (this.onDidChangeTreeData) {
+                    this.onDidChangeTreeData(this);
+                }
 
                 return this.pendingRequest;
             } catch (error) {

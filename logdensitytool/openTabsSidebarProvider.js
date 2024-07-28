@@ -53,16 +53,14 @@ class OpenTabsSidebarProvider {
             .filter((tab) => tab.input && tab.input.uri && tab.input.uri.fsPath.endsWith('.java'))
             .map(async (tab) => {
                 const filepath = tab.input.uri.fsPath;
-                const javaItem = new JavaItem(filepath);
+                let javaItem = this.javaMap.get(filepath);
 
-                if (!this.javaMap.has(filepath)) {
+                if (!javaItem) {
+                    javaItem = new JavaItem(filepath);
+                    javaItem.onDidChangeTreeData = () => this.refresh();
                     this.javaMap.set(filepath, javaItem);
                     console.log(`Added ${filepath}`);
                 }
-
-                // if (this.url) {
-                //     await javaItem.analyzeJavaItem(this.url);
-                // }
 
                 return javaItem;
             });
@@ -72,15 +70,14 @@ class OpenTabsSidebarProvider {
     }
 
     async setUrl(url) {
-        // TODO set value of URL when it is chosen (extension line 124), but initially, it will always be undefined/null.
-        // Suggested approach: display tabs without densities at first, then analyse once URL is available.
-        // Analyze is only available when setURL is called, so figure out another method to run the analysis.
         this.url = url;
         console.log(`${this.javaMap.size} files to analyze with url ${url}`);
 
-        // for (const [key, value] of this.javaMap) {
-        //     await value.analyzeJavaItem(this.url);
-        // }
+        for (const [key, value] of this.javaMap) {
+            await value.analyzeJavaItem(this.url);
+        }
+
+        this.refresh();
     }
 
     refresh() {
