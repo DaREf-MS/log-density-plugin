@@ -20,7 +20,7 @@ class JavaItem extends vscode.TreeItem {
         } else {
             try {
                 const content = await fileReader.readFile(this.filepath);
-                console.log(`[URL]: ${url}, [CONTENT]: ${content.length > 0}`);
+                // console.log(`[URL]: ${url}, [CONTENT]: ${content.length > 0}`);
 
                 this.pendingRequest = runModelService.runModel(url, content).finally(() => {
                     this.pendingRequest = null;

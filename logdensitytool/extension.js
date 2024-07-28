@@ -182,7 +182,6 @@ function activate(context) {
     // Refresh openTabsSidebarView when a file is closed, but prevent refreshing when initializing
     context.subscriptions.push(
         vscode.workspace.onDidCloseTextDocument(() => {
-            console.log('File closed, refreshing sidebar');
             vscode.commands.executeCommand('extension.refreshOpenTabs');
         })
     );
@@ -190,7 +189,7 @@ function activate(context) {
     // Register the new command for predicting open tabs
     let disposablePredict = vscode.commands.registerCommand('extension.predictOpenTabs', async () => {
         vscode.window.showInformationMessage('Predict Open Tabs command executed');
-        console.log('SHOULD BE REFRESHING OPEN TABS!!!')
+        openTabsSidebarProvider.predictOpenTabs();
     });
 
     const analyzeEditedFileDisposable = vscode.workspace.onDidChangeTextDocument(handleFileEvent);

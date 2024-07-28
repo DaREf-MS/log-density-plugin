@@ -64,16 +64,18 @@ class OpenTabsSidebarProvider {
 
                 return javaItem;
             });
-        console.log(`[Java Map]: ${this.javaMap.size}`);
 
         return Promise.all(processedTabs);
     }
 
     async setUrl(url) {
         this.url = url;
-        console.log(`${this.javaMap.size} files to analyze with url ${url}`);
+        this.predictOpenTabs();
+    }
 
+    async predictOpenTabs() {
         for (const [key, value] of this.javaMap) {
+            console.log(`Analyzing ${key}`);
             await value.analyzeJavaItem(this.url);
         }
 
