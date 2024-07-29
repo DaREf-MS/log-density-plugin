@@ -74,9 +74,20 @@ class OpenTabsSidebarProvider {
     }
 
     async predictOpenTabs() {
+        console.log(`Analyzing ${this.javaMap.size} files`)
+
         for (const [key, value] of this.javaMap) {
             console.log(`Analyzing ${key}`);
             await value.analyzeJavaItem(this.url);
+        }
+
+        this.refresh();
+    }
+
+    removeClosedDocument(filepath) {
+        if (this.javaMap.has(filepath)) {
+            this.javaMap.delete(filepath);
+            console.log(`Removed ${filepath}`);
         }
 
         this.refresh();

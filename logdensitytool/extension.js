@@ -164,33 +164,38 @@ function activate(context) {
     vscode.window.createTreeView('openTabsSidebarView', { treeDataProvider: openTabsSidebarProvider });
     vscode.commands.registerCommand('extension.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
 
-    // Refresh openTabsSidebarView when a file is opened
-    function handleDidOpenTextDocument() {
-        console.log('handleDidOpenTextDocument called');
-        if (!openTabsSidebarProvider.isInitialized) {
-            console.log('Sidebar initialized');
-            openTabsSidebarProvider.isInitialized = true;
-            return;
-        }
-        console.log('Executing refreshOpenTabs');
-        vscode.commands.executeCommand('extension.refreshOpenTabs');
-    }
+    // Refresh openTabsSidebarView when a file is opened, but prevent refreshing when initializing
     context.subscriptions.push(
-        vscode.workspace.onDidOpenTextDocument(handleDidOpenTextDocument)
+        vscode.workspace.onDidOpenTextDocument(() => {
+            if (!openTabsSidebarProvider.isInitialized) {
+                console.log('Open tabs sidebar initialized');
+                openTabsSidebarProvider.isInitialized = true;
+                return;
+            }
+            vscode.commands.executeCommand('extension.refreshOpenTabs');
+        })
     );
 
-    // Refresh openTabsSidebarView when a file is closed, but prevent refreshing when initializing
+    // Refresh openTabsSidebarView when a file is closed
     context.subscriptions.push(
-        vscode.workspace.onDidCloseTextDocument(() => {
+        vscode.workspace.onDidCloseTextDocument((document) => {
+            const filepath = document.uri.fsPath;
+            openTabsSidebarProvider.removeClosedDocument(filepath);
             vscode.commands.executeCommand('extension.refreshOpenTabs');
         })
     );
 
     // Register the new command for predicting open tabs
-    let disposablePredict = vscode.commands.registerCommand('extension.predictOpenTabs', async () => {
-        vscode.window.showInformationMessage('Predict Open Tabs command executed');
-        openTabsSidebarProvider.predictOpenTabs();
-    });
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.predictOpenTabs', async () => {
+            if (chosenRemoteGitUrl) {
+                vscode.window.showInformationMessage('Analyzing files that are currently open.');
+                openTabsSidebarProvider.predictOpenTabs();
+            } else {
+                vscode.window.showInformationMessage('No URL has been provided yet, use the Command Palette (Ctrl + Shift + P).');
+            }
+        })
+    );
 
     const analyzeEditedFileDisposable = vscode.workspace.onDidChangeTextDocument(handleFileEvent);
     const analyzeOpenedFileDisposable = vscode.workspace.onDidOpenTextDocument(handleFileEvent);
@@ -227,8 +232,7 @@ function activate(context) {
         analyzeEditedFileDisposable, 
         analyzeOpenedFileDisposable,
         resetUrlDisposable, 
-        disposableTrain,
-        disposablePredict
+        disposableTrain
     );
 
     
