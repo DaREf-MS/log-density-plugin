@@ -3,12 +3,12 @@ from git import Repo
 import os
 import subprocess
 import logging
-import run_model
+from service_ai_analysis.run_model import predict
 import tempfile
 
 BASE_DIR = "/dossier_host"
 
-async def predict(github_url: str, fileContent: str):
+async def predict_file_densities(github_url: str, fileContent: str):
     
     project_name = github_url.split('/')[-1].replace('.git', '')
 
@@ -27,7 +27,7 @@ async def predict(github_url: str, fileContent: str):
         print("project path: ",project_path)
         print("file path: ",filepath)
 
-        prediction = run_model.predict(project_path,filepath)
+        prediction = predict(project_path,filepath)
 
     return prediction
 
