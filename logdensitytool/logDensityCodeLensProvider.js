@@ -23,7 +23,7 @@ class LogDensityCodeLensProvider {
     provideCodeLenses(document, token) {
         const lenses = [];
         this.data
-        .filter(block => block.currentLogLevel !== block.log_level)
+        // .filter(block => block.currentLogLevel !== block.log_level)
         .forEach(block => {
             const position = new vscode.Position(block.blockLineStart - 1, 0);
             const range = new vscode.Range(position, position);

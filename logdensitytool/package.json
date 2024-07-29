@@ -24,6 +24,14 @@
       {
         "command": "extension.refreshOpenTabs",
         "title": "Refresh Open Tabs"
+      },
+      {
+        "command": "extension.predictOpenTabs",
+        "title": "Predict Open Tabs",
+        "icon": {
+          "light": "media/refresh.svg",
+          "dark": "media/refresh-light.svg"
+        }
       }
     ],
     "menus": {
@@ -31,6 +39,13 @@
         {
           "when": "resourceLangId == java",
           "command": "extension.analyzeLogDensity",
+          "group": "navigation"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "extension.predictOpenTabs",
+          "when": "view == openTabsSidebarView",
           "group": "navigation"
         }
       ]
@@ -51,8 +66,8 @@
           "name": "Density Analysis Preview"
         },
         {
-          "id": "openTabsPreview",
-          "name": "Open Tabs Density Preview"
+          "id": "openTabsSidebarView",
+          "name": "Currently Opened Tabs"
         }
       ]
     }
