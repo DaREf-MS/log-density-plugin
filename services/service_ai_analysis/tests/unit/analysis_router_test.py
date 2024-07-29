@@ -9,6 +9,7 @@ client = TestClient(app)
 # Variables for the tests
 url = f"https://github.com/example/repo.git"
 empty_url = ""
+file_content = "class Test {}"
 
 # Mock functions
 @pytest.fixture
@@ -20,7 +21,7 @@ async def test_predict_success(mock_predict):
     # Mock calling predict from the analysis_service file.py to prevent going into run_model.py
     mock_predict.return_value = None
     
-    response = client.post("/predict", json={"url": url, "fileContent": "class Test {}"})
+    response = client.post("/predict", json={"url": url, "fileContent": file_content})
     logging.debug(f"Response status code: {response.status_code}")
     logging.debug(f"Response JSON: {response.json()}")
     
@@ -32,7 +33,7 @@ async def test_predict_empty_url(mock_predict):
     # Mock calling predict from the analysis_service file.py to prevent going into run_model.py
     mock_predict.return_value = None
     
-    response = client.post("/predict", json={"url": empty_url, "fileContent": "class Test {}"})
+    response = client.post("/predict", json={"url": empty_url, "fileContent": file_content})
     # logging.debug(f"Response status code: {response.status_code}")
     # logging.debug(f"Response JSON: {response.json()}")
     
