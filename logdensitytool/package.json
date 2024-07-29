@@ -67,7 +67,7 @@
         },
         {
           "id": "openTabsSidebarView",
-          "name": "Density of Opened Tabs"
+          "name": "Currently Opened Tabs"
         }
       ]
     }

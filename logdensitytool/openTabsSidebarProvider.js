@@ -47,7 +47,7 @@ class OpenTabsSidebarProvider {
         }
     }
 
-    // For each tab, verify that it is a Java file, then extract its filepath and analyze its densities based on its content
+    // For each tab, verify that it is a Java file, then extract its filepath
     async processTabs(tabs) {
         const processedTabs = tabs
             .filter((tab) => tab.input && tab.input.uri && tab.input.uri.fsPath.endsWith('.java'))
@@ -68,11 +68,13 @@ class OpenTabsSidebarProvider {
         return Promise.all(processedTabs);
     }
 
+    // Once the URL for the ai model is set, analyze the densities of the currently opened tabs
     async setUrl(url) {
         this.url = url;
         this.predictOpenTabs();
     }
 
+    // Analyze the densities of the opened tabs in the map of JavaItem instances
     async predictOpenTabs() {
         console.log(`Analyzing ${this.javaMap.size} files`)
 
@@ -84,6 +86,7 @@ class OpenTabsSidebarProvider {
         this.refresh();
     }
 
+    // Remove JavaItem from map if its tab was closed
     removeClosedDocument(filepath) {
         if (this.javaMap.has(filepath)) {
             this.javaMap.delete(filepath);
