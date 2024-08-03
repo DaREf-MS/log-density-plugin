@@ -10,6 +10,7 @@ import pprint
 import json
 import pandas
 import numpy as np
+from pprint import pprint
 
 # TODO - all paths start from project_path
 
@@ -125,7 +126,7 @@ def predict(project_dir, filepath):
         "blocks": blocks
     }
     print("thresholds", thresholds)
-    from pprint import pprint
+
     pprint(result)
 
     return result
