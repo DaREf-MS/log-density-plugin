@@ -93,10 +93,10 @@ class AnalyzeFileProvider {
             const results = await analyzeFiles(this.remoteUrl, fileContents);
             results.forEach(result => {
                 const javaItem = this.analyzeList.get(result.url);
-                console.log(`${result.url}, ${result.densityDifference}`);
+                console.log(`${result.url}, ${result.difference}`);
 
                 if (javaItem) {
-                    javaItem.update(result.density, result.predictedDensity, result.densityDifference);
+                    javaItem.update(result.density, result.predictedDensity, result.difference);
                 }
             });
             this.analysisPreviewProvider.updateFiles(results);
