@@ -1,12 +1,14 @@
 const vscode = require('vscode');
 const path = require('path');
 const FolderItem = require('../models/folderItem');
+const JavaItem = require('../models/javaItem');
 
 class JavaFileProvider {
     constructor(analyzeFileProvider) {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
         this.analyzeFileProvider = analyzeFileProvider;
+        let itemsMap = new Map();
     }
 
     sendFileToAnalyze(fileUri) {
@@ -15,7 +17,7 @@ class JavaFileProvider {
     }
 
     getAnalyzeList() {
-        return this.analyzeList.map(uri => new JavaFile(uri));
+        return this.analyzeList.map(uri => new JavaItem(uri.fsPath, this.createFileCommand(uri)));
     }
 
     refresh() {
@@ -60,7 +62,7 @@ class JavaFileProvider {
                     items.push(new FolderItem(childUri, this.createFolderCommand(childUri)));
                 }
             } else if (name.endsWith('.java')) {
-                items.push(new JavaFile(childUri));
+                items.push(new JavaItem(childUri.fsPath, this.createFileCommand(childUri)));
             }
         }
         return items;
@@ -89,16 +91,9 @@ class JavaFileProvider {
             arguments: [uri]
         };
     }
-}
 
-class JavaFile extends vscode.TreeItem {
-    constructor(uri) {
-        super(path.basename(uri.fsPath), vscode.TreeItemCollapsibleState.None);
-        this.uri = uri;
-        this.contextValue = 'javaFile';
-        this.iconPath = vscode.ThemeIcon.File;
-        this.tooltip = uri.fsPath;
-        this.command = {
+    createFileCommand(uri) {
+        return {
             command: 'javaFileProvider.addToSendList',
             title: "Add File to Send List",
             arguments: [uri]
@@ -120,7 +115,7 @@ function registerJavaFileProvider(context, analyzeFileProvider) {
             javaFiles.forEach(fileUri => {
                 javaFileProvider.analyzeFileProvider.addFileToAnalyze(fileUri);
             });
-        } else if (item instanceof JavaFile) {
+        } else if (item instanceof JavaItem) {
             console.log(`Adding file: ${item.uri.fsPath}`);
             javaFileProvider.analyzeFileProvider.addFileToAnalyze(item.uri);
         }

@@ -4,7 +4,7 @@ const { readFile } = require('../utils/fileReader');
 const { runModel } = require('../services/runModelService');
 
 class JavaItem extends vscode.TreeItem {
-    constructor(filepath) {
+    constructor(filepath, command = null) {
         super(path.basename(filepath), vscode.TreeItemCollapsibleState.None);
         this.filepath = filepath;
         this.contextValue = 'javaFile';
@@ -12,6 +12,7 @@ class JavaItem extends vscode.TreeItem {
         this.density = null;
         this.predictedDensity = null;
         this.pendingRequest = null;
+        this.command = command
         this.extensionPath = vscode.extensions.getExtension('PFE019.logdensitytool').extensionPath;
     }
 
