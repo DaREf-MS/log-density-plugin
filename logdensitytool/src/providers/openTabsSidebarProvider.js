@@ -69,8 +69,9 @@ class OpenTabsSidebarProvider {
     }
 
     // Once the URL for the ai model is set, analyze the densities of the currently opened tabs
-    async setUrl(url) {
+    setUrl(url) {
         this.url = url;
+        console.log(this.url);
         this.predictOpenTabs();
     }
 
@@ -104,6 +105,7 @@ class OpenTabsSidebarProvider {
 function registerOpenTabsSideBarProvider(context) {
     const openTabsSidebarProvider = new OpenTabsSidebarProvider();
     vscode.window.createTreeView('openTabsSidebarView', { treeDataProvider: openTabsSidebarProvider });
+    vscode.commands.registerCommand('openTabsSidebarView.refreshOpenTabs', () => openTabsSidebarProvider.refresh());
 
     // Refresh openTabsSidebarView when a file is opened, but prevent refreshing when initializing
     context.subscriptions.push(
@@ -137,6 +139,8 @@ function registerOpenTabsSideBarProvider(context) {
             }
         })
     );
+
+    return openTabsSidebarProvider;
 }
 
 module.exports = {

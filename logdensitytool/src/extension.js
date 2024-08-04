@@ -2,7 +2,7 @@ const vscode = require('vscode');
 const { getGitRemoteUrl } = require('./utils/gitHelper'); // Import the required function
 const LogDensityCodeLensProvider = require('./providers/logDensityCodeLensProvider');
 const { registerAnalysisPreviewProvider } = require('./providers/analysisPreviewProvider');
-const { registerOpenTabsSideBarProvider } = require('./providers/openTabsSidebarProvider');
+const { registerOpenTabsSideBarProvider, OpenTabsSidebarProvider } = require('./providers/openTabsSidebarProvider');
 const trainModelService = require('./services/trainModelService');
 const runModelService = require('./services/runModelService');
 const { registerJavaFileProvider, JavaFileProvider } = require('./providers/javaFileProvider');  
@@ -30,6 +30,10 @@ function activate(context) {
         vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);
     }));
 
+    // Register AnalysisPreviewProvider and OpenTabsSidebarProvider
+    const analysisPreviewProvider = registerAnalysisPreviewProvider(context, workspaceRoot);
+    const openTabsSidebarProvider = registerOpenTabsSideBarProvider(context);
+
     // Initialize and use the Git remote URL
     getGitRemoteUrl().then((url) => {
         remoteUrl = url;
@@ -41,6 +45,7 @@ function activate(context) {
         if (url) {
             await trainModelService.trainModel(url);
             remoteUrl = url;
+            openTabsSidebarProvider.setUrl(remoteUrl);
             trained = true;
             const activeEditor = vscode.window.activeTextEditor;
             if (activeEditor) {
@@ -77,10 +82,6 @@ function activate(context) {
             vscode.window.showInformationMessage('New Java files analysis complete. Check the console for details.');
         }
     });
-
-    // Register AnalysisPreviewProvider and OpenTabsSidebarProvider
-    registerAnalysisPreviewProvider(context, workspaceRoot);
-    registerOpenTabsSideBarProvider(context);
 
     context.subscriptions.push(
         disposableTrain,
