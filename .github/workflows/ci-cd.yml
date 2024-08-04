@@ -31,9 +31,23 @@ jobs:
         context: ./services
         file: ./services/service_ai_analysis/Dockerfile
         push: true
-        tags: yroulamellah/log-density-tool:latest
+        tags: yroulamellah/log-density-tool:latest_ai_analysis
 
-    # Run the built Docker image with a command
+    # Run the built Docker image tests
     - name: Run Docker container
       run: |
-        docker run yroulamellah/log-density-tool pytest
+        docker run yroulamellah/log-density-tool:latest_ai_analysis pytest
+
+    # Build and push Docker image for service_model_creation
+    - name: Build and Push Docker image for service_model_creation
+      uses: docker/build-push-action@v2
+      with:
+        context: ./services
+        file: ./services/service_model_creation/Dockerfile
+        push: true
+        tags: yroulamellah/log-density-tool:latest_model_creation
+
+    # Run the built Docker image tests
+    - name: Run Docker container
+      run: |
+        docker run yroulamellah/log-density-tool:latest_model_creation pytest
