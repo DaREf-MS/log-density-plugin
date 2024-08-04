@@ -47,7 +47,12 @@
       {
         "command": "analyzeFileProvider.sendForAnalysis",
         "title": "Send Selected Files for Analysis",
-        "icon": "media/icons/analyse.png"
+        "icon": "media/icons/send-files.png"
+      },
+      {
+        "command": "analyzeFileProvider.removeAllFiles",
+        "title": "Remove All Files",
+        "icon": "media/icons/remove.png"
       },
       {
         "command": "openTabsSidebarView.predictOpenTabs",
@@ -70,6 +75,11 @@
         {
           "command": "analyzeFileProvider.sendForAnalysis",
           "when": "view == analyzeFilesView",
+          "group": "navigation"
+        },
+        {
+          "when": "view == analyzeFilesView",
+          "command": "analyzeFileProvider.removeAllFiles",
           "group": "navigation"
         }
       ],

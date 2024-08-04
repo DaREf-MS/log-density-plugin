@@ -36,8 +36,13 @@ class AnalyzeFileProvider {
         }
     }
     
+    removeAllFiles() {
+        this.analyzeList = [];
+        this.refresh();
+        console.log("Test remove all files clicked")
+        console.log(`${this.analyzeList}`)
+    }
     
-
     getTreeItem(element) {
         return element;
     }
@@ -85,8 +90,6 @@ class AnalyzeFileProvider {
             vscode.window.showErrorMessage('Failed to send files for analysis: ' + error.message);
         }
     }
-    
-    
 }
 
 function registerAnalyzeFileProvider(context, analysisPreviewProvider) {
@@ -108,6 +111,11 @@ function registerAnalyzeFileProvider(context, analysisPreviewProvider) {
         const results = await analyzeFileProvider.sendFilesForAnalysis();
         vscode.window.showInformationMessage('Files sent for analysis. Check the console for details.');
         console.log(results);
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('analyzeFileProvider.removeAllFiles', () => {
+        analyzeFileProvider.removeAllFiles();
+        vscode.window.showInformationMessage('All files have been removed from the analysis list.');
     }));
     
     return analyzeFileProvider;  
