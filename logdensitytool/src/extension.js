@@ -34,7 +34,7 @@ function activate(context) {
     const analysisPreviewProvider = registerAnalysisPreviewProvider(context, workspaceRoot);
     const openTabsSidebarProvider = registerOpenTabsSideBarProvider(context);
     // Register AnalyzeFileProvider and javaFileProvider
-    const analyzeFileProvider = registerAnalyzeFileProvider(context);
+    const analyzeFileProvider = registerAnalyzeFileProvider(context, analysisPreviewProvider);
     const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
 
     // Initialize and use the Git remote URL
