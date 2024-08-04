@@ -1,7 +1,8 @@
 const vscode = require('vscode');
 const path = require('path');
-const fileReader = require('../utils/fileReader');
-const runModelService = require('../runModelService');
+const { readFile } = require('../utils/fileReader');
+const { runModel } = require('../services/runModelService');
+const test = require('');
 
 class JavaItem extends vscode.TreeItem {
     constructor(filepath) {
@@ -12,6 +13,7 @@ class JavaItem extends vscode.TreeItem {
         this.density = null;
         this.predictedDensity = null;
         this.pendingRequest = null;
+        this.extensionPath = vscode.extensions.getExtension('PFE019.logdensitytool').extensionPath;
     }
 
     async analyzeJavaItem(url) {
@@ -19,10 +21,10 @@ class JavaItem extends vscode.TreeItem {
             return this.pendingRequest;
         } else {
             try {
-                const content = await fileReader.readFile(this.filepath);
+                const content = await readFile(this.filepath);
                 // console.log(`[URL]: ${url}, [CONTENT]: ${content.length > 0}`);
 
-                this.pendingRequest = runModelService.runModel(url, content).finally(() => {
+                this.pendingRequest = runModel(url, content).finally(() => {
                     this.pendingRequest = null;
                 });
 
@@ -40,6 +42,20 @@ class JavaItem extends vscode.TreeItem {
                 console.error(`Error analyzing file content: ${error}`);
             }
         }
+    }
+
+    setStyle(densityDifference) {
+        let icon;
+
+        if (densityDifference < 1) {
+            icon = vscode.ThemeIcon.File;
+        } else if (1 <= densityDifference && densityDifference < 2) {
+            icon = path.join(this.extensionPath, 'media', 'icons', 'chevron.svg');
+        } else if (2 <= densityDifference && density <= 6) {
+            icon = path.join(this.extensionPath, 'media', 'icons', 'chevron-double.svg');
+        }
+
+        this.iconPath = icon;
     }
 
     // Text to display when hovering over file in Sidebar View

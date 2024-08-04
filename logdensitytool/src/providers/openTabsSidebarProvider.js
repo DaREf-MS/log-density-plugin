@@ -1,7 +1,8 @@
 const vscode = require('vscode');
 const path = require('path');
-const JavaItem = require('./models/javaItem');
-const TabGroupItem = require('./models/tabGroupItem');
+const GroupItem = require('../models/groupItem');
+const JavaItem = require('../models/javaItem');
+let openTabsSidebarProvider;
 
 class OpenTabsSidebarProvider {
     constructor() {
@@ -15,35 +16,35 @@ class OpenTabsSidebarProvider {
         return element;
     }
 
-    // if TabGroupItem, display its children: the JavaItem instances associated to it
+    // if GroupItem, display its children: the JavaItem instances associated to it
     // else if JavaItem, it is a leaf in the tree, so it has no children and returns an empty array
     // else: initial setup of the Sidebar View
     async getChildren(element) {
-        if (element instanceof TabGroupItem) {
-            return element.files;
+        if (element instanceof GroupItem) {
+            return element.subItems;
         } else if (element instanceof JavaItem) {
             return [];
         } else {
-            const tabGroupItems = await this.getTabGroups();
-            return tabGroupItems.length > 0 ? tabGroupItems : [new vscode.TreeItem('No opened tabs...')];
+            const groupItems = await this.getGroupItems();
+            return groupItems.length > 0 ? groupItems : [new vscode.TreeItem('No opened tabs...')];
         }
     }
 
     // if there is 1 tab group, return only the files
     // else if there is >1 tab groups, return files under collapsible tabGroups
-    async getTabGroups() {
+    async getGroupItems() {
         // https://code.visualstudio.com/api/references/vscode-api#TabGroups
         const tabGroups = vscode.window.tabGroups.all;
 
         if (tabGroups.length === 1) {
             return this.processTabs(tabGroups[0].tabs);
         } else {
-            const tabGroupItems = tabGroups.map((tabGroup, index) => {
+            const groupItems = tabGroups.map((tabGroup, index) => {
                 const tabs = this.processTabs(tabGroup.tabs);
-                return new TabGroupItem(`Tab Group ${index + 1}`, tabs);
+                return new GroupItem(`Tab Group ${index + 1}`, vscode.TreeItemCollapsibleState.Expanded, tabs);
             });
 
-            return tabGroupItems;
+            return groupItems;
         }
     }
 
@@ -101,4 +102,46 @@ class OpenTabsSidebarProvider {
     }
 }
 
-module.exports = OpenTabsSidebarProvider;
+function registerOpenTabsSideBarProvider(context) {
+    if (!openTabsSidebarProvider) {
+        openTabsSidebarProvider = new OpenTabsSidebarProvider();
+    }
+    vscode.window.createTreeView('openTabsSidebarView', { treeDataProvider: openTabsSidebarProvider });
+
+    // Refresh openTabsSidebarView when a file is opened, but prevent refreshing when initializing
+    context.subscriptions.push(
+        vscode.workspace.onDidOpenTextDocument(() => {
+            if (!openTabsSidebarProvider.isInitialized) {
+                console.log('Open tabs sidebar initialized');
+                openTabsSidebarProvider.isInitialized = true;
+                return;
+            }
+            vscode.commands.executeCommand('extension.refreshOpenTabs');
+        })
+    );
+
+    // Refresh openTabsSidebarView when a file is closed
+    context.subscriptions.push(
+        vscode.workspace.onDidCloseTextDocument((document) => {
+            const filepath = document.uri.fsPath;
+            openTabsSidebarProvider.removeClosedDocument(filepath);
+            vscode.commands.executeCommand('extension.refreshOpenTabs');
+        })
+    );
+
+    // Register the new command for predicting open tabs
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.predictOpenTabs', async () => {
+            if (chosenRemoteGitUrl) {
+                vscode.window.showInformationMessage('Analyzing files that are currently open.');
+                openTabsSidebarProvider.predictOpenTabs();
+            } else {
+                vscode.window.showInformationMessage('No URL has been provided yet, use the Command Palette (Ctrl + Shift + P).');
+            }
+        })
+    );
+}
+
+module.exports = {
+    registerOpenTabsSideBarProvider
+};

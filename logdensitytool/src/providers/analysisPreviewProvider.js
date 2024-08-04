@@ -1,11 +1,14 @@
 const vscode = require('vscode');
 const path = require('path');
+const GroupItem = require('../models/groupItem');
+const JavaItem = require('../models/javaItem');
 
 // https://code.visualstudio.com/api/ux-guidelines/sidebars
 // https://code.visualstudio.com/api/extension-guides/tree-view
 class AnalysisPreviewProvider {
     constructor(workspaceRoot) {
         this.workspaceRoot = workspaceRoot;
+        this.itemsMap = new Map();
     }
 
     getTreeItem(element) {
@@ -14,7 +17,11 @@ class AnalysisPreviewProvider {
 
     async getChildren(element) {
         if (element) {
-            return this.getJavaFiles(element.resourceUri.fsPath);
+            if (element instanceof GroupItem) {
+                return element.subItems;
+            } else {
+                return [];
+            }
         } else {
             if (this.workspaceRoot) {
                 return this.getJavaFiles(this.workspaceRoot);
@@ -25,36 +32,39 @@ class AnalysisPreviewProvider {
         }
     }
 
-    async getJavaFiles(dir) {
+    async getJavaFiles(dir, parent) {
         if (await this.pathExists(dir)) {
-            // Read the content of the root directory of the Java project
             const dirEntries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dir));
-
-            // Find Java files and directories
-            const javaFiles = dirEntries.filter(([name, type]) => type === vscode.FileType.File && name.endsWith('.java'));
-            const directories = dirEntries.filter(([name, type]) => type === vscode.FileType.Directory);
-
-            // Create a non collapsible JavaItem with the log densities
-            const fileItems = await Promise.all(javaFiles.map(async ([name]) => {
+    
+            const items = [];
+            
+            for (const [name, type] of dirEntries) {
                 const filepath = path.join(dir, name);
-                const density = await this.fetchDensities(filepath);
-                return new JavaItem(vscode.Uri.file(filepath), vscode.TreeItemCollapsibleState.None, density);
-            }));
-
-            // Create a collapsible JavaItem
-            const directoryItems = directories.map(([name]) => new JavaItem(vscode.Uri.file(path.join(dir, name)), vscode.TreeItemCollapsibleState.Collapsed));
-
-            return [...directoryItems, ...fileItems];
+    
+                // Process Java file and directory entries into JavaItem and GroupItem instances
+                if (type === vscode.FileType.File && name.endsWith('.java')) {
+                    const javaItem = new JavaItem(filepath);
+                    this.itemsMap.set(filepath, javaItem);
+                    items.push(javaItem);
+                } else if (type === vscode.FileType.Directory) {
+                    const groupItem = new GroupItem(name, vscode.TreeItemCollapsibleState.Collapsed);
+                    this.itemsMap.set(filepath, groupItem);
+                    items.push(groupItem);
+    
+                    // Find more entries in the current directory (recursive call)
+                    await this.getJavaFiles(filepath, groupItem);
+                }
+            }
+    
+            // Add JavaItem and GroupItem instances to the parent GroupItem, or return the root directory's content
+            if (parent) {
+                parent.subItems = items;
+            } else {
+                return items;
+            }
         } else {
             return [];
         }
-    }
-
-    // Get the densities by using the service
-    async fetchDensities(filepath) {
-        const currentDensity = 0;
-        const desiredDensity = 3;
-        return `Current ${currentDensity} vs Desired ${desiredDensity}`;
     }
 
     async pathExists(p) {
@@ -67,22 +77,11 @@ class AnalysisPreviewProvider {
     }
 }
 
-class JavaItem extends vscode.TreeItem {
-    constructor(resourceUri, collapsibleState, additionalInfo = '') {
-        super(resourceUri, collapsibleState);
-        this.resourceUri = resourceUri;
-        this.contextValue = 'javaFile';
-        this.iconPath = collapsibleState ? null : vscode.ThemeIcon.File;
-        this.additionalInfo = additionalInfo;
-    }
-
-    get tooltip() {
-        return `Some relevant message should appear in the tooltip...`;
-    }
-
-    get description() {
-        return this.additionalInfo;
-    }
+function registerAnalysisPreviewProvider(context) {
+    const analysisPreviewProvider = new AnalysisPreviewProvider(workspaceRoot);
+    vscode.window.registerTreeDataProvider('javaFilesView', analysisPreviewProvider);
 }
 
-module.exports = AnalysisPreviewProvider;
+module.exports = {
+    registerAnalysisPreviewProvider
+};

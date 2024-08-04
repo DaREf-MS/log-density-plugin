@@ -1,5 +1,6 @@
 {
   "name": "logdensitytool",
+  "publisher": "PFE019",
   "displayName": "frontend",
   "description": "This extension enhances your coding workflow by automatically measuring and reporting the log density of files within a repository.",
   "version": "0.0.1",
@@ -104,7 +105,7 @@
       "activitybar": [
         {
           "id": "pfeExtension",
-          "title": "[DEV] PFE Extension",
+          "title": "Log Density Tool",
           "icon": "media/icons/send-logging.svg"
         }
       ]
@@ -114,10 +115,6 @@
         {
           "id": "javaFilesView",
           "name": "Density Analysis Preview"
-        },
-        {
-          "id": "openTabsPreview",
-          "name": "Open Tabs Density Preview"
         },
         {
           "id": "javaFiles",
