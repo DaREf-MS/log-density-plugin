@@ -35,7 +35,7 @@ jobs:
 
     # Run the built Docker image with a command
     - name: Run Docker image
-      uses: docker/run-action@v1
+      uses: addnab/docker-run-action@v1
       with:
         image: youssefroulamellah/service_ai_analysis:latest
         command: "pytest"
