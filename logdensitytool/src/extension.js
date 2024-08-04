@@ -33,6 +33,9 @@ function activate(context) {
     // Register AnalysisPreviewProvider and OpenTabsSidebarProvider
     const analysisPreviewProvider = registerAnalysisPreviewProvider(context, workspaceRoot);
     const openTabsSidebarProvider = registerOpenTabsSideBarProvider(context);
+    // Register AnalyzeFileProvider and javaFileProvider
+    const analyzeFileProvider = registerAnalyzeFileProvider(context);
+    const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
 
     // Initialize and use the Git remote URL
     getGitRemoteUrl().then((url) => {
@@ -45,15 +48,20 @@ function activate(context) {
         if (url) {
             await trainModelService.trainModel(url);
             remoteUrl = url;
+            console.log(`setting github url... ${remoteUrl}`)
             openTabsSidebarProvider.setUrl(remoteUrl);
+            analyzeFileProvider.setRemoteUrl(remoteUrl);
             trained = true;
             const activeEditor = vscode.window.activeTextEditor;
+
             if (activeEditor) {
                 await analyzeDocument(activeEditor.document);
             }
         } else {
             vscode.window.showErrorMessage('GitHub URL is required');
         }
+
+
     });
 
     // File event handlers, sends file content to backend on change
@@ -69,10 +77,6 @@ function activate(context) {
             analyzeDocument(document);
         }
     });
-
-    // Register AnalyzeFileProvider and javaFileProvider
-    const analyzeFileProvider = registerAnalyzeFileProvider(context, analysisPreviewProvider);
-    const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
 
     const analyzeNewJavaFilesCommand = vscode.commands.registerCommand('extension.analyzeNewJavaFiles', async () => {
         const allFiles = await getAllJavaFiles();

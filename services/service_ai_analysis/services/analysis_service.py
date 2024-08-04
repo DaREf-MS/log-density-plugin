@@ -65,5 +65,6 @@ async def analyze_project(github_url: str, project_files) -> list:
         except Exception as e:
             print(f"Error processing file {file.url}: {e}")
             continue
-    print(results)
+    # print(results)
+
     return results
