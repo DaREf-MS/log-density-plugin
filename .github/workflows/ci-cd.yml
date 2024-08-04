@@ -36,5 +36,5 @@ jobs:
     # Run the built Docker image with a command
     - name: Run Docker container
       run: |
-        docker run youssefroulamellah/service_ai_analysis:latest pytest
+        docker run yroulamellah/log-density-tool:latest pytest
         
