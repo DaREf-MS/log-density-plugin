@@ -29,6 +29,10 @@ function activate(context) {
         vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);
     }));
 
+    // Register AnalyzeFileProvider and javaFileProvider
+    const analyzeFileProvider = registerAnalyzeFileProvider(context);
+    const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
+
     // Initialize and use the Git remote URL
     getGitRemoteUrl().then((url) => {
         remoteUrl = url;
@@ -40,14 +44,19 @@ function activate(context) {
         if (url) {
             await trainModelService.trainModel(url);
             remoteUrl = url;
+            console.log(`setting github url... ${remoteUrl}`)
+            analyzeFileProvider.setRemoteUrl(remoteUrl);
             trained = true;
             const activeEditor = vscode.window.activeTextEditor;
+
             if (activeEditor) {
                 await analyzeDocument(activeEditor.document);
             }
         } else {
             vscode.window.showErrorMessage('GitHub URL is required');
         }
+
+
     });
 
     // File event handlers, sends file content to backend on change
@@ -64,9 +73,7 @@ function activate(context) {
         }
     });
 
-    // Register AnalyzeFileProvider and javaFileProvider
-    const analyzeFileProvider = registerAnalyzeFileProvider(context);
-    const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
+
 
     const analyzeNewJavaFilesCommand = vscode.commands.registerCommand('extension.analyzeNewJavaFiles', async () => {
         const allFiles = await getAllJavaFiles();

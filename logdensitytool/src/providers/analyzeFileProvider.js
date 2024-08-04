@@ -8,14 +8,21 @@ class AnalyzeFileProvider {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
         this.analyzeList = []; 
+        this.remoteUrl = '';
     }
 
     refresh() {
         this._onDidChangeTreeData.fire();
     }
 
+    setRemoteUrl(url) {
+        this.remoteUrl = url;
+        console.log(`Remote URL updated to: ${url}`)
+        console.log(`this.remoteUrl is set to: ${this.remoteUrl}`)
+    }
+
     addFileToAnalyze(uri) {
-        console.log(`Attempting to add: ${uri.fsPath}`);
+        //console.log(`Attempting to add: ${uri.fsPath}`);
         if (!this.analyzeList.some(existingUri => existingUri.fsPath === uri.fsPath)) {
             this.analyzeList.push(uri);
             this.refresh();
@@ -28,9 +35,9 @@ class AnalyzeFileProvider {
         let originalLength = this.analyzeList.length;
         this.analyzeList = this.analyzeList.filter(item => item.fsPath !== filePath);
         if (originalLength === this.analyzeList.length) {
-            console.log('File not found in the list:', filePath);
+            //console.log('File not found in the list:', filePath);
         } else {
-            console.log('File removed:', filePath);
+            //console.log('File removed:', filePath);
             this.refresh();
         }
     }
@@ -38,7 +45,7 @@ class AnalyzeFileProvider {
     removeAllFiles() {
         this.analyzeList = [];
         this.refresh();
-        console.log("Test remove all files clicked")
+        //console.log("Test remove all files clicked")
         console.log(`${this.analyzeList}`)
     }
     
@@ -81,13 +88,19 @@ class AnalyzeFileProvider {
         }));
     
         try {
-            const results = await analyzeFiles(fileContents);
+
+            if (!this.remoteUrl) {
+                vscode.window.showErrorMessage('Remote URL is not set.');
+                return;
+            }
+            const results = await analyzeFiles(this.remoteUrl, fileContents);
             vscode.window.showInformationMessage('Files successfully sent for analysis.');
             return results;
         } catch (error) {
             vscode.window.showErrorMessage('Failed to send files for analysis: ' + error.message);
         }
     }
+
 }
 
 function registerAnalyzeFileProvider(context) {
@@ -110,14 +123,10 @@ function registerAnalyzeFileProvider(context) {
         vscode.window.showInformationMessage('Files sent for analysis. Check the console for details.');
         console.log(results);
     }));
-
-    context.subscriptions.push(vscode.commands.registerCommand('analyzeFileProvider.removeAllFiles', () => {
-        analyzeFileProvider.removeAllFiles();
-        vscode.window.showInformationMessage('All files have been removed from the analysis list.');
-    }));
     
     return analyzeFileProvider;  
 }
+
 
 module.exports = {
     registerAnalyzeFileProvider
