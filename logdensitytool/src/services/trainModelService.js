@@ -38,11 +38,8 @@ async function trainModel(url) {
                 // Use increment to update the progress
                 progress.report({ increment: 0, message: `${displayProgress}% Training...` });
             };
-
-            
+ 
             progress.report({ increment: 0, message: 'Starting model training...' });
-
-
 
             // Simulate the progress
             const interval = setInterval(() => {
