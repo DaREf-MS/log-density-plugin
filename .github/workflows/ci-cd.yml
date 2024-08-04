@@ -36,5 +36,4 @@ jobs:
     # Run the built Docker image with a command
     - name: Run Docker container
       run: |
-        docker run yroulamellah/log-density-tool:latest pytest
-        
+        docker run yroulamellah/log-density-tool pytest
