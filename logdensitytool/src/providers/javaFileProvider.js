@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const path = require('path');
+const FolderItem = require('../models/folderItem');
 
 class JavaFileProvider {
     constructor(analyzeFileProvider) {
@@ -29,7 +30,7 @@ class JavaFileProvider {
     async getChildren(element) {
         if (!element) {
             return this.getRootFolders();
-        } else if (element instanceof JavaFolder) {
+        } else if (element instanceof FolderItem) {
             return this.getJavaFilesAndFolders(element.uri);
         }
         return [];
@@ -42,7 +43,7 @@ class JavaFileProvider {
         for (const folder of workspaceFolders) {
             let subfolders = await this.getJavaFilesAndFolders(folder.uri);
             if (subfolders.length > 0) {
-                folders.push(new JavaFolder(folder.uri));
+                folders.push(new FolderItem(folder.uri, this.createFolderCommand(folder.uri)));
             }
         }
         return folders;
@@ -56,7 +57,7 @@ class JavaFileProvider {
             if (type === vscode.FileType.Directory) {
                 const subItems = await this.getJavaFilesAndFolders(childUri);
                 if (subItems.length > 0) {
-                    items.push(new JavaFolder(childUri));
+                    items.push(new FolderItem(childUri, this.createFolderCommand(childUri)));
                 }
             } else if (name.endsWith('.java')) {
                 items.push(new JavaFile(childUri));
@@ -81,16 +82,8 @@ class JavaFileProvider {
         return javaFiles;
     }
     
-
-}
-
-class JavaFolder extends vscode.TreeItem {
-    constructor(uri) {
-        super(path.basename(uri.fsPath), vscode.TreeItemCollapsibleState.Collapsed);
-        this.uri = uri;
-        this.contextValue = 'folder';
-        this.iconPath = vscode.ThemeIcon.Folder;
-        this.command = {
+    createFolderCommand(uri) {
+        return {
             command: 'javaFileProvider.addToSendList',
             title: "Add Folder to Send List",
             arguments: [uri]
@@ -113,7 +106,6 @@ class JavaFile extends vscode.TreeItem {
     }
 }
 
-
 function registerJavaFileProvider(context, analyzeFileProvider) {
     const javaFileProvider = new JavaFileProvider(analyzeFileProvider);
 
@@ -122,7 +114,7 @@ function registerJavaFileProvider(context, analyzeFileProvider) {
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('javaFileProvider.addToSendList', async (item) => {
-        if (item instanceof JavaFolder) {
+        if (item instanceof FolderItem) {
             console.log(`Adding all Java files from folder: ${item.uri.fsPath}`);
             const javaFiles = await javaFileProvider.collectJavaFiles(item.uri);
             javaFiles.forEach(fileUri => {
@@ -138,8 +130,6 @@ function registerJavaFileProvider(context, analyzeFileProvider) {
 
     return javaFileProvider; 
 }
-
-
 
 module.exports = {
     registerJavaFileProvider
