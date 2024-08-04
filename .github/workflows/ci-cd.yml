@@ -28,8 +28,8 @@ jobs:
     - name: Build and Push Docker image for service_ai_analysis
       uses: docker/build-push-action@v2
       with:
-        context:./services/service_ai_analysis
-        file:./services/service_ai_analysis/Dockerfile
+        context: ./services/service_ai_analysis
+        file: ./services/service_ai_analysis/Dockerfile
         push: true
         tags: youssefroulamellah/service_ai_analysis:latest
 
