@@ -43,11 +43,13 @@ class JavaItem extends vscode.TreeItem {
         }
     }
 
-    setStyle(densityDifference) {
+    update(density, predictedDensity, densityDifference) {
         let icon;
+        this.density = density;
+        this.predictedDensity = predictedDensity;
 
         if (densityDifference < 1) {
-            icon = vscode.ThemeIcon.File;
+            icon = path.join(this.extensionPath, 'media', 'icons', 'checkmark.svg');
         } else if (1 <= densityDifference && densityDifference < 2) {
             icon = path.join(this.extensionPath, 'media', 'icons', 'chevron.svg');
         } else if (2 <= densityDifference && density <= 6) {

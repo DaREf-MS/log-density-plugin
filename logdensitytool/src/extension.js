@@ -71,7 +71,7 @@ function activate(context) {
     });
 
     // Register AnalyzeFileProvider and javaFileProvider
-    const analyzeFileProvider = registerAnalyzeFileProvider(context);
+    const analyzeFileProvider = registerAnalyzeFileProvider(context, analysisPreviewProvider);
     const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
 
     const analyzeNewJavaFilesCommand = vscode.commands.registerCommand('extension.analyzeNewJavaFiles', async () => {

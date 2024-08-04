@@ -9,6 +9,7 @@ class AnalysisPreviewProvider {
     constructor(workspaceRoot) {
         this.workspaceRoot = workspaceRoot;
         this.itemsMap = new Map();
+        this.results = [];
     }
 
     getTreeItem(element) {
@@ -73,6 +74,15 @@ class AnalysisPreviewProvider {
             return true;
         } catch (err) {
             return false;
+        }
+    }
+
+    async updateFiles(results) {
+        for (const result of results) {
+            const { url, density, predictedDensity, difference } = result;
+            const javaItem = this.itemsMap.get(url);
+            console.log(javaItem);
+            javaItem.update(density, predictedDensity, difference);
         }
     }
 }

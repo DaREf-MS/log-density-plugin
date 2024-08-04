@@ -1,13 +1,14 @@
 const vscode = require('vscode');
 const path = require('path');
 const { analyzeFiles } = require('../services/analyzeProject');
-
+const { readFile } = require('../utils/fileReader');
 
 class AnalyzeFileProvider {
-    constructor() {
+    constructor(analysisPreviewProvider) {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
-        this.analyzeList = []; 
+        this.analyzeList = [];
+        this.analysisPreviewProvider = analysisPreviewProvider;
     }
 
     refresh() {
@@ -61,10 +62,10 @@ class AnalyzeFileProvider {
     async sendFilesForAnalysis() {
         const fileContents = await Promise.all(this.analyzeList.map(async uri => {
             try {
-
-                const document = await vscode.workspace.openTextDocument(uri);
-                const content = document.getText();  // Get text content directly
-                //console.log(`Content of ${uri.fsPath}: ${content.slice(0, 200)}`);  // just 200 first chars to debug
+                const content = await readFile(uri.fsPath);
+                // const document = await vscode.workspace.openTextDocument(uri);
+                // const content = document.getText();  // Get text content directly
+                // console.log(`Content of ${uri.fsPath}: ${content.slice(0, 200)}`);  // just 200 first chars to debug
                 return {
                     url: uri.fsPath,
                     content: content
@@ -77,6 +78,7 @@ class AnalyzeFileProvider {
     
         try {
             const results = await analyzeFiles(fileContents);
+            this.analysisPreviewProvider.updateFiles(results);
             vscode.window.showInformationMessage('Files successfully sent for analysis.');
             return results;
         } catch (error) {
@@ -87,8 +89,8 @@ class AnalyzeFileProvider {
     
 }
 
-function registerAnalyzeFileProvider(context) {
-    const analyzeFileProvider = new AnalyzeFileProvider();
+function registerAnalyzeFileProvider(context, analysisPreviewProvider) {
+    const analyzeFileProvider = new AnalyzeFileProvider(analysisPreviewProvider);
     context.subscriptions.push(vscode.window.createTreeView('analyzeFilesView', {
         treeDataProvider: analyzeFileProvider
     }));
