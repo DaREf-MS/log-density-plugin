@@ -31,11 +31,11 @@ jobs:
         context: ./services
         file: ./services/service_ai_analysis/Dockerfile
         push: true
-        tags: youssefroulamellah/service_ai_analysis:latest
+        tags: yroulamellah/log-density-tool:latest
 
     # Run the built Docker image with a command
     - name: Run Docker image
       uses: addnab/docker-run-action@v1
       with:
-        image: youssefroulamellah/service_ai_analysis:latest
+        image: yroulamellah/log-density-tool:latest
         command: "pytest"
