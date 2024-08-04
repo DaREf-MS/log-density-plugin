@@ -2,7 +2,7 @@ const vscode = require('vscode');
 const { getGitRemoteUrl } = require('./utils/gitHelper'); // Import the required function
 const LogDensityCodeLensProvider = require('./providers/logDensityCodeLensProvider');
 const { registerAnalysisPreviewProvider } = require('./providers/analysisPreviewProvider');
-const { registerOpenTabsSidebarProvider } = require('./providers/openTabsSidebarProvider');
+const { registerOpenTabsSideBarProvider } = require('./providers/openTabsSidebarProvider');
 const trainModelService = require('./services/trainModelService');
 const runModelService = require('./services/runModelService');
 const { registerJavaFileProvider, JavaFileProvider } = require('./providers/javaFileProvider');  
@@ -79,8 +79,8 @@ function activate(context) {
     });
 
     // Register AnalysisPreviewProvider and OpenTabsSidebarProvider
-    const analysisPreviewProvider = registerAnalysisPreviewProvider(context);
-    const openTabsSidebarProvider = registerOpenTabsSidebarProvider(context);
+    registerAnalysisPreviewProvider(context, workspaceRoot);
+    registerOpenTabsSideBarProvider(context);
 
     context.subscriptions.push(
         disposableTrain,

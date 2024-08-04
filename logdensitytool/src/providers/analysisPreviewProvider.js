@@ -77,7 +77,7 @@ class AnalysisPreviewProvider {
     }
 }
 
-function registerAnalysisPreviewProvider(context) {
+function registerAnalysisPreviewProvider(context, workspaceRoot) {
     const analysisPreviewProvider = new AnalysisPreviewProvider(workspaceRoot);
     vscode.window.registerTreeDataProvider('javaFilesView', analysisPreviewProvider);
 }

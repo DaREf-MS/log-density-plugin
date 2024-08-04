@@ -23,7 +23,7 @@
         "title": "Analyze Log Density"
       },
       {
-        "command": "extension.refreshOpenTabs",
+        "command": "openTabsSidebarView.refreshOpenTabs",
         "title": "Refresh Open Tabs"
       },
       {
@@ -50,11 +50,11 @@
         "icon": "media/icons/analyse.png"
       },
       {
-        "command": "extension.predictOpenTabs",
+        "command": "openTabsSidebarView.predictOpenTabs",
         "title": "Predict Open Tabs",
         "icon": {
-          "light": "media/refresh.svg",
-          "dark": "media/refresh-light.svg"
+          "light": "media/icons/refresh.svg",
+          "dark": "media/icons/refresh-light.svg"
         }
       }
     ],
@@ -95,7 +95,7 @@
           "group": "navigation"
         },
         {
-          "command": "extension.predictOpenTabs",
+          "command": "openTabsSidebarView.predictOpenTabs",
           "when": "view == openTabsSidebarView",
           "group": "navigation"
         }
@@ -113,16 +113,16 @@
     "views": {
       "pfeExtension": [
         {
-          "id": "javaFilesView",
-          "name": "Density Analysis Preview"
-        },
-        {
           "id": "javaFiles",
           "name": "Java Files"
         },
         {
           "id": "analyzeFilesView",
           "name": "Java Files to Analyze"
+        },
+        {
+          "id": "javaFilesView",
+          "name": "Density Analysis Preview"
         },
         {
           "id": "openTabsSidebarView",

@@ -2,7 +2,6 @@ const vscode = require('vscode');
 const path = require('path');
 const { readFile } = require('../utils/fileReader');
 const { runModel } = require('../services/runModelService');
-const test = require('');
 
 class JavaItem extends vscode.TreeItem {
     constructor(filepath) {

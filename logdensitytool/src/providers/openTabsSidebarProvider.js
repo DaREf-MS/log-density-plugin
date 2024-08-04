@@ -2,7 +2,6 @@ const vscode = require('vscode');
 const path = require('path');
 const GroupItem = require('../models/groupItem');
 const JavaItem = require('../models/javaItem');
-let openTabsSidebarProvider;
 
 class OpenTabsSidebarProvider {
     constructor() {
@@ -103,9 +102,7 @@ class OpenTabsSidebarProvider {
 }
 
 function registerOpenTabsSideBarProvider(context) {
-    if (!openTabsSidebarProvider) {
-        openTabsSidebarProvider = new OpenTabsSidebarProvider();
-    }
+    const openTabsSidebarProvider = new OpenTabsSidebarProvider();
     vscode.window.createTreeView('openTabsSidebarView', { treeDataProvider: openTabsSidebarProvider });
 
     // Refresh openTabsSidebarView when a file is opened, but prevent refreshing when initializing
@@ -116,7 +113,7 @@ function registerOpenTabsSideBarProvider(context) {
                 openTabsSidebarProvider.isInitialized = true;
                 return;
             }
-            vscode.commands.executeCommand('extension.refreshOpenTabs');
+            vscode.commands.executeCommand('openTabsSidebarView.refreshOpenTabs');
         })
     );
 
@@ -125,13 +122,13 @@ function registerOpenTabsSideBarProvider(context) {
         vscode.workspace.onDidCloseTextDocument((document) => {
             const filepath = document.uri.fsPath;
             openTabsSidebarProvider.removeClosedDocument(filepath);
-            vscode.commands.executeCommand('extension.refreshOpenTabs');
+            vscode.commands.executeCommand('openTabsSidebarView.refreshOpenTabs');
         })
     );
 
     // Register the new command for predicting open tabs
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.predictOpenTabs', async () => {
+        vscode.commands.registerCommand('openTabsSidebarView.predictOpenTabs', async () => {
             if (chosenRemoteGitUrl) {
                 vscode.window.showInformationMessage('Analyzing files that are currently open.');
                 openTabsSidebarProvider.predictOpenTabs();
