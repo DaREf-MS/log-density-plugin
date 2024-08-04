@@ -34,8 +34,7 @@ jobs:
         tags: yroulamellah/log-density-tool:latest
 
     # Run the built Docker image with a command
-    - name: Run Docker image
-      uses: addnab/docker-run-action@v1
-      with:
-        image: yroulamellah/log-density-tool:latest
-        command: "pytest"
+    - name: Run Docker container
+      run: |
+        docker run -it youssefroulamellah/service_ai_analysis:latest pytest
+        
