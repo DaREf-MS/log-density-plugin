@@ -3,16 +3,16 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - cicd_test
     paths-ignore:
       - '**.md'
 
 jobs:
- build-and-push:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
+    - name: Checkout Code you you you you you
       uses: actions/checkout@v2
 
     - name: Set up Docker Buildx
@@ -24,10 +24,17 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and Push Docker image
+    # Build and push Docker image for service_ai_analysis
+    - name: Build and Push Docker image for service_ai_analysis
       uses: docker/build-push-action@v2
       with:
-        context: .
-        file: ./Dockerfile
+        context:./services/service_ai_analysis
+        file:./services/service_ai_analysis/Dockerfile
         push: true
-        tags: youssefroulamellah/pfe:latest
+        tags: youssefroulamellah/service_ai_analysis:latest
+
+    # Run the built Docker image as a container
+    - name: Run Docker container
+      container:
+        image: youssefroulamellah/service_ai_analysis:latest
+        command: "your_command_here"
