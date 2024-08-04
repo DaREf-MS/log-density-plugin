@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from services.service_model_creation.main import app
+from service_model_creation.main import app
 import subprocess
 import logging
 
