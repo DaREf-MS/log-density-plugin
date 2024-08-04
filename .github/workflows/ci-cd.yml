@@ -33,8 +33,9 @@ jobs:
         push: true
         tags: youssefroulamellah/service_ai_analysis:latest
 
-    # Run the built Docker image as a container
-    - name: Run Docker container
-      container:
+    # Run the built Docker image with a command
+    - name: Run Docker image
+      uses: docker/run-action@v1
+      with:
         image: youssefroulamellah/service_ai_analysis:latest
-        command: "your_command_here"
+        command: "pytest"
