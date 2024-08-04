@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code you you you you you
+    - name: Checkout Code - Heyyy
       uses: actions/checkout@v2
 
     - name: Set up Docker Buildx
