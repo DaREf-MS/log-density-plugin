@@ -48,7 +48,7 @@ async def analyze_project(github_url: str, project_files) -> list:
                 filepath = os.path.join(output_dir, tmp.name)
                 print(f"File path: {filepath}")
 
-                prediction_result = run_model.predict(project_path, filepath)
+                prediction_result = predict(project_path, filepath)
                 print(prediction_result)
 
             processed_result = {
