@@ -58,6 +58,10 @@ class JavaItem extends vscode.TreeItem {
         }
 
         this.iconPath = icon;
+
+        if (this.onDidChangeTreeData) {
+            this.onDidChangeTreeData.fire();
+        }
     }
 
     // Text to display when hovering over file in Sidebar View

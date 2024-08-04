@@ -7,7 +7,7 @@ class AnalyzeFileProvider {
     constructor(analysisPreviewProvider) {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
-        this.analyzeList = [];
+        this.analyzeList = new Map();
         this.analysisPreviewProvider = analysisPreviewProvider;
         this.remoteUrl = '';
     }
@@ -22,13 +22,12 @@ class AnalyzeFileProvider {
         console.log(`this.remoteUrl is set to: ${this.remoteUrl}`)
     }
 
-    addFileToAnalyze(uri) {
-        //console.log(`Attempting to add: ${uri.fsPath}`);
-        if (!this.analyzeList.some(existingUri => existingUri.fsPath === uri.fsPath)) {
-            this.analyzeList.push(uri);
+    addFileToAnalyze(javaItem) {
+        if (!this.analyzeList.has(javaItem.filepath)) {
+            this.analyzeList.set(javaItem.filepath, javaItem);
             this.refresh();
         } else {
-            console.log(`File already in list: ${uri.fsPath}`);
+            console.log(`File already in list: ${javaItem.filepath}`);
         }
     }
 
@@ -44,7 +43,7 @@ class AnalyzeFileProvider {
     }
     
     removeAllFiles() {
-        this.analyzeList = [];
+        this.analyzeList.clear();
         this.refresh();
         //console.log("Test remove all files clicked")
         console.log(`${this.analyzeList}`)
@@ -56,12 +55,12 @@ class AnalyzeFileProvider {
 
     getChildren(element) {
         if (!element) {
-            return this.analyzeList.map(uri => {
-                const treeItem = new vscode.TreeItem(path.basename(uri.fsPath), vscode.TreeItemCollapsibleState.None);
+            return [...this.analyzeList.values()].map(javaItem => {
+                const treeItem = new vscode.TreeItem(path.basename(javaItem.filepath), vscode.TreeItemCollapsibleState.None);
                 treeItem.command = {
                     command: 'analyzeFileProvider.removeFile',
                     title: "Remove File",
-                    arguments: [uri.fsPath]  
+                    arguments: [javaItem.filepath]  
                 };
                 treeItem.contextValue = 'analyzableFile';
                 treeItem.iconPath = vscode.ThemeIcon.File;
@@ -72,22 +71,19 @@ class AnalyzeFileProvider {
     }
 
     async sendFilesForAnalysis() {
-        const fileContents = await Promise.all(this.analyzeList.map(async uri => {
+        const fileContents = await Promise.all([...this.analyzeList.values()].map(async javaItem => {
             try {
-                const content = await readFile(uri.fsPath);
-                // const document = await vscode.workspace.openTextDocument(uri);
-                // const content = document.getText();  // Get text content directly
-                // console.log(`Content of ${uri.fsPath}: ${content.slice(0, 200)}`);  // just 200 first chars to debug
+                const content = await readFile(javaItem.filepath);
                 return {
-                    url: uri.fsPath,
+                    url: javaItem.filepath,
                     content: content
                 };
             } catch (error) {
-                console.error(`Error processing file ${uri.toString()}: ${error}`);
-                throw error;  
+                console.error(`Error processing file ${javaItem.filepath}: ${error}`);
+                throw error;
             }
         }));
-    
+
         try {
             if (!this.remoteUrl) {
                 vscode.window.showErrorMessage('Remote URL is not set.');
@@ -95,6 +91,14 @@ class AnalyzeFileProvider {
             }
 
             const results = await analyzeFiles(this.remoteUrl, fileContents);
+            results.forEach(result => {
+                const javaItem = this.analyzeList.get(result.url);
+                console.log(`${result.url}, ${result.densityDifference}`);
+
+                if (javaItem) {
+                    javaItem.update(result.density, result.predictedDensity, result.densityDifference);
+                }
+            });
             this.analysisPreviewProvider.updateFiles(results);
             vscode.window.showInformationMessage('Files successfully sent for analysis.');
             return results;
@@ -128,7 +132,6 @@ function registerAnalyzeFileProvider(context, analysisPreviewProvider) {
     
     return analyzeFileProvider;  
 }
-
 
 module.exports = {
     registerAnalyzeFileProvider

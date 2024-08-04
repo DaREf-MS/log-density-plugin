@@ -8,16 +8,16 @@ class JavaFileProvider {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
         this.analyzeFileProvider = analyzeFileProvider;
-        let itemsMap = new Map();
+        this.itemsMap = new Map();
     }
 
-    sendFileToAnalyze(fileUri) {
-        this.analyzeFileProvider.addFileToAnalyze(fileUri);
+    sendFileToAnalyze(javaItem) {
+        this.analyzeFileProvider.addFileToAnalyze(javaItem);
         this.refresh(); 
     }
 
     getAnalyzeList() {
-        return this.analyzeList.map(uri => new JavaItem(uri.fsPath, this.createFileCommand(uri)));
+        return [...this.itemsMap.values()];
     }
 
     refresh() {
@@ -62,7 +62,9 @@ class JavaFileProvider {
                     items.push(new FolderItem(childUri, this.createFolderCommand(childUri)));
                 }
             } else if (name.endsWith('.java')) {
-                items.push(new JavaItem(childUri.fsPath, this.createFileCommand(childUri)));
+                const javaItem = new JavaItem(childUri.fsPath, this.createFileCommand(childUri));
+                this.itemsMap.set(childUri.fsPath, javaItem);
+                items.push(javaItem);
             }
         }
         return items;
@@ -78,7 +80,8 @@ class JavaFileProvider {
                 const nestedFiles = await this.collectJavaFiles(childUri);
                 javaFiles = javaFiles.concat(nestedFiles);
             } else if (name.endsWith('.java')) {
-                javaFiles.push(childUri);
+                const javaItem = this.itemsMap.get(childUri.fsPath);
+                javaFiles.push(javaItem);
             }
         }
         return javaFiles;
@@ -111,9 +114,9 @@ function registerJavaFileProvider(context, analyzeFileProvider) {
     context.subscriptions.push(vscode.commands.registerCommand('javaFileProvider.addToSendList', async (item) => {
         if (item instanceof FolderItem) {
             console.log(`Adding all Java files from folder: ${item.uri.fsPath}`);
-            const javaFiles = await javaFileProvider.collectJavaFiles(item.uri);
-            javaFiles.forEach(fileUri => {
-                javaFileProvider.analyzeFileProvider.addFileToAnalyze(fileUri);
+            const javaItems = await javaFileProvider.collectJavaFiles(item.uri);
+            javaItems.forEach(javaItem => {
+                javaFileProvider.analyzeFileProvider.addFileToAnalyze(javaItem);
             });
         } else if (item instanceof JavaItem) {
             console.log(`Adding file: ${item.uri.fsPath}`);
