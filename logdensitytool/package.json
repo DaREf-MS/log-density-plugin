@@ -47,6 +47,14 @@
         "command": "analyzeFileProvider.sendForAnalysis",
         "title": "Send Selected Files for Analysis",
         "icon": "media/icons/analyse.png"
+      },
+      {
+        "command": "extension.predictOpenTabs",
+        "title": "Predict Open Tabs",
+        "icon": {
+          "light": "media/refresh.svg",
+          "dark": "media/refresh-light.svg"
+        }
       }
     ],
     "menus": {
@@ -84,6 +92,11 @@
           "command": "analyzeFileProvider.sendForAnalysis",
           "when": "view == analyzeFilesView",
           "group": "navigation"
+        },
+        {
+          "command": "extension.predictOpenTabs",
+          "when": "view == openTabsSidebarView",
+          "group": "navigation"
         }
       ]
     },
@@ -113,6 +126,10 @@
         {
           "id": "analyzeFilesView",
           "name": "Java Files to Analyze"
+        },
+        {
+          "id": "openTabsSidebarView",
+          "name": "Currently Opened Tabs"
         }
       ]
     }
