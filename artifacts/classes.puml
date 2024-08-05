@@ -8,7 +8,7 @@ legend right
     |<#FFFF00>| Pas encore implémenté|
 endlegend
 
-package logdensitytool {
+package services {
     class extension {
         +activate()
     }
