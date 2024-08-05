@@ -1,0 +1,63 @@
+@startuml
+title Dagramme de séquence POST 8080/create - Créer un modèle AI
+skinparam style strictuml
+
+participant ":main" as main
+participant ":model_router" as model_router
+participant JavaProject
+participant ":model_service" as model_service
+participant ":os" as os
+participant ":git.Repo" as github
+note left of github
+    Module GitPython
+    pour interagir avec
+    des répositoires git. 
+end note
+participant ":subprocess" as subprocess
+note left of subprocess
+    Module pour interagir
+    avec le système
+    d'exploitation pour
+    rouler des lignes de
+    commande et interagir
+    avec des valeurs
+    d'entrée et de sortie.
+end note
+participant "services_training_data" as shared_volume <<Volume partagé>>
+note left of shared_volume
+    Volume partagé accessible à
+    //PFE/services/service_model_creation//
+    et à //PFE/services/service_ai_analysis//.
+end note
+
+-> main : POST 8080/create(JSON body {github_url})
+
+main -> model_router : create_model_req(github_url)
+
+model_router -> JavaProject : check_url(github_url)
+alt github_url est vide
+    JavaProject --> model_router : Status code 422: The URL to the\nGitHub repository must not be empty.
+else
+    JavaProject --> model_router : github_url
+    model_router -> model_service : create_model(github_url)
+    model_service -> model_service : //project_name// extrait de github_url\n//output_dir// = "/dossier_host" + //project_name// + "_project"
+    model_service -> os : makedirs(output_dir)
+    model_service -> model_service : //project_path// = //output_dir// + //project_name//
+
+    model_service -> os : path.exists(//project_path//)
+    alt Projet n'existe pas encore
+        model_service -> github : Repo.clone_from(url, project_path)
+        github -> shared_volume : Entreposer le projet dans //project_path//
+
+        model_service -> subprocess : Rouler des commandes pour débuter la création du modèle AI
+        subprocess -> shared_volume : Entreposer le modèle\nAI dans //project_path//
+
+        model_service --> model_router : Message de confirmation de création de modèle
+    else
+        model_service --> model_router : Message indiquant que le dépôt de code existe déjà
+    end
+end
+
+model_router --> main : Message
+<-- main : Message
+@enduml
