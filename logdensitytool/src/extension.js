@@ -1,7 +1,6 @@
 const vscode = require('vscode');
 const { getGitRemoteUrl } = require('./utils/gitHelper'); // Import the required function
 const LogDensityCodeLensProvider = require('./providers/logDensityCodeLensProvider');
-const { registerAnalysisPreviewProvider } = require('./providers/analysisPreviewProvider');
 const { registerOpenTabsSideBarProvider, OpenTabsSidebarProvider } = require('./providers/openTabsSidebarProvider');
 const trainModelService = require('./services/trainModelService');
 const runModelService = require('./services/runModelService');
@@ -29,12 +28,10 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand('extension.showLogDensityInfo', block => {
         vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);
     }));
-
-    // Register AnalysisPreviewProvider and OpenTabsSidebarProvider
-    const analysisPreviewProvider = registerAnalysisPreviewProvider(context, workspaceRoot);
+ 
+    // Register AnalyzeFileProvider and JavaFileProvider and OpenTabsSidebarProvider
     const openTabsSidebarProvider = registerOpenTabsSideBarProvider(context);
-    // Register AnalyzeFileProvider and javaFileProvider
-    const analyzeFileProvider = registerAnalyzeFileProvider(context, analysisPreviewProvider);
+    const analyzeFileProvider = registerAnalyzeFileProvider(context);
     const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
     analyzeFileProvider.setJavaFileProvider(javaFileProvider);
 

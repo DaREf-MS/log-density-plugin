@@ -70,7 +70,7 @@ class JavaFileProvider {
         return items;
     }
 
-    // Distinction with the other method: only returns the java files contained in the selected directory
+    // Distinction with the other method: return java files contained in the selected directory and its subdirectories
     async collectJavaFiles(uri) {
         let javaFiles = [];
         const entries = await vscode.workspace.fs.readDirectory(uri);

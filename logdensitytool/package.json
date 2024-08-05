@@ -131,10 +131,6 @@
           "name": "Java Files to Analyze"
         },
         {
-          "id": "javaFilesView",
-          "name": "Density Analysis Preview"
-        },
-        {
           "id": "openTabsSidebarView",
           "name": "Currently Opened Tabs"
         }

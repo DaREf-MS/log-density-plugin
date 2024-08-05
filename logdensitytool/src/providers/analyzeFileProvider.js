@@ -4,11 +4,10 @@ const { analyzeFiles } = require('../services/analyzeProject');
 const { readFile } = require('../utils/fileReader');
 
 class AnalyzeFileProvider {
-    constructor(analysisPreviewProvider) {
+    constructor() {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
         this.analyzeList = new Map();
-        this.analysisPreviewProvider = analysisPreviewProvider;
         this.remoteUrl = '';
         this.javaFileProvider = null;
     }
@@ -97,7 +96,6 @@ class AnalyzeFileProvider {
 
             const results = await analyzeFiles(this.remoteUrl, fileContents);
             this.javaFileProvider.updateJavaFiles(results);
-            this.analysisPreviewProvider.updateFiles(results);
             vscode.window.showInformationMessage('Files successfully sent for analysis.');
             return results;
         } catch (error) {
@@ -107,8 +105,8 @@ class AnalyzeFileProvider {
 
 }
 
-function registerAnalyzeFileProvider(context, analysisPreviewProvider) {
-    const analyzeFileProvider = new AnalyzeFileProvider(analysisPreviewProvider);
+function registerAnalyzeFileProvider(context) {
+    const analyzeFileProvider = new AnalyzeFileProvider();
     context.subscriptions.push(vscode.window.createTreeView('analyzeFilesView', {
         treeDataProvider: analyzeFileProvider
     }));
