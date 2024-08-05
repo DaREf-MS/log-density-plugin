@@ -64,7 +64,7 @@
       }
     ],
     "menus": {
-      "editor/context":[
+      "editor/context": [
         {
           "when": "resourceLangId == java",
           "command": "extension.analyzeLogDensity",
@@ -81,12 +81,17 @@
           "when": "view == analyzeFilesView",
           "command": "analyzeFileProvider.removeAllFiles",
           "group": "navigation"
+        },
+        {
+          "command": "openTabsSidebarView.predictOpenTabs",
+          "when": "view == openTabsSidebarView",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
           "command": "javaFileProvider.addToSendList",
-          "when": "viewItem == folder && view == javaFiles", 
+          "when": "viewItem == folder && view == javaFiles",
           "group": "inline"
         },
         {

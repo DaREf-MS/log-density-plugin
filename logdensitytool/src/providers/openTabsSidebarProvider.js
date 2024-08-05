@@ -75,8 +75,17 @@ class OpenTabsSidebarProvider {
         this.predictOpenTabs();
     }
 
+    getUrl() {
+        return this.url;
+    }
+
     // Analyze the densities of the opened tabs in the map of JavaItem instances
     async predictOpenTabs() {
+        if (!this.url) {
+            vscode.window.showInformationMessage('No URL has been provided yet, use the Command Palette (Ctrl + Shift + P).');
+            return;
+        }
+
         console.log(`Analyzing ${this.javaMap.size} files`)
 
         for (const [key, value] of this.javaMap) {
@@ -131,7 +140,7 @@ function registerOpenTabsSideBarProvider(context) {
     // Register the new command for predicting open tabs
     context.subscriptions.push(
         vscode.commands.registerCommand('openTabsSidebarView.predictOpenTabs', async () => {
-            if (chosenRemoteGitUrl) {
+            if (openTabsSidebarProvider.getUrl()) {
                 vscode.window.showInformationMessage('Analyzing files that are currently open.');
                 openTabsSidebarProvider.predictOpenTabs();
             } else {
