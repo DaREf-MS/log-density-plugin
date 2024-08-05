@@ -2,6 +2,8 @@ const vscode = require('vscode');
 const path = require('path');
 const GroupItem = require('../models/groupItem');
 const JavaItem = require('../models/javaItem');
+const { analyzeFiles } = require('../services/analyzeProject');
+const { readFile } = require('../utils/fileReader');
 
 class OpenTabsSidebarProvider {
     constructor() {
@@ -79,21 +81,48 @@ class OpenTabsSidebarProvider {
         return this.url;
     }
 
-    // Analyze the densities of the opened tabs in the map of JavaItem instances
     async predictOpenTabs() {
         if (!this.url) {
             vscode.window.showInformationMessage('No URL has been provided yet, use the Command Palette (Ctrl + Shift + P).');
             return;
         }
+    
+        console.log(`Preparing to analyze ${this.javaMap.size} files with url ${this.url}`);
+    
+        // Get the contents of the files from their filepath
+        const fileContents = await Promise.all([...this.javaMap.values()].map(async (javaItem) => {
+            try {
+                const content = await readFile(javaItem.filepath);
+                return {
+                    url: javaItem.filepath,
+                    content: content
+                };
+            } catch (error) {
+                console.error(`Error reading file ${javaItem.filepath}: ${error}`);
+                return null;
+            }
+        }));
+    
+        // Analyze the content of the files, then update the densities of the JavaItem instances for displaying
+        try {
+            const results = await analyzeFiles(this.url, fileContents);
 
-        console.log(`Analyzing ${this.javaMap.size} files`)
+            for (const result of results) {
+                const javaItem = this.javaMap.get(result.url);
+                if (javaItem) {
+                    javaItem.density = result.density;
+                    javaItem.predictedDensity = result.predictedDensity;
+                    if (javaItem.onDidChangeTreeData) {
+                        javaItem.onDidChangeTreeData(javaItem);
+                    }
+                }
+            }
 
-        for (const [key, value] of this.javaMap) {
-            console.log(`Analyzing ${key}`);
-            await value.analyzeJavaItem(this.url);
+            this.refresh();
+            vscode.window.showInformationMessage('Files successfully sent for analysis.');
+        } catch (error) {
+            vscode.window.showErrorMessage('Failed to send files for analysis: ' + error.message);
         }
-
-        this.refresh();
     }
 
     // Remove JavaItem from map if its tab was closed

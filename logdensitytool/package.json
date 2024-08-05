@@ -56,7 +56,7 @@
       },
       {
         "command": "openTabsSidebarView.predictOpenTabs",
-        "title": "Predict Open Tabs",
+        "title": "Analyze Open Tabs",
         "icon": {
           "light": "media/icons/refresh.svg",
           "dark": "media/icons/refresh-light.svg"

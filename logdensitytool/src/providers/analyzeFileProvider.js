@@ -99,7 +99,6 @@ class AnalyzeFileProvider {
             vscode.window.showErrorMessage('Failed to send files for analysis: ' + error.message);
         }
     }
-
 }
 
 function registerAnalyzeFileProvider(context) {

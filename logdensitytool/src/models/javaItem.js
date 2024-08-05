@@ -16,31 +16,6 @@ class JavaItem extends vscode.TreeItem {
         this.extensionPath = vscode.extensions.getExtension('PFE019.logdensitytool').extensionPath;
     }
 
-    async analyzeJavaItem(url) {
-        if (this.pendingRequest) {
-            return this.pendingRequest;
-        } else {
-            try {
-                const content = await readFile(this.filepath);
-                this.pendingRequest = runModel(url, content).finally(() => {
-                    this.pendingRequest = null;
-                });
-
-                const { density, predictedDensity } = await this.pendingRequest;
-                this.density = density;
-                this.predictedDensity = predictedDensity;
-
-                if (this.onDidChangeTreeData) {
-                    this.onDidChangeTreeData(this);
-                }
-
-                return this.pendingRequest;
-            } catch (error) {
-                console.error(`Error analyzing file content: ${error}`);
-            }
-        }
-    }
-
     update(density, predictedDensity, densityDifference) {
         let icon;
         this.density = density;
