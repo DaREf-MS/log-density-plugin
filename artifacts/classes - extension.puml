@@ -4,36 +4,34 @@ skinparam linetype polyline
 title Diagramme de classes - logdensitytool (extension frontend)
 
 class vscode.TreeItem {
-  +label
-  +collapsibleState
-  +command
-  +iconPath
+  +label: str
+  +collapsibleState: TreeItemCollapsibleState
+  +command: Command
+  +iconPath: str
 }
 
 package logdensitytool {
     package src {
         package models {
             class FolderItem {
-                -uri
-                -contextValue
-                -iconPath
-                -command
+                -uri: str
+                -contextValue: str
+                -iconPath: int
             }
 
             class GroupItem {
-                -subItems
-                -contextValue
+                -subItems: GroupItem or JavaItem
+                -contextValue: str
                 +get tooltip()
             }
 
             class JavaItem {
-                -filepath
-                -contextValue
-                -iconPath
-                -density
-                -predictedDensity
-                -pendingRequest
-                -extensionPath
+                -filepath: str
+                -contextValue: str
+                -iconPath: int
+                -density: float
+                -predictedDensity: float
+                -extensionPath: string
                 +update(density, predictedDensity, densityDifference)
                 +get tooltip()
                 +get description()
@@ -71,9 +69,17 @@ package logdensitytool {
         }
 
         package providers {
+            class LogDensityCodeLensProvider {
+                -data: []
+                -log_density_classes: []
+                +setData(data)
+                +provideCodeLenses(document, token)
+            }
+
             class AnalyzeFileProvider {
-                -analyzeList
-                -remoteUrl
+                -javaFileProvider: JavaFileProvider
+                -analyzeList Map<str, JavaItem>
+                -remoteUrl: str
                 +refresh()
                 +setRemoteUrl(url)
                 +setJavaFileProvider(javaFileProvider)
@@ -85,8 +91,8 @@ package logdensitytool {
             AnalyzeFileProvider <-> JavaFileProvider
 
             class JavaFileProvider {
-                -analyzeFileProvider
-                -itemsMap
+                -analyzeFileProvider: AnalyzeFileProvider
+                -itemsMap: Map<str, JavaItem>
                 +sendFileToAnalyze(javaItem)
                 +getAnalyzeList()
                 +getRootFolders()>
@@ -97,16 +103,9 @@ package logdensitytool {
                 -createFileCommand(uri)
             }
 
-            class LogDensityCodeLensProvider {
-                -data
-                -log_density_classes
-                +setData(data)
-                +provideCodeLenses(document, token)
-            }
-
             class OpenTabsSidebarProvider {
-                -url
-                -javaMap
+                -url: str
+                -javaMap: Map<str, JavaItem>
                 +onDidChangeTreeData
                 +getGroupItems()
                 +processTabs(tabs)
@@ -129,6 +128,7 @@ package logdensitytool {
 
     AnalyzeFileProvider --> analyzeProject
     AnalyzeFileProvider --> fileReader
+    AnalyzeFileProvider -u--> JavaItem
 
     JavaFileProvider -u--> FolderItem
     JavaFileProvider -u--> JavaItem

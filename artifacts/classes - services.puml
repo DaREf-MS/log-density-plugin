@@ -5,14 +5,24 @@ title Diagramme de classes - Services (serveur backend)
 
 package services {
     package service_ai_analysis {
-        class ProjectAnalysis {
-            +gitUrl
-            +files
-        }
 
-        class ProjectFile {
-            +gitUrl
-            +content
+        package models {
+            class ProjectAnalysis {
+                +gitUrl: str
+                +files: [FileContent]
+            }
+
+            class FileContent {
+                +url: str
+                +content: str
+            }
+
+            class ProjectFile {
+                +gitUrl: str
+                +content: str
+            }
+
+            ProjectAnalysis --> FileContent
         }
 
         package routers {
@@ -42,7 +52,7 @@ package services {
     package service_model_creation {
         package models {
             class JavaProject {
-                +url
+                +url: str
             }
         }
 
