@@ -18,7 +18,6 @@ package logdensitytool {
                 -contextValue
                 -iconPath
                 -command
-                +constructor(uri, command)
             }
 
             class GroupItem {
