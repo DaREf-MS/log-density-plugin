@@ -36,6 +36,7 @@ function activate(context) {
     // Register AnalyzeFileProvider and javaFileProvider
     const analyzeFileProvider = registerAnalyzeFileProvider(context, analysisPreviewProvider);
     const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
+    analyzeFileProvider.setJavaFileProvider(javaFileProvider);
 
     // Initialize and use the Git remote URL
     getGitRemoteUrl().then((url) => {

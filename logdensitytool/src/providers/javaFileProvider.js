@@ -70,7 +70,7 @@ class JavaFileProvider {
         return items;
     }
 
-    // distinction with the other method, is that this returns onyl the java files contained in the selected directory
+    // Distinction with the other method: only returns the java files contained in the selected directory
     async collectJavaFiles(uri) {
         let javaFiles = [];
         const entries = await vscode.workspace.fs.readDirectory(uri);
@@ -85,6 +85,18 @@ class JavaFileProvider {
             }
         }
         return javaFiles;
+    }
+
+    updateJavaFiles(results) {
+        for (const result of results) {
+            const { url, density, predictedDensity, difference } = result;
+            const javaItem = this.itemsMap.get(url);
+
+            if (javaItem) {
+                javaItem.update(density, predictedDensity, difference);
+                this._onDidChangeTreeData.fire(javaItem);
+            }
+        }
     }
     
     createFolderCommand(uri) {
@@ -119,8 +131,8 @@ function registerJavaFileProvider(context, analyzeFileProvider) {
                 javaFileProvider.analyzeFileProvider.addFileToAnalyze(javaItem);
             });
         } else if (item instanceof JavaItem) {
-            console.log(`Adding file: ${item.uri.fsPath}`);
-            javaFileProvider.analyzeFileProvider.addFileToAnalyze(item.uri);
+            console.log(`Adding file: ${path.basename(item.filepath)}`);
+            javaFileProvider.analyzeFileProvider.addFileToAnalyze(item);
         }
     }));
 

@@ -10,6 +10,7 @@ class AnalyzeFileProvider {
         this.analyzeList = new Map();
         this.analysisPreviewProvider = analysisPreviewProvider;
         this.remoteUrl = '';
+        this.javaFileProvider = null;
     }
 
     refresh() {
@@ -20,6 +21,10 @@ class AnalyzeFileProvider {
         this.remoteUrl = url;
         console.log(`Remote URL updated to: ${url}`)
         console.log(`this.remoteUrl is set to: ${this.remoteUrl}`)
+    }
+
+    setJavaFileProvider(javaFileProvider) {
+        this.javaFileProvider = javaFileProvider;
     }
 
     addFileToAnalyze(javaItem) {
@@ -91,14 +96,7 @@ class AnalyzeFileProvider {
             }
 
             const results = await analyzeFiles(this.remoteUrl, fileContents);
-            results.forEach(result => {
-                const javaItem = this.analyzeList.get(result.url);
-                console.log(`${result.url}, ${result.difference}`);
-
-                if (javaItem) {
-                    javaItem.update(result.density, result.predictedDensity, result.difference);
-                }
-            });
+            this.javaFileProvider.updateJavaFiles(results);
             this.analysisPreviewProvider.updateFiles(results);
             vscode.window.showInformationMessage('Files successfully sent for analysis.');
             return results;
