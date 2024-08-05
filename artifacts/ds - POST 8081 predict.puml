@@ -8,6 +8,12 @@ participant ":ProjectFile" as projectFile
 participant ":analysis_service" as analysis_service
 participant ":os" as os
 
+note left of shared_volume
+    Volume partagé accessible à
+    //PFE/services/service_model_creation//
+    et à //PFE/services/service_ai_analysis//.
+end note
+
 -> app : POST 8081/predict(JSON body ProjectFile {url, fileContent})
 app -> analysis_router : predict_req({url, fileContent})
 
@@ -24,20 +30,12 @@ else
 
     analysis_service -> "tmp:tempfile" as tmp ** : NamedTemporaryFile\n(crée un fichier temporaire)
 
-participant ":run_model" as run_model
-participant "services_training_data\n:Shared Volume" as shared_volume
-note left of shared_volume
-    Volume partagé accessible à
-    //PFE/services/service_model_creation//
-    et à //PFE/services/service_ai_analysis//.
-end note
-
     analysis_service -> tmp : writeFile(fileContent)
 
     analysis_service -> analysis_service : //filepath// = //output_dir// + //tmp.name//
 
     analysis_service -> run_model : predict(//project_path//, //filepath//)
-    run_model -> shared_volume : Utilise //project_path// et\n//filepath// pour accéder\nau modèle AI et analyser\nle contenu du fichier.
+    run_model -> shared_volume : Utilise //project_path// et //filepath// pour accéder\nau modèle AI et analyser le contenu du fichier.
 
     shared_volume --> run_model : Résultat {density, blocks, predictedDensity}
     run_model --> analysis_service : Résultat {density, blocks, predictedDensity}
@@ -47,4 +45,6 @@ end
 analysis_router --> app : {density, blocks, predictedDensity}
 <-- app : {density, blocks, predictedDensity}
 
+participant ":run_model" as run_model
+participant "services_training_data\n:Shared Volume" as shared_volume
 @enduml
