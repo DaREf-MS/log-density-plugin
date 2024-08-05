@@ -1,0 +1,143 @@
+@startuml
+skinparam linetype polyline
+
+title Diagramme de classes - logdensitytool (extension)
+
+class vscode.TreeItem {
+  +label
+  +collapsibleState
+  +command
+  +iconPath
+}
+
+package logdensitytool {
+    package src {
+        package models {
+            class FolderItem {
+                -uri
+                -contextValue
+                -iconPath
+                -command
+                +constructor(uri, command)
+            }
+
+            class GroupItem {
+                -subItems
+                -contextValue
+                +get tooltip()
+            }
+
+            class JavaItem {
+                -filepath
+                -contextValue
+                -iconPath
+                -density
+                -predictedDensity
+                -pendingRequest
+                -extensionPath
+                +update(density, predictedDensity, densityDifference)
+                +get tooltip()
+                +get description()
+            }
+
+            vscode.TreeItem <|-- FolderItem
+            vscode.TreeItem <|-- GroupItem
+            vscode.TreeItem <|-- JavaItem
+        }
+
+        package services {
+            class analyzeProject {
+                +analyzeFiles(remoteUrl, fileContents)
+            }
+
+            class runModelService {
+                +runModel(url, fileContent)
+            }
+
+            class trainModelService {
+                +trainModel(url)
+            }
+        }
+
+        package utils {
+            class fileReader {
+                +readFile(filepath)
+            }
+
+            class gitHelper {
+                +getGitRepo()
+                +getGitRemoteUrl()
+                +getFileStatus(fileUri)
+            }
+        }
+
+        package providers {
+            class AnalyzeFileProvider {
+                -analyzeList
+                -remoteUrl
+                +refresh()
+                +setRemoteUrl(url)
+                +setJavaFileProvider(javaFileProvider)
+                +addFileToAnalyze(javaItem)
+                +removeFileFromAnalyze(filePath)
+                +removeAllFiles()
+                +sendFilesForAnalysis()
+            }
+            AnalyzeFileProvider <-> JavaFileProvider
+
+            class JavaFileProvider {
+                -analyzeFileProvider
+                -itemsMap
+                +sendFileToAnalyze(javaItem)
+                +getAnalyzeList()
+                +getRootFolders()>
+                +getJavaFilesAndFolders(uri)
+                +collectJavaFiles(uri)
+                +updateJavaFiles(results)
+                -createFolderCommand(uri)
+                -createFileCommand(uri)
+            }
+
+            class LogDensityCodeLensProvider {
+                -data
+                -log_density_classes
+                +setData(data)
+                +provideCodeLenses(document, token)
+            }
+
+            class OpenTabsSidebarProvider {
+                -url
+                -javaMap
+                +onDidChangeTreeData
+                +getGroupItems()
+                +processTabs(tabs)
+                +setUrl(url)
+                +getUrl()
+                +predictOpenTabs()
+                +removeClosedDocument(filepath)
+            }
+        }
+    }
+
+    class extension {
+        +activate()
+    }
+
+    extension -u-> trainModelService
+    extension -u-> runModelService
+    extension -u-> gitHelper
+    extension -u-> providers
+
+    AnalyzeFileProvider --> analyzeProject
+    AnalyzeFileProvider --> fileReader
+
+    JavaFileProvider -u--> FolderItem
+    JavaFileProvider -u--> JavaItem
+
+    OpenTabsSidebarProvider -u--> GroupItem
+    OpenTabsSidebarProvider -u--> JavaItem
+    OpenTabsSidebarProvider --> analyzeProject
+    OpenTabsSidebarProvider --> fileReader
+}
+
+@enduml
