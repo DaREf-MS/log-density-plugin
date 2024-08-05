@@ -1,18 +1,18 @@
 @startuml
+skinparam linetype polyline
 
 title Diagramme de classes - Services (serveur backend)
 
 package services {
     package service_ai_analysis {
-            class ProjectAnalysis {
-                +gitUrl
-                +files
-            }
+        class ProjectAnalysis {
+            +gitUrl
+            +files
+        }
 
-            class ProjectFile {
-                +gitUrl
-                +content
-            }
+        class ProjectFile {
+            +gitUrl
+            +content
         }
 
         package routers {
@@ -33,10 +33,11 @@ package services {
                 +analyze_project(github_url, project_files)
             }
         }
+
+        analysis_router -d-> ProjectAnalysis
+        analysis_router -d-> ProjectFile
+        analysis_router -u-> analysis_service
     }
-    analysis_router -d-> ProjectAnalysis
-    analysis_router -d-> ProjectFile
-    analysis_router -u-> analysis_service
 
     package service_model_creation {
         package models {
@@ -60,9 +61,10 @@ package services {
                 +create_model(project_url)
             }
         }
+
+        model_router --> JavaProject
+        model_router -u-> model_service
     }
-    model_router --> JavaProject
-    model_router -u-> model_service
 }
 
 @enduml
