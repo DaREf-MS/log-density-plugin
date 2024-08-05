@@ -1,0 +1,68 @@
+@startuml
+
+title Diagramme de classes - Services (serveur backend)
+
+package services {
+    package service_ai_analysis {
+            class ProjectAnalysis {
+                +gitUrl
+                +files
+            }
+
+            class ProjectFile {
+                +gitUrl
+                +content
+            }
+        }
+
+        package routers {
+            class analysis_router {
+                +predict_req(project)
+                +analyze_project_req(analysis)
+            }
+        }
+
+        note left of  analysis_router
+            POST /predict
+            POST /analyzeProject
+        end note
+
+        package services {
+            class analysis_service {
+                +predict_file_densities(github_url, fileContent)
+                +analyze_project(github_url, project_files)
+            }
+        }
+    }
+    analysis_router -d-> ProjectAnalysis
+    analysis_router -d-> ProjectFile
+    analysis_router -u-> analysis_service
+
+    package service_model_creation {
+        package models {
+            class JavaProject {
+                +url
+            }
+        }
+
+        package routers {
+            class model_router {
+                +create_model_req
+            }
+        }
+
+        note right of  model_router
+            POST /create
+        end note
+
+        package services {
+            class model_service {
+                +create_model(project_url)
+            }
+        }
+    }
+    model_router --> JavaProject
+    model_router -u-> model_service
+}
+
+@enduml

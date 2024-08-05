@@ -1,7 +1,7 @@
 @startuml
 skinparam linetype polyline
 
-title Diagramme de classes - logdensitytool (extension)
+title Diagramme de classes - logdensitytool (extension frontend)
 
 class vscode.TreeItem {
   +label
