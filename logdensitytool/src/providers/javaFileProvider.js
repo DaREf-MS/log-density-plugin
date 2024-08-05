@@ -1,20 +1,23 @@
 const vscode = require('vscode');
 const path = require('path');
+const FolderItem = require('../models/folderItem');
+const JavaItem = require('../models/javaItem');
 
 class JavaFileProvider {
     constructor(analyzeFileProvider) {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
         this.analyzeFileProvider = analyzeFileProvider;
+        this.itemsMap = new Map();
     }
 
-    sendFileToAnalyze(fileUri) {
-        this.analyzeFileProvider.addFileToAnalyze(fileUri);
+    sendFileToAnalyze(javaItem) {
+        this.analyzeFileProvider.addFileToAnalyze(javaItem);
         this.refresh(); 
     }
 
     getAnalyzeList() {
-        return this.analyzeList.map(uri => new JavaFile(uri));
+        return [...this.itemsMap.values()];
     }
 
     refresh() {
@@ -29,7 +32,7 @@ class JavaFileProvider {
     async getChildren(element) {
         if (!element) {
             return this.getRootFolders();
-        } else if (element instanceof JavaFolder) {
+        } else if (element instanceof FolderItem) {
             return this.getJavaFilesAndFolders(element.uri);
         }
         return [];
@@ -42,7 +45,7 @@ class JavaFileProvider {
         for (const folder of workspaceFolders) {
             let subfolders = await this.getJavaFilesAndFolders(folder.uri);
             if (subfolders.length > 0) {
-                folders.push(new JavaFolder(folder.uri));
+                folders.push(new FolderItem(folder.uri, this.createFolderCommand(folder.uri)));
             }
         }
         return folders;
@@ -56,16 +59,18 @@ class JavaFileProvider {
             if (type === vscode.FileType.Directory) {
                 const subItems = await this.getJavaFilesAndFolders(childUri);
                 if (subItems.length > 0) {
-                    items.push(new JavaFolder(childUri));
+                    items.push(new FolderItem(childUri, this.createFolderCommand(childUri)));
                 }
             } else if (name.endsWith('.java')) {
-                items.push(new JavaFile(childUri));
+                const javaItem = new JavaItem(childUri.fsPath, this.createFileCommand(childUri));
+                this.itemsMap.set(childUri.fsPath, javaItem);
+                items.push(javaItem);
             }
         }
         return items;
     }
 
-    // distinction with the other method, is that this returns onyl the java files contained in the selected directory
+    // Distinction with the other method: return java files contained in the selected directory and its subdirectories
     async collectJavaFiles(uri) {
         let javaFiles = [];
         const entries = await vscode.workspace.fs.readDirectory(uri);
@@ -75,44 +80,41 @@ class JavaFileProvider {
                 const nestedFiles = await this.collectJavaFiles(childUri);
                 javaFiles = javaFiles.concat(nestedFiles);
             } else if (name.endsWith('.java')) {
-                javaFiles.push(childUri);
+                const javaItem = this.itemsMap.get(childUri.fsPath);
+                javaFiles.push(javaItem);
             }
         }
         return javaFiles;
     }
+
+    updateJavaFiles(results) {
+        for (const result of results) {
+            const { url, density, predictedDensity, difference } = result;
+            const javaItem = this.itemsMap.get(url);
+
+            if (javaItem) {
+                javaItem.update(density, predictedDensity, difference);
+                this._onDidChangeTreeData.fire(javaItem);
+            }
+        }
+    }
     
-
-}
-
-class JavaFolder extends vscode.TreeItem {
-    constructor(uri) {
-        super(path.basename(uri.fsPath), vscode.TreeItemCollapsibleState.Collapsed);
-        this.uri = uri;
-        this.contextValue = 'folder';
-        this.iconPath = vscode.ThemeIcon.Folder;
-        this.command = {
+    createFolderCommand(uri) {
+        return {
             command: 'javaFileProvider.addToSendList',
             title: "Add Folder to Send List",
             arguments: [uri]
         };
     }
-}
 
-class JavaFile extends vscode.TreeItem {
-    constructor(uri) {
-        super(path.basename(uri.fsPath), vscode.TreeItemCollapsibleState.None);
-        this.uri = uri;
-        this.contextValue = 'javaFile';
-        this.iconPath = vscode.ThemeIcon.File;
-        this.tooltip = uri.fsPath;
-        this.command = {
+    createFileCommand(uri) {
+        return {
             command: 'javaFileProvider.addToSendList',
             title: "Add File to Send List",
             arguments: [uri]
         };
     }
 }
-
 
 function registerJavaFileProvider(context, analyzeFileProvider) {
     const javaFileProvider = new JavaFileProvider(analyzeFileProvider);
@@ -122,15 +124,15 @@ function registerJavaFileProvider(context, analyzeFileProvider) {
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('javaFileProvider.addToSendList', async (item) => {
-        if (item instanceof JavaFolder) {
+        if (item instanceof FolderItem) {
             console.log(`Adding all Java files from folder: ${item.uri.fsPath}`);
-            const javaFiles = await javaFileProvider.collectJavaFiles(item.uri);
-            javaFiles.forEach(fileUri => {
-                javaFileProvider.analyzeFileProvider.addFileToAnalyze(fileUri);
+            const javaItems = await javaFileProvider.collectJavaFiles(item.uri);
+            javaItems.forEach(javaItem => {
+                javaFileProvider.analyzeFileProvider.addFileToAnalyze(javaItem);
             });
-        } else if (item instanceof JavaFile) {
-            console.log(`Adding file: ${item.uri.fsPath}`);
-            javaFileProvider.analyzeFileProvider.addFileToAnalyze(item.uri);
+        } else if (item instanceof JavaItem) {
+            console.log(`Adding file: ${path.basename(item.filepath)}`);
+            javaFileProvider.analyzeFileProvider.addFileToAnalyze(item);
         }
     }));
 
@@ -138,8 +140,6 @@ function registerJavaFileProvider(context, analyzeFileProvider) {
 
     return javaFileProvider; 
 }
-
-
 
 module.exports = {
     registerJavaFileProvider
