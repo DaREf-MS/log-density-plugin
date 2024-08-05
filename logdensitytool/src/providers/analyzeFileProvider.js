@@ -36,21 +36,18 @@ class AnalyzeFileProvider {
     }
 
     removeFileFromAnalyze(filePath) {
-        let originalLength = this.analyzeList.length;
-        this.analyzeList = this.analyzeList.filter(item => item.fsPath !== filePath);
-        if (originalLength === this.analyzeList.length) {
-            //console.log('File not found in the list:', filePath);
-        } else {
-            //console.log('File removed:', filePath);
+        if (this.analyzeList.has(filePath)) {
+            this.analyzeList.delete(filePath);
             this.refresh();
+        } else {
+            console.log('File not found in the list:', filePath);
         }
     }
     
     removeAllFiles() {
         this.analyzeList.clear();
         this.refresh();
-        //console.log("Test remove all files clicked")
-        console.log(`${this.analyzeList}`)
+        console.log(`Removed all files to analyze: ${this.analyzeList.size} files in map.`)
     }
     
     getTreeItem(element) {
@@ -109,6 +106,10 @@ function registerAnalyzeFileProvider(context) {
     const analyzeFileProvider = new AnalyzeFileProvider();
     context.subscriptions.push(vscode.window.createTreeView('analyzeFilesView', {
         treeDataProvider: analyzeFileProvider
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('analyzeFileProvider.removeAllFiles', () => {
+        analyzeFileProvider.removeAllFiles();
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('analyzeFileProvider.removeFile', (filePath) => {
