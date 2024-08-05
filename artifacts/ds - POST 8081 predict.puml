@@ -1,0 +1,50 @@
+@startuml
+title Diagramme de séquence POST 8081/predict - Analyser le contenu d'un fichier Java
+skinparam style strictuml
+
+participant "app:FastAPI" as app
+participant ":analysis_router" as analysis_router
+participant ":ProjectFile" as projectFile
+participant ":analysis_service" as analysis_service
+participant ":os" as os
+
+-> app : POST 8081/predict(JSON body ProjectFile {url, fileContent})
+app -> analysis_router : predict_req({url, fileContent})
+
+analysis_router -> projectFile : check_url(url)
+alt url est vide
+    projectFile --> analysis_router : Status code 422: The URL to the\nGitHub repository must not be empty.
+else
+    projectFile --> analysis_router : url
+    analysis_router -> analysis_service : predict_file_densities(url, fileContent)
+
+    analysis_service -> analysis_service : //project_name// extrait de github_url\n//output_dir// = "/dossier_host" + //project_name// + "_project"
+    analysis_service -> os : makedirs(output_dir)
+    analysis_service -> analysis_service : //project_path// = //output_dir// + //project_name//
+
+    analysis_service -> "tmp:tempfile" as tmp ** : NamedTemporaryFile\n(crée un fichier temporaire)
+
+participant ":run_model" as run_model
+participant "services_training_data\n:Shared Volume" as shared_volume
+note left of shared_volume
+    Volume partagé accessible à
+    //PFE/services/service_model_creation//
+    et à //PFE/services/service_ai_analysis//.
+end note
+
+    analysis_service -> tmp : writeFile(fileContent)
+
+    analysis_service -> analysis_service : //filepath// = //output_dir// + //tmp.name//
+
+    analysis_service -> run_model : predict(//project_path//, //filepath//)
+    run_model -> shared_volume : Utilise //project_path// et\n//filepath// pour accéder\nau modèle AI et analyser\nle contenu du fichier.
+
+    shared_volume --> run_model : Résultat {density, blocks, predictedDensity}
+    run_model --> analysis_service : Résultat {density, blocks, predictedDensity}
+    analysis_service --> analysis_router: Résultat{density, blocks, predictedDensity}
+end
+
+analysis_router --> app : {density, blocks, predictedDensity}
+<-- app : {density, blocks, predictedDensity}
+
+@enduml

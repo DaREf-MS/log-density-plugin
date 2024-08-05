@@ -2,7 +2,7 @@
 title Dagramme de séquence POST 8080/create - Créer un modèle AI
 skinparam style strictuml
 
-participant ":main" as main
+participant "app:FastAPI" as app
 participant ":model_router" as model_router
 participant JavaProject
 participant ":model_service" as model_service
@@ -23,16 +23,16 @@ note left of subprocess
     avec des valeurs
     d'entrée et de sortie.
 end note
-participant "services_training_data" as shared_volume <<Volume partagé>>
+participant "services_training_data\n:Shared Volume" as shared_volume
 note left of shared_volume
     Volume partagé accessible à
     //PFE/services/service_model_creation//
     et à //PFE/services/service_ai_analysis//.
 end note
 
--> main : POST 8080/create(JSON body {github_url})
+-> app : POST 8080/create(JSON body JavaProject {github_url})
 
-main -> model_router : create_model_req(github_url)
+app -> model_router : create_model_req(github_url)
 
 model_router -> JavaProject : check_url(github_url)
 alt github_url est vide
@@ -40,6 +40,7 @@ alt github_url est vide
 else
     JavaProject --> model_router : github_url
     model_router -> model_service : create_model(github_url)
+
     model_service -> model_service : //project_name// extrait de github_url\n//output_dir// = "/dossier_host" + //project_name// + "_project"
     model_service -> os : makedirs(output_dir)
     model_service -> model_service : //project_path// = //output_dir// + //project_name//
@@ -58,6 +59,6 @@ else
     end
 end
 
-model_router --> main : Message
-<-- main : Message
+model_router --> app : Message
+<-- app : Message
 @enduml
