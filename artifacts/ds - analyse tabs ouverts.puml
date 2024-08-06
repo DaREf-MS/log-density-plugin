@@ -1,0 +1,45 @@
+@startuml
+title Diagramme de séquence - Analyser les tabs ouverts dans l'IDE de Visual Studio Code\n Vue openTabsSidebarView
+skinparam style strictuml
+
+actor User
+participant "Icône d'analyse dans\nopenTabsSidebarView" as CommandPalette
+participant ":OpenTabsSidebarProvider" as SidebarProvider
+
+User -> CommandPalette : Active "openTabsSidebarView.predictOpenTabs
+CommandPalette -> SidebarProvider: Exécute la commande \n//openTabsSidebarView.predictOpenTabs//
+
+SidebarProvider -> SidebarProvider : getUrl()
+alt URL du modèle AI est entré
+    SidebarProvider -> User : Message 'Analyzing files that are currently open'
+    SidebarProvider -> SidebarProvider : predictOpenTabs()
+
+    SidebarProvider -> "fileContents:[{filepath, contenu}]" as fileContents **
+    loop Pour chaque tab fichier (tab ouvert) dans javaMap
+        SidebarProvider -> fileReader : content = readFile(javaItem.filepath) (loop for each file)
+        SidebarProvider -> fileContents : Ajoute {javaItem.filepath, content}
+    end
+
+participant ":FileReader" as fileReader
+participant "javaMap\n:Map<filepath, JavaItem>" as javaMap
+participant "javaItem\n:JavaItem" as javaItem
+participant ":AnalyzeProject" as AnalyzeProject
+participant ":Serveur" as server
+
+    SidebarProvider -> AnalyzeProject : analyzeFiles(url, fileContents)
+    AnalyzeProject -> server : POST 8081/analyzeProject avec {\n   gitUrl: remoteUrl,\n   files: fileContents\n}
+    server --> AnalyzeProject : results [{\n   url,\n   density,\n   predictedDensity,\n   difference\n}]
+    AnalyzeProject --> SidebarProvider : results
+
+    loop Pour chaque result dans results
+        SidebarProvider -> javaMap : javaItem get(result.url)
+        SidebarProvider -> javaItem : density = result.density\npredictedDensity = result.density
+    end
+
+    SidebarProvider -> SidebarProvider : refresh()
+    SidebarProvider -> User: Message 'Files successfully sent for analysis.'\nAffichage des densités de journalisation des fichiers
+
+else URL du modèle AI n'est pas entré
+    SidebarProvider -> User : Message 'No URL has been provided yet, use the Command Palette (Ctrl + Shift + P).'
+end
+@enduml

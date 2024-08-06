@@ -1,5 +1,6 @@
 {
   "name": "logdensitytool",
+  "publisher": "PFE019",
   "displayName": "frontend",
   "description": "This extension enhances your coding workflow by automatically measuring and reporting the log density of files within a repository.",
   "version": "0.0.1",
@@ -9,8 +10,8 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": ["*"],
-  "main": "./extension.js",
+  "activationEvents": [""],
+  "main": "./src/extension.js",
   "contributes": {
     "commands": [
       {
@@ -22,15 +23,95 @@
         "title": "Analyze Log Density"
       },
       {
-        "command": "extension.refreshOpenTabs",
+        "command": "openTabsSidebarView.refreshOpenTabs",
         "title": "Refresh Open Tabs"
+      },
+      {
+        "command": "extension.analyzeNewJavaFiles",
+        "title": "Analyze Files",
+        "icon": "media/icons/analyse.png"
+      },
+      {
+        "command": "javaFileProvider.toggleSelectFile",
+        "title": "Toggle File Selection"
+      },
+      {
+        "command": "javaFileProvider.addToSendList",
+        "title": "Add File",
+        "category": "Java File Actions"
+      },
+      {
+        "command": "analyzeFileProvider.removeFile",
+        "title": "Remove File"
+      },
+      {
+        "command": "analyzeFileProvider.sendForAnalysis",
+        "title": "Send Selected Files for Analysis",
+        "icon": "media/icons/send-files.png"
+      },
+      {
+        "command": "analyzeFileProvider.removeAllFiles",
+        "title": "Remove All Files",
+        "icon": "media/icons/remove.png"
+      },
+      {
+        "command": "openTabsSidebarView.predictOpenTabs",
+        "title": "Analyze Open Tabs",
+        "icon": {
+          "light": "media/icons/refresh.svg",
+          "dark": "media/icons/refresh-light.svg"
+        }
       }
     ],
     "menus": {
-      "editor/context":[
+      "editor/context": [
         {
           "when": "resourceLangId == java",
           "command": "extension.analyzeLogDensity",
+          "group": "navigation"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "analyzeFileProvider.sendForAnalysis",
+          "when": "view == analyzeFilesView",
+          "group": "navigation"
+        },
+        {
+          "when": "view == analyzeFilesView",
+          "command": "analyzeFileProvider.removeAllFiles",
+          "group": "navigation"
+        },
+        {
+          "command": "openTabsSidebarView.predictOpenTabs",
+          "when": "view == openTabsSidebarView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "javaFileProvider.addToSendList",
+          "when": "viewItem == folder && view == javaFiles",
+          "group": "inline"
+        },
+        {
+          "command": "javaFileProvider.addToSendList",
+          "when": "viewItem == javaFile && view == javaFiles",
+          "group": "inline"
+        },
+        {
+          "command": "analyzeFileProvider.removeFile",
+          "when": "view == analyzeFilesView && viewItem == analyzableFile",
+          "group": "inline"
+        },
+        {
+          "command": "analyzeFileProvider.sendForAnalysis",
+          "when": "view == analyzeFilesView",
+          "group": "navigation"
+        },
+        {
+          "command": "openTabsSidebarView.predictOpenTabs",
+          "when": "view == openTabsSidebarView",
           "group": "navigation"
         }
       ]
@@ -39,20 +120,24 @@
       "activitybar": [
         {
           "id": "pfeExtension",
-          "title": "[DEV] PFE Extension",
-          "icon": "media/send-logging.svg"
+          "title": "Log Density Tool",
+          "icon": "media/icons/send-logging.svg"
         }
       ]
     },
     "views": {
       "pfeExtension": [
         {
-          "id": "javaFilesView",
-          "name": "Density Analysis Preview"
+          "id": "javaFiles",
+          "name": "Java Files"
         },
         {
-          "id": "openTabsPreview",
-          "name": "Open Tabs Density Preview"
+          "id": "analyzeFilesView",
+          "name": "Java Files to Analyze"
+        },
+        {
+          "id": "openTabsSidebarView",
+          "name": "Currently Opened Tabs"
         }
       ]
     }

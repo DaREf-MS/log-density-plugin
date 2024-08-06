@@ -1,65 +1,47 @@
-# logdensitytool README
+# Log Density Tool for Java
 
-This is the README for your extension "logdensitytool". After writing up a brief description, we recommend including the following sections.
+Welcome to the **Log Density Tool** for Java, a powerful Visual Studio Code extension designed to help developers optimize their logging practices. By predicting and analyzing log densities within Java projects, this tool aids in achieving efficient and meaningful logging.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The Log Density Tool provides an interactive way to analyze and optimize your Java code's logging practices through the following features:
 
-For example if there is an image subfolder under your extension project workspace:
+- **Model Training**: Automatically train a machine learning model using data from open-source Java projects.
+- **Log Density Analysis**: Visualize log density in every block of code with real-time updates as you navigate through your Java files.
+- **Batch Analysis**: Assess and optimize log density for multiple Java files simultaneously, with results displayed in a user-friendly manner.
 
-\!\[feature X\]\(images/feature-x.png\)
+## Importance of Log Density
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+Understanding and managing log density is crucial for maintaining the performance and readability of applications. Excessive logging can slow down an application and lead to log files that are difficult to manage and analyze, while insufficient logging can obscure important information needed for diagnosing issues. This tool helps balance your logging levels, ensuring efficiency and clarity.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Visual Studio Code
+- Node.js and npm installed (for managing package dependencies)
 
-## Extension Settings
+## Installation and Setup
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. Clone this repository to your local machine.
+2. Navigate to the `logdensitytool` directory.
+3. Run `npm install` to install all dependencies.
 
-For example:
+## Usage
 
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- **Activate the Command Palette** (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS), type `Send Github URL`, and enter a GitHub URL to start model training.
+- If a model exists, navigate through your Java files to see real-time log density annotations.
+- For batch analysis, use the **Java Files and Analyze Files** views. Select the files, then press `Analyze` to begin. Analysis might take approximately 1 minute per 50-75 medium-length files (about 300 lines each).
+- Color-coded results indicate log density discrepancies: red for significant differences, yellow for moderate, and green for minimal or no differences.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- Large projects may experience delayed analysis results.
+- Some files containing few code lines may not be analyzed by our model.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
+- Initial release with log density prediction and batch file analysis.
 
-### 1.0.1
 
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**Enjoy optimizing your Java projects with the Log Density Tool!**

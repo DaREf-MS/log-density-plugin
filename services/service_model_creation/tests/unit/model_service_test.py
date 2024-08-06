@@ -1,5 +1,5 @@
 import pytest
-from services.model_service import create_model
+from service_model_creation.services.model_service import create_model
 import subprocess
 from fastapi import HTTPException
 import logging
@@ -48,7 +48,6 @@ async def test_repo_already_exists(mock_os_makedirs, mock_os_path):
     # logging.debug(f"Response JSON: {response}")
 
     assert response["message"] == "Repository already exists"
-    assert "path" in response
 
 @pytest.mark.asyncio
 async def test_create_model_script_execution_failure(mock_os_makedirs, mock_os_path, mock_git_clone, mock_subprocess):

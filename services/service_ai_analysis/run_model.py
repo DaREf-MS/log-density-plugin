@@ -10,6 +10,7 @@ import pprint
 import json
 import pandas
 import numpy as np
+from pprint import pprint
 
 # TODO - all paths start from project_path
 
@@ -84,16 +85,16 @@ def predict(project_dir, filepath):
     preprocessed_file = preprocess_file(filepath, syn, project_dir)
     model = load_model(project_dir)
     x = np.array([block["x"] for block in preprocessed_file['blocks']])
-    print(x)
+    # print(x)
     y = model.predict(x)
-    print(y)
+    # print(y)
     log_level_per_block = np.argmax(y, axis=1)
-    print(log_level_per_block)
-    print([block["blockLineStart"] for block in preprocessed_file['blocks']])
+    # print(log_level_per_block)
+    # print([block["blockLineStart"] for block in preprocessed_file['blocks']])
 
     average_class = np.average(log_level_per_block)
     prediced_class = round(average_class)
-    print(prediced_class)
+    # print(prediced_class)
 
     thresholds = sorted(load_categories_thresholds(project_dir))
 
@@ -107,16 +108,15 @@ def predict(project_dir, filepath):
     ]
     
     blocks = []
-
     for log_level,block in zip(log_level_per_block,preprocessed_file['blocks']):
         del block["x"]
         block["log_level"]=log_level.item()
 
-        category_count = 0
-        for percent_threshold in thresholds:
-            if block["logDensity"] > percent_threshold:
-                category_count += 1
-        block["currentLogLevel"] = category_count
+        if block["logDensity"] == 0.0:
+            block["currentLogLevel"] = 0
+        else:
+            block["currentLogLevel"] = np.digitize([block["logDensity"]], thresholds).item()
+        
         blocks.append(block)
         
         
@@ -125,6 +125,8 @@ def predict(project_dir, filepath):
         "predictedDensity": prediced_class,
         "blocks": blocks
     }
-    print(result)
+    print("thresholds", thresholds)
+
+    # pprint(result)
 
     return result

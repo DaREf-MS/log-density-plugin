@@ -1,0 +1,42 @@
+@startuml
+title Diagramme de séquence - Analyser des fichiers choisis\nVue analyzeFilesView
+skinparam style strictuml
+
+actor User
+participant "Icône d'envoi dans\nanalyzeFilesView" as CommandPalette
+participant ":AnalyzeFileProvider" as AnalyzeFileProvider
+
+User -> CommandPalette : Active "analyzeFileProvider.sendForAnalysis"
+CommandPalette -> AnalyzeFileProvider: Exécute la commande \n//analyzeFileProvider.sendForAnalysis//
+
+alt URL du modèle AI n'est pas entré
+    AnalyzeFileProvider -> User : Message 'Remote URL is not set.'
+else URL du modèle AI est entré
+    AnalyzeFileProvider -> "fileContents:[{filepath, contenu}]" as fileContents **
+
+participant ":FileReader" as fileReader
+participant "javaMap\n:Map<filepath, JavaItem>" as javaMap
+participant "javaItem\n:JavaItem" as javaItem
+participant "javaFileProvider\n:JavaFileProvider" as javaFileProvider
+participant ":AnalyzeProject" as AnalyzeProject
+participant ":Serveur" as server
+    
+    loop Pour chaque fichier dans analyzeList
+        AnalyzeFileProvider -> fileReader : content = readFile(javaItem.filepath) (loop for each file)
+        AnalyzeFileProvider -> fileContents : Ajoute {javaItem.filepath, content}
+    end
+
+    AnalyzeFileProvider -> AnalyzeProject : analyzeFiles(remoteUrl, fileContents)
+
+    AnalyzeProject -> server : POST 8081/analyzeProject avec {\n   gitUrl: remoteUrl,\n   files: fileContents\n}
+    server --> AnalyzeProject : results [{\n   url,\n   density,\n   predictedDensity,\n   difference\n}]
+    AnalyzeProject --> AnalyzeFileProvider : results
+
+    loop Pour chaque result dans results
+        AnalyzeFileProvider -> javaMap : javaItem = get(result.url)
+        AnalyzeFileProvider -> javaItem : update(result.density, result.predictedDensity, difference)
+    end
+
+    AnalyzeFileProvider -> User : Message 'Files successfully sent for analysis.'\nAffichage des densités de journalisation des fichiers\nMise à jour des icônes pour représenter la différence des densités
+end
+@enduml

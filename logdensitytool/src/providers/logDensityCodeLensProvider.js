@@ -22,7 +22,9 @@ class LogDensityCodeLensProvider {
 
     provideCodeLenses(document, token) {
         const lenses = [];
-        this.data.forEach(block => {
+        this.data
+        // .filter(block => block.currentLogLevel !== block.log_level)
+        .forEach(block => {
             const position = new vscode.Position(block.blockLineStart - 1, 0);
             const range = new vscode.Range(position, position);
             const logDescription = this.log_density_classes[block.log_level] || "Unknown log density"; // Default to "Unknown" if out of bounds
@@ -30,8 +32,8 @@ class LogDensityCodeLensProvider {
             // what will be written above code blocks
             lenses.push(new vscode.CodeLens(range, {
                 command: 'extension.showLogDensityInfo',
-                title: `Block Lines: ${block.blockLineStart}-${block.blockLineEnd} \u00A0 | \u00A0 Block Type: ${block.type} \u00A0 | \u00A0 Log Density: ${logDescription} `,
-                tooltip: `Click for more details about the ${block.type} block starting at line ${block.blockLineStart} and ending at line ${block.blockLineEnd}`
+                title: `Predicted Log Density: ${logDescription} \u00A0 | \u00A0 Current Log Density: ${this.log_density_classes[block.currentLogLevel]}`,
+                tooltip: `Click for more details about the ${block.type} block starting at line ${block.blockLineStart} and ending at line ${block.blockLineEnd}`,
             }));
         });
         return lenses;
