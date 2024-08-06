@@ -1,5 +1,5 @@
 @startuml
-title Diagramme de séquence - Analyser les tabs ouverts dans l'IDE de Visual Studio Code
+title Diagramme de séquence - Analyser les tabs ouverts dans l'IDE de Visual Studio Code\n Vue openTabsSidebarView
 skinparam style strictuml
 
 actor User
@@ -37,7 +37,7 @@ participant ":Serveur" as server
     end
 
     SidebarProvider -> SidebarProvider : refresh()
-    SidebarProvider -> User: Message 'Files successfully sent for analysis.' \nAffichage des densités de journalisation des fichiers
+    SidebarProvider -> User: Message 'Files successfully sent for analysis.'\nAffichage des densités de journalisation des fichiers
 
 else URL du modèle AI n'est pas entré
     SidebarProvider -> User : Message 'No URL has been provided yet, use the Command Palette (Ctrl + Shift + P).'
