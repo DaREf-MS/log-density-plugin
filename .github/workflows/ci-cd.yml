@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - cicd_test
+      - main
     paths-ignore:
       - '**.md'
 
@@ -34,7 +34,7 @@ jobs:
         tags: yroulamellah/log-density-tool:latest_ai_analysis
 
     # Run the built Docker image tests
-    - name: Run Docker container
+    - name: Run Tests for service_ai_analysis in Docker container
       run: |
         docker run yroulamellah/log-density-tool:latest_ai_analysis pytest
 
@@ -48,6 +48,6 @@ jobs:
         tags: yroulamellah/log-density-tool:latest_model_creation
 
     # Run the built Docker image tests
-    - name: Run Docker container
+    - name: Run Tests for service_model_creation in Docker container
       run: |
         docker run yroulamellah/log-density-tool:latest_model_creation pytest
