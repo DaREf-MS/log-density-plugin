@@ -439,7 +439,13 @@ public class JavaASTExtract {
                     }
                 } else if (getStatementType(statement).equals("ReturnStmt")) {
                     synFeat.add("ReturnStmt");
-                    synFeat.add(statement.asReturnStmt().getExpression().get().getMetaModel().toString());
+                    var optionalExpr = statement.asReturnStmt().getExpression();
+                    
+                    if (optionalExpr.isPresent()) {
+                        synFeat.add(optionalExpr.get().getMetaModel().toString());
+                    } else {
+                        System.err.println("expression as return statement not found\n"+ statement.toString());
+                    }
                 }
                 else {
                     if(!getStatementType(statement).equals("UnparsableStmt")){

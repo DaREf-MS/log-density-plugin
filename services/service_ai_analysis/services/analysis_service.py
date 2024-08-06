@@ -59,9 +59,6 @@ async def analyze_project(github_url: str, project_files) -> list:
             }
             results.append(processed_result)
 
-            # Clean up the temporary file
-            os.unlink(tmp.name)
-
         except Exception as e:
             print(f"Error processing file {file.url}: {e}")
             continue
