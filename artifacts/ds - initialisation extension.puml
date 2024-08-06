@@ -28,6 +28,10 @@ extension -> "codeLensProvider\n:LogDensityCodeLensProvider" as codeLensProvider
 extension -> context : context.subscription.push(\n   Commande extension.showLogDensityInfo\n   Commande extension.analyzeNewJavaFiles\n   Évènement workspace.onDidOpenTextDocument\n   Évènement workspace.onDidChangeTextDocument\n)
 
 extension -> "openTabsSidebarProvider\n:OpenTabsSidebarProvider" as sidebar ** : registerOpenTabsSideBarProvider(context)
+
+participant ":vscode" as vscode
+participant "context\n:ExtensionContext" as context
+
 sidebar -> vscode : vscode.window.createTreeView(\n   'openTabsSidebarView',\n   { treeDataProvider: openTabsSidebarProvider }\n)
 sidebar -> context : context.subscription.push(\n   Commande openTabsSidebarView.predictOpenTabs\n   Évènement workspace.onDidOpenTextDocument\n   Évènement workspace.onDidCloseTextDocument\n)
 
@@ -40,7 +44,4 @@ provider -> vscode : vscode.window.createTreeView(\n   'javaFiles',\n   { treeDa
 provider -> context : context.subscription.push(\n   Commande javaFileProvider.addToSendList\n   Commande javaFiles.refreshEntry)
 
 extension -> analyze : setJavaFileProvider(javaFileProvider)
-
-participant ":vscode" as vscode
-participant "context\n:ExtensionContext" as context
 @enduml
