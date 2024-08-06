@@ -1,0 +1,44 @@
+@startuml
+title Diagramme de séquence - Ajouter des fichiers pour analyse dans l'IDE de Visual Studio Code\nVue javaFiles
+skinparam style strictuml
+
+actor User
+participant "Icône d'ajout dans\njavaFiles" as CommandPalette
+participant ":JavaFileProvider" as JavaFileProvider
+participant ":AnalyzeFileProvider" as AnalyzeFileProvider
+
+User -> CommandPalette : Active "javaFileProvider.addToSendList"
+CommandPalette -> JavaFileProvider : Exécute la commande \n//javaFileProvider.addToSendList(item)//
+
+JavaFileProvider -> JavaFileProvider : javaItems = collectJavaFiles(item.ui.fsPath)
+
+alt item est une instance de Directory
+    JavaFileProvider -> JavaFileProvider : collectJavaFiles(item.uri) récursivement
+
+    JavaFileProvider -> "javaFiles\n:JavaItem[]" as javaFiles **
+
+participant "itemsMap\n:Map<filepath, JavaItem>" as itemsMap
+participant "analyzeList\n:Map<filepath, JavaItem>" as analyzeList
+
+    loop Pour chaque fichier Java dans le dossier
+        JavaFileProvider -> JavaFileProvider : Lire le contenu du fichier
+        JavaFileProvider -> AnalyzeFileProvider: addFileToAnalyze(javaItem)
+    end
+else item est une instance de File avec l'extension .java
+    JavaFileProvider -> itemsMap : javaItem = get(javaItem.filepath)
+    JavaFileProvider -> javaFiles : push(javaItem)
+end
+
+loop Pour chaque javaItem dans JavaItems
+    JavaFileProvider -> AnalyzeFileProvider : addFileToAnalyze(javaItem)
+
+    JavaFileProvider -> analyzeList : has(javaItem.filePath)
+    alt Si analyzeListe contient javaItem
+        JavaFileProvider -> analyzeList : set(javaItem.filepath, javaItem)
+    end
+end
+
+JavaFileProvider -> JavaFileProvider: refresh()
+
+<-- JavaFileProvider : La vue analyzeFilesView se met à pour afficher les fichiers ajoutés
+@enduml
