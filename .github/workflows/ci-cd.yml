@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code - Heyyy yaa
+    - name: Checkout Code
       uses: actions/checkout@v2
 
     - name: Set up Docker Buildx
@@ -27,7 +27,7 @@ jobs:
     # SERVICE AI ANALYSIS
 
     # Build Docker image for service_ai_analysis
-    - name: Build and Push Docker image for service_ai_analysis
+    - name: Build Docker image for service_ai_analysis
       uses: docker/build-push-action@v2
       with:
         context: ./services
@@ -42,7 +42,7 @@ jobs:
         docker run yroulamellah/log-density-tool:latest_ai_analysis pytest
 
     # Push Docker image for service_ai_analysis
-    - name: Build and Push Docker image for service_ai_analysis
+    - name: Push Docker image for service_ai_analysis
       uses: docker/build-push-action@v2
       with:
         context: ./services
@@ -68,10 +68,10 @@ jobs:
         docker run yroulamellah/log-density-tool:latest_model_creation pytest
 
     # Push Docker image for service_ai_analysis
-    - name: Build and Push Docker image for latest_model_creation
+    - name: Push Docker image for latest_model_creation
       uses: docker/build-push-action@v2
       with:
         context: ./services
-        file: ./services/latest_model_creation/Dockerfile
+        file: ./services/service_model_creation/Dockerfile
         push: true
         tags: yroulamellah/log-density-tool:latest_model_creation
