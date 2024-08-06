@@ -1,5 +1,5 @@
 import pytest
-from services.service_model_creation.services.model_service import create_model
+from service_model_creation.services.model_service import create_model
 import subprocess
 from fastapi import HTTPException
 import logging
