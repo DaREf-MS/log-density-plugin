@@ -1,5 +1,6 @@
 {
   "name": "logdensitytool",
+  "publisher": "PFE019",
   "displayName": "frontend",
   "description": "This extension enhances your coding workflow by automatically measuring and reporting the log density of files within a repository.",
   "version": "0.0.1",
@@ -22,7 +23,7 @@
         "title": "Analyze Log Density"
       },
       {
-        "command": "extension.refreshOpenTabs",
+        "command": "openTabsSidebarView.refreshOpenTabs",
         "title": "Refresh Open Tabs"
       },
       {
@@ -46,19 +47,24 @@
       {
         "command": "analyzeFileProvider.sendForAnalysis",
         "title": "Send Selected Files for Analysis",
-        "icon": "media/icons/analyse.png"
+        "icon": "media/icons/send-files.png"
       },
       {
-        "command": "extension.predictOpenTabs",
-        "title": "Predict Open Tabs",
+        "command": "analyzeFileProvider.removeAllFiles",
+        "title": "Remove All Files",
+        "icon": "media/icons/remove.png"
+      },
+      {
+        "command": "openTabsSidebarView.predictOpenTabs",
+        "title": "Analyze Open Tabs",
         "icon": {
-          "light": "media/refresh.svg",
-          "dark": "media/refresh-light.svg"
+          "light": "media/icons/refresh.svg",
+          "dark": "media/icons/refresh-light.svg"
         }
       }
     ],
     "menus": {
-      "editor/context":[
+      "editor/context": [
         {
           "when": "resourceLangId == java",
           "command": "extension.analyzeLogDensity",
@@ -70,12 +76,22 @@
           "command": "analyzeFileProvider.sendForAnalysis",
           "when": "view == analyzeFilesView",
           "group": "navigation"
+        },
+        {
+          "when": "view == analyzeFilesView",
+          "command": "analyzeFileProvider.removeAllFiles",
+          "group": "navigation"
+        },
+        {
+          "command": "openTabsSidebarView.predictOpenTabs",
+          "when": "view == openTabsSidebarView",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
         {
           "command": "javaFileProvider.addToSendList",
-          "when": "viewItem == folder && view == javaFiles", 
+          "when": "viewItem == folder && view == javaFiles",
           "group": "inline"
         },
         {
@@ -94,7 +110,7 @@
           "group": "navigation"
         },
         {
-          "command": "extension.predictOpenTabs",
+          "command": "openTabsSidebarView.predictOpenTabs",
           "when": "view == openTabsSidebarView",
           "group": "navigation"
         }
@@ -104,21 +120,13 @@
       "activitybar": [
         {
           "id": "pfeExtension",
-          "title": "[DEV] PFE Extension",
+          "title": "Log Density Tool",
           "icon": "media/icons/send-logging.svg"
         }
       ]
     },
     "views": {
       "pfeExtension": [
-        {
-          "id": "javaFilesView",
-          "name": "Density Analysis Preview"
-        },
-        {
-          "id": "openTabsPreview",
-          "name": "Open Tabs Density Preview"
-        },
         {
           "id": "javaFiles",
           "name": "Java Files"

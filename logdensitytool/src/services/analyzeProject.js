@@ -1,22 +1,19 @@
 const vscode = require('vscode');
 const axios = require('axios');
 const fs = require('fs'); 
-const { getGitRemoteUrl } = require('../utils/gitHelper');
 
 // Function to send files for analysis
-async function analyzeFiles(fileContents) {
-
-    const gitUrl = await getGitRemoteUrl();
-    
+async function analyzeFiles(remoteUrl, fileContents) {
+    //const gitUrl = await getGitRemoteUrl();
 
     try {
-        fileContents.forEach(file => {
-            console.log(`Sending file content for file: ${file.url}`);
-            console.log(`Git URL: ${gitUrl}`);
+        // fileContents.forEach(file => {
+            //console.log(`Sending file content for file: ${file.url}`);
+            //console.log(`Git URL: ${remoteUrl}`);
             //console.log(`Content (first 200 chars): ${file.content.slice(0, 200)}`);
-        });
+        // });
         const response = await axios.post('http://localhost:8081/analyzeProject', {
-            gitUrl: gitUrl,
+            gitUrl: remoteUrl,
             files: fileContents
         });
         return response.data;
@@ -24,6 +21,7 @@ async function analyzeFiles(fileContents) {
         console.error('Error sending files for analysis:', error);
         throw error;  
     }
+
 }
 
 module.exports = {

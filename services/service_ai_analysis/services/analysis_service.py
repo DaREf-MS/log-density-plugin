@@ -34,9 +34,9 @@ async def analyze_project(github_url: str, project_files) -> list:
     project_name = github_url.split('/')[-1].replace('.git', '')
     output_dir = os.path.join(BASE_DIR, project_name + "_project")
     project_path = os.path.join(output_dir, project_name)
-    print(f"Project name: {project_name}")
-    print(f"Output Directory: {output_dir}")
-    print(f"Project path: {project_path}")
+    # print(f"Project name: {project_name}")
+    # print(f"Output Directory: {output_dir}")
+    # print(f"Project path: {project_path}")
 
     results = []
     for file in project_files:
@@ -46,10 +46,10 @@ async def analyze_project(github_url: str, project_files) -> list:
                 tmp.write(file.content)
                 tmp.flush()
                 filepath = os.path.join(output_dir, tmp.name)
-                print(f"File path: {filepath}")
+                # print(f"File path: {filepath}")
 
                 prediction_result = predict(project_path, filepath)
-                print(prediction_result)
+                # print(prediction_result)
 
             processed_result = {
                 "url": file.url,
@@ -65,5 +65,6 @@ async def analyze_project(github_url: str, project_files) -> list:
         except Exception as e:
             print(f"Error processing file {file.url}: {e}")
             continue
-    print(results)
+    # print(results)
+
     return results

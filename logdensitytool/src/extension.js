@@ -1,7 +1,7 @@
 const vscode = require('vscode');
 const { getGitRemoteUrl } = require('./utils/gitHelper'); // Import the required function
 const LogDensityCodeLensProvider = require('./providers/logDensityCodeLensProvider');
-const AnalysisPreviewProvider = require('./providers/analysisPreviewProvider');
+const { registerOpenTabsSideBarProvider, OpenTabsSidebarProvider } = require('./providers/openTabsSidebarProvider');
 const trainModelService = require('./services/trainModelService');
 const runModelService = require('./services/runModelService');
 const { registerJavaFileProvider, JavaFileProvider } = require('./providers/javaFileProvider');  
@@ -28,6 +28,12 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand('extension.showLogDensityInfo', block => {
         vscode.window.showInformationMessage(`Details for block starting at line ${block.blockLineStart}: ${JSON.stringify(block)}`);
     }));
+ 
+    // Register AnalyzeFileProvider and JavaFileProvider and OpenTabsSidebarProvider
+    const openTabsSidebarProvider = registerOpenTabsSideBarProvider(context);
+    const analyzeFileProvider = registerAnalyzeFileProvider(context);
+    const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
+    analyzeFileProvider.setJavaFileProvider(javaFileProvider);
 
     // Initialize and use the Git remote URL
     getGitRemoteUrl().then((url) => {
@@ -40,14 +46,20 @@ function activate(context) {
         if (url) {
             await trainModelService.trainModel(url);
             remoteUrl = url;
+            console.log(`setting github url... ${remoteUrl}`)
+            openTabsSidebarProvider.setUrl(remoteUrl);
+            analyzeFileProvider.setRemoteUrl(remoteUrl);
             trained = true;
             const activeEditor = vscode.window.activeTextEditor;
+
             if (activeEditor) {
                 await analyzeDocument(activeEditor.document);
             }
         } else {
             vscode.window.showErrorMessage('GitHub URL is required');
         }
+
+
     });
 
     // File event handlers, sends file content to backend on change
@@ -64,10 +76,6 @@ function activate(context) {
         }
     });
 
-    // Register AnalyzeFileProvider and javaFileProvider
-    const analyzeFileProvider = registerAnalyzeFileProvider(context);
-    const javaFileProvider = registerJavaFileProvider(context, analyzeFileProvider);
-
     const analyzeNewJavaFilesCommand = vscode.commands.registerCommand('extension.analyzeNewJavaFiles', async () => {
         const allFiles = await getAllJavaFiles();
         const results = await analyzeProjectFiles(allFiles);
@@ -76,10 +84,6 @@ function activate(context) {
             vscode.window.showInformationMessage('New Java files analysis complete. Check the console for details.');
         }
     });
-
-    // Register AnalysisPreviewProvider
-    const analysisPreviewProvider = new AnalysisPreviewProvider(workspaceRoot);
-    vscode.window.registerTreeDataProvider('javaFilesView', analysisPreviewProvider);
 
     context.subscriptions.push(
         disposableTrain,

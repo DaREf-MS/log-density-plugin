@@ -1,0 +1,8 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="m0 0h24v24h-24z" fill="#fff" opacity="0" transform="matrix(-1 0 0 -1 24 24)"/>
+  <g fill="green">
+    <path d="m18 3h-12a3 3 0 0 0 -3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-12a3 3 0 0 0 -3-3zm1 15a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1-1v-12a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1z"/>
+    <path d="m14.7 8.39-3.78 5-1.63-2.11a1 1 0 0 0 -1.58 1.23l2.43 3.11a1 1 0 0 0 .79.38 1 1 0 0 0 .79-.39l4.57-6a1 1 0 1 0 -1.6-1.22z"/>
+  </g>
+</svg>
+<!-- https://iconduck.com/icons/2342/checkmark-square-2-outline -->
