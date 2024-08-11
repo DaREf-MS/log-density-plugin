@@ -20,6 +20,7 @@ The Log Density Analyzer is a Visual Studio Code extension that leverages an AI 
 ### Setting Up the Backend
 
 1. Clone the repository and navigate to the `services` directory.
+2. Make sure that services/service_model_creation/install_R.sh and services/preprocess_project/gradlew are saved in LF format and not CRLF (as git might have converted them to, you can do the conversion by visiting the file and clicking CRLF at the bottom right of the VSCode window on the status bar)
 2. Run the following command to build and start the backend services using Docker:
    ```bash
    docker compose up --build
