@@ -1,9 +1,17 @@
 #Libraries to call (install.packages before)
-#options(repos = c(CRAN = "https://cran.r-project.org/mirrors.html"))
-options(repos = c(CRAN = "https://cran.r-project.org/"))
-install.packages("Ckmeans.1d.dp")
-install.packages("stats")
-install.packages("dplyr")
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+# Check if packages are installed, if not, install them
+if (!requireNamespace("Ckmeans.1d.dp", quietly = TRUE)) {
+  install.packages("Ckmeans.1d.dp")
+}
+if (!requireNamespace("stats", quietly = TRUE)) {
+  install.packages("stats")
+}
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
+
+# Load required libraries
 library(Ckmeans.1d.dp)
 library(stats)
 library(dplyr)
@@ -17,14 +25,16 @@ ckmeans_function <- function(data,column_index,clustersNumber){
     breaks <- Ckmeans.1d.dp(sorted_data,k=clustersNumber)
     result <- data.frame(sorted_data, regression=breaks$cluster-1)
   } else {
-    result <- data.frame(sorted_data, regression=0)
+    result <- data.frame(sorted_data, regression=0) # TODO - this seems to crash
   }
   return(result)
 }
 
 
 args <- commandArgs(trailingOnly = TRUE)
-inputPath <- paste(getwd(), "/", args, "_MLdata_FileLevel.csv", sep = "")
+inputPath <- paste(args, "_MLdata_FileLevel.csv", sep = "")
+print("here is the input path")
+print(inputPath)
 log_density_metrics <- na.omit(read.csv(inputPath, header=TRUE, sep=","))
 data <- data.frame(logDensity = log_density_metrics$logDensity)
 data <- data.frame(logDensity = data[data$logDensity>0,])
@@ -43,7 +53,13 @@ log_density_metrics$class[log_density_metrics$logDensity > second_optimal_thresh
 log_density_metrics$class[log_density_metrics$logDensity > third_optimal_threshold & log_density_metrics$logDensity <= fourth_optimal_threshold] <- 4
 log_density_metrics$class[log_density_metrics$logDensity > fourth_optimal_threshold] <- 5
 
-outputPath <- paste(getwd(), "/", args, "_MLdata_FileLevel_WithClusters.csv", sep = "")
+# Output the thresholds
+print(paste("threshold1: ", first_optimal_threshold))
+print(paste("threshold2: ", second_optimal_threshold))
+print(paste("threshold3: ", third_optimal_threshold))
+print(paste("threshold4: ", fourth_optimal_threshold))
+
+outputPath <- paste(args, "_MLdata_FileLevel_WithClusters.csv", sep = "")
 write.csv(log_density_metrics, file = outputPath, row.names = FALSE)
 
 

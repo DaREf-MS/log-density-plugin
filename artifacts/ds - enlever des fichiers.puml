@@ -1,0 +1,27 @@
+@startuml
+title Diagramme de séquence - Supprimer un ou des fichiers pour analyse dans l'IDE de Visual Studio Code\nVue analyzeFilesView
+skinparam style strictuml
+
+actor User
+participant "Icône de suppression d'un fichier dans\nanalyzeFilesView" as deleteIcon
+participant "Icône de suppression de tous les fichiers dans\nanalyzeFilesView" as deleteAllIcon
+participant ":AnalyzeFileProvider" as AnalyzeFileProvider
+participant "analyzeList\n:Map<filepath, JavaItem>" as analyzeList
+
+User -> deleteIcon : Active "analyzeFileProvider.removeFile"
+deleteIcon -> AnalyzeFileProvider: Exécute la commande \n//analyzeFileProvider.removeFile(filePath)//
+AnalyzeFileProvider -> AnalyzeFileProvider: removeFileFromAnalyze(filePath)
+
+AnalyzeFileProvider -> analyzeList : has(filePath)
+alt Si analyzeList contient filePath
+    AnalyzeFileProvider -> analyzeList: delete(filePath)
+    AnalyzeFileProvider -> AnalyzeFileProvider: refresh()
+end
+<-- AnalyzeFileProvider : La vue analyzeFilesView se met à jour et enlever le fichier supprimé de la vue
+
+User -> deleteAllIcon : Active "analyzeFileProvider.removeAllFiles"
+deleteAllIcon -> AnalyzeFileProvider: Exécute la commande \n//analyzeFileProvider.removeAllFiles()//
+AnalyzeFileProvider -> AnalyzeFileProvider : removeAllFiles()
+AnalyzeFileProvider -> analyzeList : clear()
+<-- AnalyzeFileProvider : La vue analyzeFilesView se met à jour et vide le fichier supprimé de la vue
+@enduml

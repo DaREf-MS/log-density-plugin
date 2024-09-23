@@ -1,0 +1,39 @@
+@startuml
+
+title Diagramme de composants
+
+actor "Équipe de développement" as team
+
+node "Machine d'un développeur" as machine {
+    node "Visual Studio Code" as IDE {
+        package "Projet Java" as project {
+            file "Fichiers .java" as files
+        }
+
+        component "Log Density Tool" as plugin
+    }
+}
+
+cloud "Serveur" as server {
+    node "Service d'analyse" as serviceB
+
+    node "Service générateur de modèles" as serviceA
+
+    database "services_training_data" <<Volume partagé>> as sharedVolume {
+        file "Modèle AI" as model
+    }
+}
+
+team -u-> plugin: "Demande la création d'un modèle AI en\nenvoyant l'URL GitHub d'un projet Java\n\nDemande une analyse du de fichiers Java"
+team -u-> project: "Effectue des modifications"
+
+plugin -d-> serviceA: "Envoie le projet Java analysé"
+serviceA -u-> sharedVolume: "Crée un modèle AI"
+
+sharedVolume .> serviceB: "Résultats d'analyse"
+serviceB -l-> sharedVolume: "Analyse des fichiers Java"
+
+plugin -l-> serviceB: "Envoie le contenu du fichier Java à analyser"
+serviceB .> plugin: "Pourcentage de densité de log d'un fichier Java"
+
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+title Diagramme de séquence - Initialisation de l'extension logdensitytool
+skinparam style strictuml
+
+participant "extension" as extension
+note left of vscode
+Le module vscode sert ici à enregistrer
+et initier les vues dans le sidebar gauche
+de l'IDE Visual Studio Code. C'est en utilisant
+un Tree View qui permet de représenter des
+éléments en arborescence. Les IDs des vues
+sont enregistrés dans le fichier package.json.
+end note
+note left of context
+Le module context est une collection
+d'utilitaires pour les extensions vscode.
+Celle-ci peut être utilisé pour accéder à 
+context.subscriptions pour ajouter des
+instances Disposable qui servent
+notamment à écouter des évènements ou des
+commandes qui sont enregistrés dans le
+fichier package.json
+end note
+
+-> extension : activate(context)
+
+extension -> "codeLensProvider\n:LogDensityCodeLensProvider" as codeLensProvider ** : new LogDensityCodeLensProvider()
+extension -> context : context.subscription.push(\n   Commande extension.showLogDensityInfo\n   Commande extension.analyzeNewJavaFiles\n   Évènement workspace.onDidOpenTextDocument\n   Évènement workspace.onDidChangeTextDocument\n)
+
+extension -> "openTabsSidebarProvider\n:OpenTabsSidebarProvider" as sidebar ** : registerOpenTabsSideBarProvider(context)
+
+participant ":vscode" as vscode
+participant "context\n:ExtensionContext" as context
+
+sidebar -> vscode : vscode.window.createTreeView(\n   'openTabsSidebarView',\n   { treeDataProvider: openTabsSidebarProvider }\n)
+sidebar -> context : context.subscription.push(\n   Commande openTabsSidebarView.predictOpenTabs\n   Évènement workspace.onDidOpenTextDocument\n   Évènement workspace.onDidCloseTextDocument\n)
+
+extension -> "analyzeFileProvider\n:AnalyzeFileProvider" as analyze ** : registerAnalyzeFileProvider(context)
+analyze -> vscode : vscode.window.createTreeView(\n   'analyzeFilesView',\n   { treeDataProvider: analyzeFileProvider }\n)
+analyze -> context : context.subscription.push(\n   Commande analyzeFileProvider.removeAllFiles\n   Commande analyzeFileProvider.removeFile\n   Commande analyzeFileProvider.sendForAnalysis\n)
+
+extension -> "javaFileProvider\n:JavaFileProvider" as provider ** : registerJavaFileProvider(context, analyzeFileProvider)
+provider -> vscode : vscode.window.createTreeView(\n   'javaFiles',\n   { treeDataProvider: javaFileProvider }\n)
+provider -> context : context.subscription.push(\n   Commande javaFileProvider.addToSendList\n   Commande javaFiles.refreshEntry)
+
+extension -> analyze : setJavaFileProvider(javaFileProvider)
+@enduml
