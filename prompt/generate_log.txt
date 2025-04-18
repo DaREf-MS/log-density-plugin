@@ -1,10 +1,22 @@
-Generate one log message to add to this Java method in eempty spaces: 
+Generate one log message to add to this Java method in the empty space marked for logging:
 
 {vscode_content}
 
-The response should be in the following json form and without any other explanations: 
+Use these class variables to determine the available logging mechanism:
+
+{class_variables}
+
+Instructions:
+1. If a logging instance (like logger, LOG, LOGGER, log, etc.) exists in the class variables, Replace it instead of <log instance>.
+2. Choose the appropriate log level (info, debug, warn, error) based on the method context, Replace it instead of <level>.
+3. Otherwise, default to using System.out.println().
+4. Include relevant method parameters and contextual information in the message.
+5.Use ONLY double quotes (") for strings in the log message - never use single quotes.
+6. Use the + operator for concatenation.
+
+Return ONLY this JSON without any additional text:
 
 {{
-    "log_statement": "System.out.println(<log message or variable>);", 
-    "reason": "how did you reason to generate the log message"
+    "log_statement": "<log instance>.<level>("Descriptive message" + relevantVariable);",
+    "reason": "Brief explanation of log placement and content choice"
 }}

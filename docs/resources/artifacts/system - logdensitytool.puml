@@ -1,0 +1,37 @@
+package "Backend - Services" {
+    package "Service AI Analysis" {
+        [analysis_router] --> [analysis_service]: Routes to
+        [analysis_router] --> [ProjectAnalysis]: Analyses
+        [analysis_router] --> [ProjectFile]: Analyses
+        [analysis_service] --> [predict_file_densities]: Predicts
+        [analysis_service] --> [analyze_project]: Analyzes
+        [analysis_service] --> [generate_log_advice]: Generates
+        [analysis_service] --> [improve_logs]: Improves
+        [ProjectAnalysis] --> [FileContent]: Takes as argument
+    }
+
+    package "Service Model Creation" {
+        [model_router] --> [model_service]: Routes to
+        [model_router] --> [JavaProject]: Analyzes
+        [model_service] --> [create_model]: Creates
+    }
+
+    package "Service Log Improvement" {
+        [SLIanalysis_router] --> [ollama_client]:generate prompt
+        [SLIanalysis_router] --> [LogImprovementRequest]:Takes as argument
+        [SLIanalysis_router] --> [SLIimprove_logs]:improve logs
+        [SLIanalysis_router] --> [get_surrounding_lines_from_file]:get surrounding lines from file
+        [SLIanalysis_router] --> [get_prompt_from_template]:get prompt from template
+        [SLIanalysis_router] --> [get_modified_logs_from_diff]:get modified logs from diff
+        [SLIanalysis_router] --> [improve_logs_be]:improve logs
+
+    }
+}
+
+[Extension] --> [Backend - Services] : API Calls
+[AnalyzeFileProvider] --> [analysis_router] : /analyzeProject
+[OpenTabsSidebarProvider] --> [analysis_router] : /predict
+[FactoryService] --> [model_router] : /create
+[QueryOllama] --> [SLIanalysis_router]: /post
+
+@enduml

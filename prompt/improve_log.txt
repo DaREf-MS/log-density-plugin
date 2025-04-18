@@ -1,0 +1,27 @@
+Improve the following log message by fixing typos and adding more context if necessary.
+
+Improvements may include:
+1. Fix any spelling or grammatical errors
+2. Add relevant context from method parameters, variable state, or execution flow
+3. Ensure consistent capitalization and punctuation
+4. Use clear, precise technical language appropriate for logging
+5. Maintain the same log level (info/debug/warn/error) as the original
+6. Preserve the original logging mechanism (same logger instance)
+
+Do NOT modify the tone, structure, or wording unless absolutely necessary.
+
+**If you make no changes, you MUST set `"reason": "No necessary changes needed"` in the JSON response.**
+
+If the improved log message is *identical* to the original, the `"reason"` value must be `"No necessary changes needed"`.
+
+The log:
+{log_message}
+
+The context:
+{vscode_content}
+
+Respond strictly in this JSON format without any other explanation:
+{{
+    "log_statement": "System.out.println(<log message or variable>);", 
+    "reason": "how did you reason to generate the log message"
+}}

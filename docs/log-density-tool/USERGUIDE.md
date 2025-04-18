@@ -7,6 +7,7 @@
     - [4.1 Créer un modèle d'apprentissage AI](#41-créer-un-modèle-dapprentissage-ai)
     - [4.2 Analyser un fichier JAVA pour obtenir la densité d’instructions de journalisation appropriée](#42-analyser-un-fichier-java-pour-obtenir-la-densité-dinstructions-de-journalisation-appropriée)
     - [4.3 Analyser plusieurs fichiers JAVA pour obtenir la densité d’instructions de journalisation appropriée](#43-analyser-plusieurs-fichiers-java-pour-obtenir-la-densité-dinstructions-de-journalisation-appropriée)
+    - [4.4 Ajouter des instructions de journalisation aux endroits où il en manque](#44-ajouter-des-instructions-de-journalisation-aux-endroits-où-il-en-manque)
 
 # Guide d'utilisation de l'extension "Log Density Tool"
 
@@ -93,3 +94,28 @@ Bienvenue dans le guide d'utilisation de l'extension "Log Density Tool", conçue
 ![Flèche Bleue](../resources/userGuide/image21.png)
 
 ![Analyse de fichiers](../resources/userGuide/image-20.png)
+
+### 4.4 Ajouter des instructions de journalisation aux endroits où il en manque
+
+- Ouvrir le dossier sur lequel on veut ajouter de la journalisation.
+![Ouvrir dossier](../resources/userGuide/open_folder.png)
+
+- Une fois le dossier ouvert, sélectionner le ou les fichiers qui seront la cible de l'ajout de journalisation. À noter que les fichiers peuvent être ajoutés tout d'un coup en appuyant sur "Add file" tout en haut du dossier.
+
+![Choisir Fichiers](../resources/userGuide/select_files.png)
+
+- Une fois les fichiers sélectionnés, appuyer sur le bouton "Send Files for Analysis and add missing logs" afin de démarrer le processus d'ajouts de journalisation.
+
+![Ajout Logs](../resources/userGuide/add_missing_logs.png)
+
+- Il est aussi possible de simplement ajouter de la journalisation dans les fichiers actuellement ouverts, ici.
+
+![Ajout Logs fichiers ouverts](../resources/userGuide/add_missing_logs2.png)
+
+- Une fois le processus lancé, simplement attendre que celui-ci soit complété en observant les informations données en bas à gauche de l'écran.
+
+![Information sur l'ajout de logs](../resources/userGuide/add_missing_logs_info.png)
+
+- Une fois l'ajout de journalisation terminé, il suffit de sauvegarder le fichier afin de mettre à jour l'analyse de densité de celui-ci et d'observer les changements apportés. Une instruction de journalisation ainsi qu'un commentaire expliquant le raisonnement auront été ajoutés aux endroits ayant une densité trop basse.
+
+![ajout de logs terminé](../resources/userGuide/add_missing_logs_end.png)

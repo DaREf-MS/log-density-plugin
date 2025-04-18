@@ -132,6 +132,8 @@ package logdensitytool {
                 +removeFileFromAnalyze(filePath)
                 +removeAllFiles()
                 +sendFilesForAnalysis()
+                +getBlocks()
+                +processAllBlocks(allBlocks)
             }
             AnalyzeFileProvider <-> JavaFileProvider
 
@@ -160,11 +162,14 @@ package logdensitytool {
                 +removeClosedDocument(filepath)
             }
         }
-    }
-
     class extension {
         +activate()
+        +improveLogsCommand()
+        +generateLogAdvice()
+        +analyzeDocument(document)
     }
+}
+
 
     extension -u-> trainModelService
     extension -u-> runModelService

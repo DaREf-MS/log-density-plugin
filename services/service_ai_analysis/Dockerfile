@@ -26,7 +26,7 @@ RUN /java_code/gradlew installDist --no-daemon
 FROM python:3.11-slim AS python_requirements
 
 # install poetry
-RUN pip install poetry
+RUN pip install poetry==1.5.1
 WORKDIR /poetry_project
 COPY ./pyproject.toml /poetry_project/
 RUN poetry lock

@@ -1,29 +1,53 @@
 const vscode = require('vscode');
 
 /**
- * This function finds the attribute in SystemPrompt and replace it with text. 
- * The text is added at the end if not found
- * @param {string} text text to add to system_prompt
- * @param {string} systemPrompt systemPromt
- * @param {string} attribute attribute to foind and replace with text in systemPrompt
- * @returns 
+ * This function finds the attributes in SystemPrompt and replaces them with corresponding texts.
+ * If none of the attributes are found, the texts are added at the end.
+ * @param {string[]} texts - Array of texts to replace the injectionVariables.
+ * @param {string} systemPrompt - The system prompt to modify.
+ * @param {string} injectionVariable - A string in the format `injection_variable: "[{attr1}, {attr2}]"`.
+ * @returns {string|null} - Updated system prompt or null if an error occurs.
  */
-function buildPrompt(text, systemPrompt, attribute) {
+function buildPrompt(texts, systemPrompt, injectionVariable) {
     try {
+        
         systemPrompt = String(systemPrompt);
-        // Create a dynamic regular expression to match the attribute
-        const regex = new RegExp(attribute, 'g'); // 'g' for global replacement
-        // Replace the attribute with the content
-        if (systemPrompt.includes(attribute)) {
-            // Replace the attribute with the content
-            const updatedPrompt = systemPrompt.replace(regex, text);
-            return updatedPrompt;
-        } else {
-            // If the attribute is not found, append text at the end
-            return systemPrompt + text;
+
+        const contentInsideBrackets = injectionVariable.match(/\[(.*?)\]/);
+        if (!contentInsideBrackets) {
+            throw new Error("Invalid injectionVariable format. Expected format: 'injection_variable: \"[{attr1}, {attr2}]\"'");
         }
+
+        const attributes = contentInsideBrackets[1]
+            .split(',')
+            .map(item => item.trim());
+
+        
+        if (!Array.isArray(texts)) {
+            throw new Error("The 'texts' parameter must be an array.");
+        }
+
+        let found = false;
+
+        for (let i = 0; i < attributes.length; i++) {
+            const attribute = attributes[i];
+            const text = texts[i];
+            const regex = new RegExp(attribute, 'g');
+            if (systemPrompt.includes(attribute)) {
+                systemPrompt = systemPrompt.replace(regex, text);
+                found = true;
+            }
+        }
+
+        
+        if (!found) {
+            systemPrompt += texts.join(' ');
+        }
+
+        return systemPrompt;
+        
     } catch (error) {
-        console.error("Error in build function:", error.message);
+        console.error("Error in buildPrompt function:", error.message);
         return null;
     }
 }

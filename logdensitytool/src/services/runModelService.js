@@ -13,7 +13,7 @@ async function runModel(url, fileContent) {
 
     } catch (error) {
         console.error("Failed to send request or process response:", error);
-        vscode.window.showErrorMessage('Failed to analyze log density: ' + (error.response ? error.response.data.detail : error.message));
+        // vscode.window.showErrorMessage('Failed to analyze log density: ' + (error.response ? error.response.data.detail : error.message));
     }
 }
 

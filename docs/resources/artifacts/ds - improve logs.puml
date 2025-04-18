@@ -1,0 +1,58 @@
+@startuml
+
+actor Actor
+participant "UserProject" as UserProject
+participant ":Extension" as Extension
+participant ":LLM" as LLM
+participant ":ModelTools" as ModelTools
+participant ":FactoryService" as FactoryService
+
+Actor -> UserProject: improveLogsCommand()
+UserProject -> Extension: improveLogsCommand()
+
+alt selection.isEmpty
+    Extension -> UserProject: message = "Please select a code block containing logs to analyze."
+    UserProject -> Actor: message
+end
+
+alt noLogsDetected
+    Extension -> UserProject: message = "No logs found in the selected code block."
+    UserProject -> Actor: message
+end
+
+loop for line in logLines
+    Extension -> Extension: logLinesSelected.push(line)
+end
+
+loop for i = 0; i < logLinesSelected.length; i++
+    Extension -> LLM: getModel()
+    LLM -> Extension: model
+    Extension -> ModelTools: buildPrompt([contextText, selectedLog], system_prompt, injection_variable)
+    ModelTools -> Extension: prompt
+    Extension -> LLM: generate(model, null, prompt, lm_temperature, lm_max_token)
+    LLM -> Extension: modelResponse
+    Extension -> FactoryService: extractLines(modelResponse, attributes, attributes_to_comment, comment_string)
+    FactoryService -> Extension: linesToInsert
+end
+
+loop for i = 0; i < linesToInsert.length; i++
+    Extension -> Extension: edit_insert(document.uri, cursorPosition, formattedLine)
+end
+
+Extension -> UserProject: edit
+UserProject -> Actor: edit
+
+alt userResponse == "Yes"
+    Actor -> UserProject: response = "Yes"
+    UserProject -> Extension: response = "Yes"
+    Extension -> UserProject: message = "Log improvement applied."
+    UserProject -> Actor: message
+else
+    Actor -> UserProject: response = "No"
+    UserProject -> Extension: response = "No"
+    Extension -> UserProject: executeCommand("undo")
+    Extension -> UserProject: message = "Log improvement discarded."
+    UserProject -> Actor: message
+end
+
+@enduml

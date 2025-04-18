@@ -4,6 +4,8 @@ const GroupItem = require('../models/groupItem');
 const JavaItem = require('../models/javaItem');
 const { analyzeFiles } = require('../services/analyzeProject');
 const { readFile } = require('../utils/fileReader');
+const { generateLogAdviceForDocument } = require('../services/logAdviceService');
+const { runModel } = require('../services/runModelService');
 
 class OpenTabsSidebarProvider {
     constructor() {
@@ -120,12 +122,99 @@ class OpenTabsSidebarProvider {
 
             this.refresh();
             vscode.window.showInformationMessage('Files successfully sent for analysis.');
+
+            return results;
         } catch (error) {
             vscode.window.showErrorMessage('Failed to send files for analysis: ' + error.message);
         }
     }
 
-    // Remove JavaItem from map if its tab was closed
+    async getBlocks() {
+        try {
+            const results = await this.predictOpenTabs();
+            const filteredFiles = results.filter(f => f.density < f.predictedDensity);
+    
+            if (filteredFiles.length === 0) {
+                vscode.window.showInformationMessage('No files require additional logs.');
+                return [];
+            }
+    
+            console.log(`Processing ${filteredFiles.length} files with insufficient log density.`);
+    
+            const allBlocks = await Promise.all(filteredFiles.map(async (element) => {
+                try {
+                    const fileContent = await readFile(element.url);
+                    const result = await runModel(this.getUrl(), fileContent);
+    
+                    if (!result.blocks || !Array.isArray(result.blocks)) {
+                        console.warn(`No blocks found for file: ${element.url}`);
+                        return { filePath: element.url, fileContent, blocks: [] };
+                    }
+
+                    const filtered = result.blocks.filter(block => block.currentLogLevel < block.log_level);
+    
+                    return { filePath: element.url, fileContent, blocks: filtered };
+
+                } catch (error) {
+                    console.error(`Error processing file ${element.url}:`, error);
+                    return { filePath: element.url, fileContent: '', blocks: [] };
+                }
+            }));
+    
+            return allBlocks.filter(b => b.blocks.length > 0);
+
+        } catch (error) {
+            console.error('Error in getBlocks:', error);
+            vscode.window.showErrorMessage('An error occurred while retrieving blocks.');
+            return [];
+        }
+    }
+
+    async addLogs(allBlocks) {
+        for (const fileInfo of allBlocks) {
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: `Adding missing logs to: ${path.basename(fileInfo.filePath)}`,
+                cancellable: false
+            }, async (progress) => {
+                progress.report({ message: "Contacting LLM..." });
+                
+                try {
+                    const document = await vscode.workspace.openTextDocument(fileInfo.filePath);
+                    let totalLinesAdded = 0;
+                
+                    for (const block of fileInfo.blocks) {
+                        block.blockLineStart += totalLinesAdded;
+                        let actualBlockStartLine = block.blockLineStart;
+                        let currentLine = block.blockLineStart;
+                        
+                        while (currentLine < document.lineCount) {
+                            const lineText = document.lineAt(currentLine - 1).text;
+                            
+                            if (lineText.includes('{')) {
+                                actualBlockStartLine = currentLine;
+                                break;
+                            }
+                            
+                            currentLine++;
+                        }
+
+                        const linesAdded = await generateLogAdviceForDocument(
+                            document,
+                            actualBlockStartLine
+                        );
+                        
+                        totalLinesAdded += linesAdded;
+                    }
+                    vscode.window.showInformationMessage(`Finished adding logs for : ${path.basename(fileInfo.filePath)}`);
+                } catch (error) {
+                    vscode.window.showErrorMessage('An error occurred while attempting to add missing logs.');
+                    console.error(error);
+                }
+            });
+        }
+    }
+
     removeClosedDocument(filepath) {
         if (this.javaMap.has(filepath)) {
             this.javaMap.delete(filepath);
@@ -172,6 +261,18 @@ function registerOpenTabsSideBarProvider(context) {
             if (openTabsSidebarProvider.getUrl()) {
                 vscode.window.showInformationMessage('Analyzing files that are currently open.');
                 openTabsSidebarProvider.predictOpenTabs();
+            } else {
+                vscode.window.showInformationMessage('No URL has been provided yet, use the Command Palette (Ctrl + Shift + P).');
+            }
+        }),
+        vscode.commands.registerCommand('openTabsSidebarView.analyzeAndAddMissingLogs', async () => {
+            if (openTabsSidebarProvider.getUrl()) {
+                const blocks = await openTabsSidebarProvider.getBlocks();
+                if (blocks.length > 0) {
+                    await openTabsSidebarProvider.addLogs(blocks);
+                } else{
+                    vscode.window.showInformationMessage('No files with insufficient log statements found.');
+                }
             } else {
                 vscode.window.showInformationMessage('No URL has been provided yet, use the Command Palette (Ctrl + Shift + P).');
             }

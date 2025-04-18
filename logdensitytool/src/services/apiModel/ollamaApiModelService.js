@@ -42,8 +42,10 @@ class OllamaApiModel extends ApiModel{
       let usedTemp = 0.8 // (Default: 0.8) value between 0 and 1. Increasing the temperature will make the model answer more creatively. 
       if (temperature !=null && temperature >= 0 && temperature <= 1 ) usedTemp = temperature
 
+      const currentModel = await this.getModel();
+      
       const response = await post(this.url, this.port, '/api/generate', {
-          model: model, // Not implemented
+          model: currentModel, // Not implemented
           prompt: prompt, 
           system: system,
           stream: false,

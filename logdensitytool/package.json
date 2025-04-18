@@ -51,6 +51,11 @@
         "icon": "media/icons/send-files.png"
       },
       {
+        "command": "analyzeFileProvider.analyzeAndAddMissingLogs",
+        "title": "Send Selected Files for Analysis and add missing logs",
+        "icon": "media/icons/improve-logs.svg"
+      },
+      {
         "command": "analyzeFileProvider.removeAllFiles",
         "title": "Remove All Files",
         "icon": "media/icons/remove.png"
@@ -63,9 +68,19 @@
           "dark": "media/icons/refresh-light.svg"
         }
       },
+        {
+        "command": "openTabsSidebarView.analyzeAndAddMissingLogs",
+        "title": "Add Logs to Open Tabs",
+        "icon": "media/icons/improve-logs.svg"
+      },
       {
         "command": "log-advice-generator.generateLogAdvice",
         "title": "Generate Log Advice",
+        "category": "Log Advice Generator"
+      },
+      {
+        "command": "log-advice-generator.improveLogsCommand",
+        "title": "Improve Logs",
         "category": "Log Advice Generator"
       },
       {
@@ -92,6 +107,10 @@
           "group": "navigation"
         },
         {
+          "command": "log-advice-generator.improveLogsCommand",
+          "group": "navigation"
+        },
+        {
           "command": "log-advice-generator.generateLogAdvice",
           "group": "navigation"
         }
@@ -103,12 +122,22 @@
           "group": "navigation"
         },
         {
+          "command": "analyzeFileProvider.analyzeAndAddMissingLogs",
+          "when": "view == analyzeFilesView",
+          "group": "navigation"
+        },
+        {
           "when": "view == analyzeFilesView",
           "command": "analyzeFileProvider.removeAllFiles",
           "group": "navigation"
         },
         {
           "command": "openTabsSidebarView.predictOpenTabs",
+          "when": "view == openTabsSidebarView",
+          "group": "navigation"
+        },
+        {
+          "command": "openTabsSidebarView.analyzeAndAddMissingLogs",
           "when": "view == openTabsSidebarView",
           "group": "navigation"
         }
@@ -135,7 +164,17 @@
           "group": "navigation"
         },
         {
+          "command": "analyzeFileProvider.analyzeAndAddMissingLogs",
+          "when": "view == analyzeFilesView",
+          "group": "navigation"
+        },
+        {
           "command": "openTabsSidebarView.predictOpenTabs",
+          "when": "view == openTabsSidebarView",
+          "group": "navigation"
+        },
+        {
+          "command": "openTabsSidebarView.analyzeAndAddMissingLogs",
           "when": "view == openTabsSidebarView",
           "group": "navigation"
         }

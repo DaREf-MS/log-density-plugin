@@ -16,6 +16,7 @@
     - [4.2 Choosing a Model](#42-choosing-a-model)
     - [4.3 Setting up a token (Only for HuggingFace)](#43-setting-up-a-token-only-for-huggingface)
     - [4.4 Generating Log Advice](#44-generating-log-advice)
+    - [4.5 Improving Existing Log(s)](#45-improving-existing-logs)
 
 ## 1. Introduction
 
@@ -58,7 +59,7 @@ Make sure you have followed the installation guide to install the extension.
 ### 4.4 Generating Log Advice
 
 - To generate log advice, put your cursor on the line of code where you want to get advice and use the command `Log Advice Generator: Generate Log Advice`.
-  - There is two way to activate this command :
+  - There are two ways to activate this command :
     - `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) or `F1`, type `Log Advice Generator: Generate Log Advice`
     - Right click on the line of code and select `Generate Log Advice`
 
@@ -66,8 +67,30 @@ Make sure you have followed the installation guide to install the extension.
 
 ---
 
-- The extension will request ollama to generate a log advice base on the line of code wanted and the code of the method/function where the line is.
+- The extension will request ollama to generate a log advice based on the line of code wanted and the code of the method/function where the line is.
 - The log advice will be inserted in the file at the line of code where the cursor was.
-- The extension now asked you to confirm if the generated log advice is correct.
+- The extension now asks you to confirm if the generated log advice is correct.
 
 <img src="../resources/userGuide/generated_log_advice.png" width="50%">
+
+### 4.5 Improving Existing Log(s)
+
+- To improve existing log(s), select a code block containing at least one log inside and use the command `Log Advice Generator: Improve Logs`.
+  - There are two ways to activate this command :
+    - `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) or `F1`, type `Log Advice Generator: Improve Logs`
+    - Right click on the line of code and select `Improve Logs`
+
+<img src="../resources/userGuide/right-click-improve-logs.png" width="50%">
+
+- For each log in the selected code block: 
+  - The extension will request ollama to improve the log based on the context and by checking for typos.
+  - The improved log will be inserted where the previous one was. A comment stating the improvements will be inserted on top of the improved log.
+
+- The extension now asks you to confirm if the improved log(s) is/are correct.
+
+<img src="../resources/userGuide/generated_log_improvement.png" width="50%">
+
+- If there are no significant changes found in the selected block, an alert will show up.
+
+<img src="../resources/userGuide/improve_logs_no_changes_needed.png" width="50%">
+

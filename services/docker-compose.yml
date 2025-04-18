@@ -34,6 +34,13 @@ services:
     #           count: 1
     #           capabilities: [gpu]
 
+  services_logs:
+    build:
+      context: service_log_improvement/
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+
 volumes:
   ollama:  # Properly define the named volume here
     driver: local

@@ -1,0 +1,48 @@
+@startuml ds - addMissingLogs
+title Sequence Diagram - Add missing logs
+skinparam style strictuml
+
+actor User
+participant "VSCode" as VS
+participant "Extension" as EX
+participant ":AnalyzeFileProvider" as AP
+participant ":FileReader" as FR
+participant ":RunModelService" as RMS
+participant ":LogAdviceService" as LAS
+
+
+User -> VS: Click -> "Send Selected File for Analysis and Add Missing Logs"
+VS -> EX: Command triggered: Analyze and Add Missing Logs
+EX -> AP: analyzeAndAddMissingLogs()
+
+alt Remote URL is not set
+    AP --> User: Message "Remote URL is not set"
+else Remote URL is set
+    activate AP
+    AP -> AP: blocks = getBlocks()
+    activate AP
+    AP -> AP: results = sendFilesForAnalysis()
+    
+    loop For each file
+        AP -> FR: fileContent = readFiles(element.url)
+        AP -> RMS: result = runModel(this.remoteUrl,fileContent)
+    end
+
+    deactivate AP
+
+    alt Blocks found
+        activate AP
+            AP -> AP: processAllBlocks(blocks)
+
+            loop For each block
+                AP -> AP : document = openTextDocument(fileInfo.filePath)
+                AP -> LAS: linesAdded = generateLogAdviceForDocument(document,methodBodyStartLine +1)
+            end
+        AP --> User: Message "Finished Adding Logs for : {fileName}"
+        deactivate AP
+    else No blocks found
+        AP --> User: Message "No files with insufficient log statements found"
+    end
+end
+
+@enduml

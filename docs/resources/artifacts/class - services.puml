@@ -75,6 +75,37 @@ package services {
         model_router --> JavaProject
         model_router -u-> model_service
     }
+
+    package service_log_improvement {
+        package rest {
+            class ollama_client{
+                +pull_model(model)
+                +def generate(prompt, model)
+            }
+        }
+
+        package routers{
+            class analysis_router{
+                +def improve_logs_be(diff, context)
+                +get_modified_logs_from_diff(diff)
+                +get_prompt_from_template()
+                +get_surrounding_lines_from_file(file_content, line_number, context_lines)
+                +improve_logs(request)
+            }
+            class LogImprovementRequest{
+                +diff: str
+                +context: str
+            }
+        }
+
+        note right of   services.service_log_improvement.routers.analysis_router
+            POST /improve-logs
+        end note
+
+        services.service_log_improvement.routers.analysis_router -u-> ollama_client
+        
+        services.service_log_improvement.routers.analysis_router -u-> LogImprovementRequest
+    }
 }
 
 @enduml
